@@ -2,6 +2,7 @@ import {
   Embed as EmbedType,
   EmbedFields,
   AuthorFields,
+  FooterFields,
 } from "../types/Embed.ts";
 
 export class Embed {
@@ -39,6 +40,14 @@ export class Embed {
   }
   setAuthor(author: AuthorFields) {
     this.embed.author = author;
+    return this;
+  }
+  setTimestamp() {
+    this.embed.timestamp = new Date().toISOString();
+    return this;
+  }
+  setFooter(footer: FooterFields) {
+    this.embed.footer = footer;
     return this;
   }
   get() {
