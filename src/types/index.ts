@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-explicit-any
-import { Message } from "./Message.ts";
+import { Message, MessageWithDelete } from "./Message.ts";
 export type GatewayEvents = {
   ready(): void;
   error(e: any): void;
-  message(e: Message): void;
+  message(e: MessageWithDelete): void;
 };
 
 export type GUILDCREATEPAYLOAD = {
