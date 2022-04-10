@@ -1,0 +1,1 @@
+export const BASE_WS_URL = "wss://gateway.discord.gg/?v=9&encoding=json"
