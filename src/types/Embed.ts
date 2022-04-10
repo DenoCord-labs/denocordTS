@@ -11,6 +11,8 @@ export type Embed = {
   };
   fields?: EmbedFields[];
   author: AuthorFields;
+  footer?:FooterFields;
+  timestamp?:string;
 };
 
 export type EmbedFields = {
@@ -24,3 +26,8 @@ export type AuthorFields = {
   icon_url?: string;
   url?: string;
 };
+
+export type FooterFields={
+    text: string;
+    icon_url?: string;
+}
