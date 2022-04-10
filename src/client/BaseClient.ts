@@ -62,6 +62,7 @@ export class BaseClient {
           const messagePayload = {
             ...message.msg,
             reply: message.reply.bind(message),
+            delete: message.delete.bind(message),
           };
           this.events.emit("message", messagePayload);
           break;
