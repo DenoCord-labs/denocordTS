@@ -33,3 +33,7 @@ export type Message = {
   edited_timestamp: string | null;
   reply: (content: ReplyPayload) => any;
 };
+
+export type MessageWithDelete = Message & {
+  delete: () => Promise<any>;
+};
