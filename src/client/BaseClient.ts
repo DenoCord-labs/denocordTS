@@ -28,7 +28,7 @@ export class BaseClient {
    * @memberof BaseClient
    * @example
    */
-  protected heartbeatInterval = 41250;
+  protected heartbeatInterval: number = 41250;
   /**
    * Creates an instance of BaseClient.
    * @param {string} token The token for the Client
@@ -62,7 +62,7 @@ export class BaseClient {
           const messagePayload = {
             ...message.msg,
             reply: message.reply.bind(message),
-            delete: message.delete.bind(message),
+            delete: message.delete.bind(message)
           };
           this.events.emit("message", messagePayload);
           break;
@@ -73,7 +73,7 @@ export class BaseClient {
             ...d.user,
             guilds: d.guilds.map(
               (g: { id: string; unavailable: boolean }) => g.id
-            ),
+            )
           };
         }
       }
