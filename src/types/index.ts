@@ -1,41 +1,11 @@
 // deno-lint-ignore-file no-explicit-any
-import { Message, MessageWithDelete } from "./Message.ts";
+import { MessageWithDelete } from "./Message.ts";
+import { Guild } from "./Guild.ts";
 export type GatewayEvents = {
   ready(): void;
   error(e: any): void;
   message(e: MessageWithDelete): void;
-};
-
-export type GUILDCREATEPAYLOAD = {
-  joined_at: string;
-  name: string;
-  region: "deprecated";
-  owner_id: string;
-  voice_states: [];
-  preferred_locale: string;
-  channels: Channel[];
-  system_channel_id: string | null;
-  features: [] | any;
-  afk_channel_id: string | null;
-  system_channels_flags: number;
-  max_members: number;
-  member_count: number;
-  max_video_channel_users: number;
-  premium_tier: number;
-  verification_level: number;
-  presences: [];
-  unavailable: boolean;
-  vanity_url_code: string | null;
-  stage_instances: [];
-  nsfw: boolean;
-  stickers: any;
-  lazy: boolean;
-  rules_channel_id: string | null;
-  premium_progress_bar_enabled: boolean;
-  icon: string;
-  roles: Role[];
-  emojis: Emoji[];
-  mfa_level: number;
+  guildCreate(g: Guild): void;
 };
 
 export type TextChannel = {
@@ -63,29 +33,6 @@ export type VoiceChannel = {
 };
 
 export type Channel = TextChannel & VoiceChannel;
-
-export type Role = {
-  unicode_emoji: null | string;
-  tags: any;
-  position: number;
-  permission: number;
-  name: string;
-  mentionable: boolean;
-  managed: boolean;
-  id: string;
-  icon: string | null;
-  hoist: boolean;
-  color: number;
-};
-export type Emoji = {
-  roles: string[];
-  require_colons: boolean;
-  managed: boolean;
-  name: string;
-  id: string;
-  animated: boolean;
-  available: boolean;
-};
 
 export type MessageCreatePayload = {
   tts: boolean;
