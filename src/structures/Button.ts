@@ -22,7 +22,7 @@ export class Button {
     this.button.custom_id = id;
     return this;
   }
-  get() {
+  create() {
     return this.button;
   }
 }
