@@ -21,10 +21,13 @@ export class Message {
       payload,
       this.token
     ).send();
+    const msg = await message.json();
     const obj: MessageWithDelete = {
-      ...(await message.json()),
+      ...msg,
       delete: this.delete,
     };
+    console.log(msg.errors?.components["0"]["components"]);
+
     return new Message(obj, this.token);
   }
   async delete() {
