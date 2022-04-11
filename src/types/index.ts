@@ -36,7 +36,8 @@ export type GUILDCREATEPAYLOAD = {
   roles: Role[];
   emojis: Emoji[];
   mfa_level: number;
-};
+}
+
 
 export type TextChannel = {
   type: 0;
@@ -63,29 +64,6 @@ export type VoiceChannel = {
 };
 
 export type Channel = TextChannel & VoiceChannel;
-
-export type Role = {
-  unicode_emoji: null | string;
-  tags: any;
-  position: number;
-  permission: number;
-  name: string;
-  mentionable: boolean;
-  managed: boolean;
-  id: string;
-  icon: string | null;
-  hoist: boolean;
-  color: number;
-};
-export type Emoji = {
-  roles: string[];
-  require_colons: boolean;
-  managed: boolean;
-  name: string;
-  id: string;
-  animated: boolean;
-  available: boolean;
-};
 
 export type MessageCreatePayload = {
   tts: boolean;

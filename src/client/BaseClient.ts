@@ -7,7 +7,9 @@ import { sendPingPayload } from "../websockets/payloads/ping.ts";
 import { Message } from "../structures/Message.ts";
 import { ClientUser } from "../types/Client.ts";
 import { BASE_AVATAR_URL } from "../constants/index.ts";
+import { Guild } from "../types/Guild.ts";
 
+import { Cache } from "../cache/index.ts";
 export class BaseClient {
   /**
    * User object of the Client
@@ -24,11 +26,20 @@ export class BaseClient {
   /**
    * The Heartbeat Interval for the Client
    * @default 41250
-   * @type {number}
-   * @memberof BaseClient
-   * @example
    */
   protected heartbeatInterval: number = 41250;
+
+  /**
+   * Cache for the Client
+   */
+  protected cache = new Cache();
+  /**
+   * Client's Uptime in Milliseconds
+   */
+  protected uptime = new Date().getTime();
+
+  protected guilds: Guild[] = [];
+
   /**
    * Creates an instance of BaseClient.
    * @param {string} token The token for the Client
@@ -45,9 +56,8 @@ export class BaseClient {
       Deno.exit(0);
     });
     this.websocket.on("message", (e) => {
-      const data = JSON.parse(e.data);
-      Deno.writeTextFileSync(`./logs/${data.t}.json`, e.data);
       const { op, d, t } = JSON.parse(e.data);
+
       switch (op) {
         case 10:
           this.heartbeatInterval = d.heartbeat_interval;
@@ -68,13 +78,27 @@ export class BaseClient {
           break;
         }
         case "READY": {
-          this.events.emit("ready");
           this.user = {
             ...d.user,
             guilds: d.guilds.map(
               (g: { id: string; unavailable: boolean }) => g.id
             )
           };
+          break;
+        }
+        case "GUILD_CREATE": {
+          this.guilds.push({ ...d });
+          this.cache.set("guilds", this.guilds);
+          if (
+            this.cache.has("guilds") &&
+            (this.cache.get("guilds") as Guild[]).length ==
+              this.user.guilds.length
+          ) {
+            this.events.emit("ready");
+          } else {
+            this.events.emit("guildCreate", d);
+          }
+          break;
         }
       }
     });

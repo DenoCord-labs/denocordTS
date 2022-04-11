@@ -2,8 +2,8 @@ import { ClientOptions } from "../types/ClientOptions.ts";
 import { Presence } from "../types/presence.ts";
 import { setPresence } from "../websockets/payloads/presence.ts";
 import { BaseClient } from "./BaseClient.ts";
+import { Guild } from "../types/Guild.ts";
 export class Client extends BaseClient {
-  protected uptime = new Date().getTime();
   /**
    *
    * Creates a Discord Client
@@ -22,5 +22,18 @@ export class Client extends BaseClient {
    */
   getUptime(): number {
     return new Date().getTime() - this.uptime;
+  }
+  getCachedGuilds() {
+    if (this.cache.has("guilds")) {
+      return this.cache.get("guilds") as Guild[];
+    }
+    return null;
+  }
+  getCachedGuild(id: string) {
+    if (this.cache.has("guilds")) {
+      const guilds = this.cache.get("guilds") as Guild[];
+      return guilds.find((g) => g.id === id);
+    }
+    return null;
   }
 }
