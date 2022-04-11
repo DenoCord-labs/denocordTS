@@ -20,7 +20,7 @@ export type Message = {
   channel_id: string;
   pinned: boolean;
   embeds: any[];
-  componenets: any[];
+  components: any[];
   author: {
     username: string;
     discriminator: string;
@@ -34,6 +34,6 @@ export type Message = {
   reply: (content: ReplyPayload) => any;
 };
 
-export type MessageWithDelete = Message & {
+export type DeletableMessage = Message & {
   delete: () => Promise<any>;
 };

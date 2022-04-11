@@ -1,4 +1,4 @@
-import { GatewayIntents } from "../types/shared.ts";
+import { ClientOptions } from "../types/ClientOptions.ts";
 import { Presence } from "../types/presence.ts";
 import { setPresence } from "../websockets/payloads/presence.ts";
 import { BaseClient } from "./BaseClient.ts";
@@ -7,17 +7,11 @@ export class Client extends BaseClient {
   /**
    *
    * Creates a Discord Client
-   * @param {string} token The token for the Client
-   * @param {(keyof typeof GatewayIntents)[]} intents The intents for the Client
-   * @param {string} clientId The client ID of the Bot
+   * @param {ClientOptions} options The options to create the Client with
    */
 
-  constructor(
-    token: string,
-    intents: (keyof typeof GatewayIntents)[],
-    clientId: string
-  ) {
-    super(token, intents, clientId);
+  constructor(options: ClientOptions) {
+    super(options.token, options.intents, options.clientId);
   }
   setPresence(presence: Presence) {
     setPresence(this.websocket, presence);

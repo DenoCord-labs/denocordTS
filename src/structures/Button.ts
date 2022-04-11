@@ -1,6 +1,6 @@
 import { Button as ButtonType, ButtonStyle } from "../types/Button.ts";
 export class Button {
-  button: ButtonType = { type: 2 } as ButtonType;
+  protected button: ButtonType = { type: 2 } as ButtonType;
   constructor() {}
   setLabel(text: string) {
     this.button.label = text;
@@ -22,7 +22,7 @@ export class Button {
     this.button.custom_id = id;
     return this;
   }
-  get() {
+  create() {
     return this.button;
   }
 }

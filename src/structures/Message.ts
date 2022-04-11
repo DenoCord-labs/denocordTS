@@ -1,12 +1,11 @@
-import { MessageWithDelete } from "../types/Message.ts";
+import { DeletableMessage } from "../types/Message.ts";
 import { ReplyPayload } from "../types/ReplyPayload.ts";
 import { ApiRequest } from "../helpers/request.ts";
-import { BASE_API_URL } from "../constants/index.ts";
 export class Message {
   /**
    * Represents a Message with functions to interact with it
    */
-  constructor(public msg: MessageWithDelete, private token: string) {}
+  constructor(public msg: DeletableMessage, private token: string) {}
   /**
    *
    * @param {ReplyPayload} payload The payload to send
@@ -16,20 +15,22 @@ export class Message {
       throw new Error("You can only add 5 ActionRows to a Message");
     }
     const message = await new ApiRequest(
-      `${BASE_API_URL}/channels/${this.msg.channel_id}/messages`,
+      `/channels/${this.msg.channel_id}/messages`,
       "POST",
       payload,
       this.token
     ).send();
-    const obj: MessageWithDelete = {
+
+    const obj: DeletableMessage = {
       ...(await message.json()),
-      delete: this.delete,
+      delete: this.delete
     };
+
     return new Message(obj, this.token);
   }
   async delete() {
     await new ApiRequest(
-      `${BASE_API_URL}/channels/${this.msg.channel_id}/messages/${this.msg.id}`,
+      `/channels/${this.msg.channel_id}/messages/${this.msg.id}`,
       "DELETE",
       {},
       this.token
