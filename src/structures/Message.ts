@@ -26,7 +26,6 @@ export class Message {
       ...msg,
       delete: this.delete,
     };
-    console.log(msg.errors?.components["0"]["components"]);
 
     return new Message(obj, this.token);
   }
