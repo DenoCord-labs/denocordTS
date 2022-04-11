@@ -1,9 +1,9 @@
 import {
   SelectMenu as SelectMenuType,
-  SelectMenuOption,
+  SelectMenuOption
 } from "../types/SelectMenu.ts";
 export class SelectMenu {
-  menu: SelectMenuType = { type: 3 } as SelectMenuType;
+  menu: SelectMenuType = { type: 3, options: [] } as SelectMenuType;
   constructor() {}
   setCustomId(id: string) {
     this.menu.custom_id = id;

@@ -27,7 +27,7 @@ export class BaseClient {
    * The Heartbeat Interval for the Client
    * @default 41250
    */
-  protected heartbeatInterval = 41250;
+  protected heartbeatInterval: number = 41250;
 
   /**
    * Cache for the Client
@@ -72,7 +72,7 @@ export class BaseClient {
           const messagePayload = {
             ...message.msg,
             reply: message.reply.bind(message),
-            delete: message.delete.bind(message),
+            delete: message.delete.bind(message)
           };
           this.events.emit("message", messagePayload);
           break;
@@ -82,7 +82,7 @@ export class BaseClient {
             ...d.user,
             guilds: d.guilds.map(
               (g: { id: string; unavailable: boolean }) => g.id
-            ),
+            )
           };
           break;
         }
