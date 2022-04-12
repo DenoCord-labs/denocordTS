@@ -3,12 +3,14 @@ import EventEmitter from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
 import { GatewayEvents } from "../types/index.ts";
 import { GatewayIntents } from "../types/shared.ts";
 import { sendIndentificationPayload } from "../websockets/payloads/index.ts";
-import { sendPingPayload } from "../websockets/payloads/ping.ts";
 import { Message } from "../structures/Message.ts";
 import { ClientUser } from "../types/Client.ts";
 import { BASE_AVATAR_URL } from "../constants/index.ts";
 import { Guild } from "../types/Guild.ts";
 import { Cache } from "../cache/index.ts";
+import { WebSocketClient } from "https://deno.land/x/websocket@v0.1.3/mod.ts";
+import { OPCodes } from "../types/Gateway.ts";
+import { DeletableMessage } from "../types/Message.ts";
 
 export class BaseClient {
   /**
@@ -22,12 +24,13 @@ export class BaseClient {
   /**
    * The Websocket for the Client
    */
-  websocket = ws;
+  protected websocket = ws;
   /**
    * The Heartbeat Interval for the Client
    * @default 41250
    */
   protected heartbeatInterval = 41250;
+  protected start: number = Date.now();
 
   /**
    * Cache for the Client
@@ -39,6 +42,7 @@ export class BaseClient {
   protected uptime = new Date().getTime();
 
   protected guilds: Guild[] = [];
+  ping: number = -1;
 
   /**
    * Creates an instance of BaseClient.
@@ -58,19 +62,28 @@ export class BaseClient {
     this.websocket.on("message", (e) => {
       const { op, d, t } = JSON.parse(e.data);
 
-      switch (op) {
-        case 10:
+      switch (OPCodes[op]) {
+        case "HELLO":
           this.heartbeatInterval = d.heartbeat_interval;
+          this.ping = Date.now() - this.start;
           sendIndentificationPayload(this.websocket, token, intents);
-
+          break;
+        case "HEARTBEAT_ACK":
+          console.log("heartbeat ack");
+          this.ping = Date.now() - this.start;
           break;
       }
       switch (t) {
         case "MESSAGE_CREATE": {
           if (d.author.id === this.clientId) return;
           const message = new Message(d, this.token, this);
+          const messagePayload: DeletableMessage = {
+            ...message.msg,
+            reply: message.reply.bind(message),
+            delete: message.delete.bind(message)
+          } as unknown as DeletableMessage;
 
-          this.events.emit("message", message);
+          this.events.emit("message", messagePayload);
           break;
         }
         case "READY": {
@@ -114,7 +127,18 @@ export class BaseClient {
       this.events.emit("error", e);
     });
 
-    sendPingPayload(this.websocket, this.heartbeatInterval);
+    this.sendPingPayload(this.websocket);
+  }
+
+  sendPingPayload(websocket: WebSocketClient) {
+    const payload = JSON.stringify({
+      op: OPCodes.HEARTBEAT,
+      d: null
+    });
+    setInterval(() => {
+      this.start = Date.now();
+      websocket.send(payload);
+    }, this.heartbeatInterval);
   }
   avatarURL(): string {
     return `${BASE_AVATAR_URL}/${this.user.id}/${this.user.avatar}.png`;
