@@ -2,7 +2,7 @@ import { Interaction } from "./Interaction.ts";
 import { GuildMember } from "../types/GuildMember.ts";
 import { User } from "../types/User.ts";
 import { Message } from "../types/Message.ts";
-import { ReplyPayload } from "../types/ReplyPayload.ts";
+import { ReplyData, ReplyPayload } from "../types/ReplyPayload.ts";
 export type Payload = {
   application_id: string;
   guild_id: string;
@@ -11,7 +11,7 @@ export type Payload = {
   user: User;
   message: Message;
   deferReply: (payload?: { ephemeral?: boolean }) => Promise<void>;
-  reply: (payload: ReplyPayload) => Promise<void>;
+  reply: (payload: ReplyData) => Promise<void>;
   editReply: (payload: ReplyPayload) => Promise<void>;
   deleteReply: () => Promise<void>;
   followUp: (payload: ReplyPayload) => Promise<void>;
