@@ -2,7 +2,8 @@
 
 import { ApiRequest } from "../helpers/request.ts";
 import { InteractionCallbackType } from "../types/Interaction.ts";
-import { ReplyPayload } from "../types/ReplyPayload.ts";
+import { MessageFlags } from "../types/Message.ts";
+import { ReplyData, ReplyPayload } from "../types/ReplyPayload.ts";
 import { Payload } from "./ButtonInteraction.ts";
 export class Interaction {
   deferred = false;
@@ -44,10 +45,19 @@ export class Interaction {
       }
     ).send();
   }
-  public async reply(payload: ReplyPayload) {
+  public async reply(data: ReplyData) {
     if (this.deferred) {
       throw new Error("Interaction Already Acknowledged");
     }
+    const { suppress_embeds, ephemeral, ...payloadData } = data;
+    let flags = 0;
+    if (ephemeral) flags |= MessageFlags.EPHEMERAL;
+    if (suppress_embeds) flags |= MessageFlags.SUPPRESS_EMBEDS;
+    const payload: ReplyPayload = {
+      ...payloadData,
+      flags
+    };
+
     await new ApiRequest(
       `/interactions/${this.d.id}/${this.d.token}/callback`,
       "POST",

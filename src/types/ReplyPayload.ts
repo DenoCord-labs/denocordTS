@@ -7,6 +7,18 @@ export type ReplyPayload = {
   allowed_mentions?: boolean;
   attachments?: MessageAttachment[];
   message_reference?: MessageReference;
+  flags?: number;
+};
+
+export type ReplyData = {
+  content?: string;
+  components?: MessageActionRow[];
+  embeds?: Embed[];
+  allowed_mentions?: boolean;
+  attachments?: MessageAttachment[];
+  message_reference?: MessageReference;
+  ephemeral?: boolean;
+  suppress_embeds?: boolean;
 };
 
 export type MessageReference = {
