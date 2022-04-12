@@ -1,6 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 
 import { ApiRequest } from "../helpers/request.ts";
+import { InteractionCallbackType } from "../types/Interaction.ts";
 import { ReplyPayload } from "../types/ReplyPayload.ts";
 import { Payload } from "./ButtonInteraction.ts";
 export class Interaction {
@@ -25,22 +26,22 @@ export class Interaction {
       followUp: this.followUp.bind(this),
       fetchFollowUp: this.fetchFollowUp.bind(this),
       editFollowUp: this.editFollowUp.bind(this),
-      deleteFollowUp: this.deleteFollowUp.bind(this),
+      deleteFollowUp: this.deleteFollowUp.bind(this)
     };
     this.message_id = this.d.message.id;
 
     return obj;
   }
-  public async deferReply({
-    ephemeral,
-  }: {
-    ephemeral?: boolean;
-  }): Promise<void> {
+  public async deferReply(payload?: { ephemeral?: boolean }): Promise<void> {
     this.deferred = true;
+    const { ephemeral } = payload || { ephemeral: false };
     await new ApiRequest(
       `/interactions/${this.d.id}/${this.d.token}/callback`,
       "POST",
-      { type: 5, ephemeral: ephemeral ? true : false }
+      {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        ephemeral
+      }
     ).send();
   }
   public async reply(payload: ReplyPayload) {
@@ -48,9 +49,12 @@ export class Interaction {
       throw new Error("Interaction Already Acknowledged");
     }
     await new ApiRequest(
-      `/interactions/${this.d.application_id}/${this.d.token}/callback`,
+      `/interactions/${this.d.id}/${this.d.token}/callback`,
       "POST",
-      payload
+      {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: payload
+      }
     ).send();
   }
   public async editReply(payload: ReplyPayload) {
@@ -108,7 +112,10 @@ export class Interaction {
     await new ApiRequest(
       `/interactions/${this.d.id}/${this.d.token}/callback`,
       "POST",
-      { type: 6 }
+      { type: InteractionCallbackType.DEFERRED_UPDATE_MESSAGE }
     ).send();
+  }
+  generate(): Payload {
+    return {} as Payload;
   }
 }

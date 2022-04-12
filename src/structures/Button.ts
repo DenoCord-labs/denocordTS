@@ -1,6 +1,7 @@
 import { Button as ButtonType, ButtonStyle } from "../types/Button.ts";
+import { ComponentType } from "../types/Component.ts";
 export class Button {
-  protected button: ButtonType = { type: 2 } as ButtonType;
+  protected button: ButtonType = { type: ComponentType.BUTTON } as ButtonType;
   constructor() {}
   setLabel(text: string) {
     this.button.label = text;

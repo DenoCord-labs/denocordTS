@@ -10,7 +10,7 @@ export type Payload = {
   member: GuildMember;
   user: User;
   message: Message;
-  deferReply: (payload: { ephemeral?: boolean }) => Promise<void>;
+  deferReply: (payload?: { ephemeral?: boolean }) => Promise<void>;
   reply: (payload: ReplyPayload) => Promise<void>;
   editReply: (payload: ReplyPayload) => Promise<void>;
   deleteReply: () => Promise<void>;
@@ -41,7 +41,7 @@ export class ButtonInteraction extends Interaction {
       followUp: this.followUp.bind(this),
       fetchFollowUp: this.fetchFollowUp.bind(this),
       editFollowUp: this.editFollowUp.bind(this),
-      deleteFollowUp: this.deleteFollowUp.bind(this),
+      deleteFollowUp: this.deleteFollowUp.bind(this)
     };
     return obj;
   }

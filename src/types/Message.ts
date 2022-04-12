@@ -25,7 +25,7 @@ export type Message = {
   attachments: any[];
   guild_id: string;
   edited_timestamp: string | null;
-  reply: (content: ReplyPayload) => any;
+  reply: (content: ReplyPayload) => Promise<Message>;
 };
 
 export type DeletableMessage = Message & {

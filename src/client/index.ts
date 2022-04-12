@@ -22,7 +22,11 @@ export class Client extends BaseClient {
    */
 
   constructor(options: ClientOptions) {
-    super(options.token, options.intents, options.clientId);
+    super(
+      options.token,
+      ["Guilds", "GuildMessages", ...options.intents],
+      options.clientId
+    );
   }
   setPresence(presence: Presence) {
     setPresence(this.websocket, presence);

@@ -1,16 +1,25 @@
 import { DeletableMessage } from "../types/Message.ts";
 import { ReplyPayload } from "../types/ReplyPayload.ts";
 import { ApiRequest } from "../helpers/request.ts";
+import { InteractionCollector } from "./ComponentCollector.ts";
+import { BaseClient } from "../client/BaseClient.ts";
 export class Message {
+  public events: InteractionCollector;
   /**
    * Represents a Message with functions to interact with it
    */
-  constructor(public msg: DeletableMessage, private token: string) {}
+  constructor(
+    public msg: DeletableMessage,
+    private token: string,
+    private client: BaseClient
+  ) {
+    this.events = new InteractionCollector(client, msg.id);
+  }
   /**
    *
    * @param {ReplyPayload} payload The payload to send
    */
-  async reply(payload: ReplyPayload) {
+  async reply(payload: ReplyPayload): Promise<Message> {
     if (payload.components && payload.components?.length > 5) {
       throw new Error("You can only add 5 ActionRows to a Message");
     }
@@ -26,7 +35,7 @@ export class Message {
       delete: this.delete
     };
 
-    return new Message(obj, this.token);
+    return new Message(obj, this.token, this.client);
   }
   async delete() {
     await new ApiRequest(

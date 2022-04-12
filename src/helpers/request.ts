@@ -10,7 +10,7 @@ export class ApiRequest {
   ) {}
   async send() {
     const headers = new Headers();
-    headers.set("Content-Type", "application/json");
+    headers.set("Content-Type", "application/json;charset=utf-8");
     if (this.token) headers.set("Authorization", `Bot ${this.token}`);
     const url = this.url.includes("http") ? this.url : BASE_API_URL + this.url;
     const res = await fetch(`${url}`, {
