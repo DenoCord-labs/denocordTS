@@ -1,9 +1,15 @@
 // deno-lint-ignore-file no-explicit-any
 import { DeletableMessage } from "./Message.ts";
+import { Role } from "./Role.ts";
+import { Emoji } from "./Emoji.ts";
+import { Guild } from "./Guild.ts";
+import { ButtonInteraction, SelectMenuInteraction } from "./Interaction.ts";
 export type GatewayEvents = {
   ready(): void;
   error(e: any): void;
   message(e: DeletableMessage): void;
+  guildCreate(guild: Guild): void;
+  componentInteraction(e: ButtonInteraction | SelectMenuInteraction): void;
 };
 
 export type GUILDCREATEPAYLOAD = {
@@ -36,8 +42,7 @@ export type GUILDCREATEPAYLOAD = {
   roles: Role[];
   emojis: Emoji[];
   mfa_level: number;
-}
-
+};
 
 export type TextChannel = {
   type: 0;
