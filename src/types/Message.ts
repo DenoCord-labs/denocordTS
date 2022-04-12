@@ -1,4 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
+import { InteractionCollector } from "../structures/ComponentCollector.ts";
 import { ReplyPayload } from "./ReplyPayload.ts";
 import { GuildMember } from "./GuildMember.ts";
 export type Message = {
@@ -26,6 +27,7 @@ export type Message = {
   guild_id: string;
   edited_timestamp: string | null;
   reply: (content: ReplyPayload) => Promise<Message>;
+  events: InteractionCollector;
 };
 
 export type DeletableMessage = Message & {
