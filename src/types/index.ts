@@ -1,13 +1,13 @@
 // deno-lint-ignore-file no-explicit-any
-import { DeletableMessage } from "./Message.ts";
 import { Role } from "./Role.ts";
 import { Emoji } from "./Emoji.ts";
 import { Guild } from "./Guild.ts";
 import { ButtonInteraction, SelectMenuInteraction } from "./Interaction.ts";
+import { Message } from "../structures/Message.ts";
 export type GatewayEvents = {
   ready(): void;
   error(e: any): void;
-  message(e: DeletableMessage): void;
+  message(e: Message): void;
   guildCreate(guild: Guild): void;
   componentInteraction(e: ButtonInteraction | SelectMenuInteraction): void;
 };

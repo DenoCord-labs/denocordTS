@@ -8,8 +8,8 @@ import { Message } from "../structures/Message.ts";
 import { ClientUser } from "../types/Client.ts";
 import { BASE_AVATAR_URL } from "../constants/index.ts";
 import { Guild } from "../types/Guild.ts";
-
 import { Cache } from "../cache/index.ts";
+
 export class BaseClient {
   /**
    * User object of the Client
@@ -68,13 +68,9 @@ export class BaseClient {
       switch (t) {
         case "MESSAGE_CREATE": {
           if (d.author.id === this.clientId) return;
-          const message = new Message(d, this.token);
-          const messagePayload = {
-            ...message.msg,
-            reply: message.reply.bind(message),
-            delete: message.delete.bind(message),
-          };
-          this.events.emit("message", messagePayload);
+          const message = new Message(d, this.token, this);
+
+          this.events.emit("message", message);
           break;
         }
         case "READY": {
@@ -82,7 +78,7 @@ export class BaseClient {
             ...d.user,
             guilds: d.guilds.map(
               (g: { id: string; unavailable: boolean }) => g.id
-            ),
+            )
           };
           break;
         }
@@ -102,7 +98,6 @@ export class BaseClient {
         }
         case "INTERACTION_CREATE": {
           if (d.type == 3) {
-            console.log("Component clicked");
             this.events.emit("componentInteraction", d);
           }
         }
@@ -110,7 +105,7 @@ export class BaseClient {
     });
 
     this.websocket.on("error", (e) => {
-      console.log("error", e);
+      console.error("error", e);
       this.events.emit("error", e);
     });
 
