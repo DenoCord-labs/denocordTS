@@ -8,7 +8,7 @@ import { Channel } from "./Channels.ts";
 export type Interaction = {
   id: string;
   application_id: string;
-  type: 1 | 2 | 3 | 4 | 5;
+  type: InteractionType;
   data?: InteractionData;
   guild_id?: string;
   channel_id?: string;
@@ -20,6 +20,14 @@ export type Interaction = {
   locale?: string;
   guild_locale?: string;
 };
+
+export enum InteractionType {
+  PING = 1,
+  APPLICATION_COMMAND = 2,
+  MESSAGE_COMPONENT = 3,
+  APPLICATION_COMMAND_AUTOCOMPLETE = 4,
+  MODAL_SUBMIT = 5
+}
 
 export type InteractionData = {
   id: string;

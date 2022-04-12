@@ -1,4 +1,5 @@
 import { WebSocketClient } from "https://deno.land/x/websocket@v0.1.3/mod.ts";
+import { OPCodes } from "../../types/Gateway.ts";
 import { GatewayIntents } from "../../types/shared.ts";
 export function sendIndentificationPayload(
   websocket: WebSocketClient,
@@ -6,7 +7,7 @@ export function sendIndentificationPayload(
   intents: (keyof typeof GatewayIntents)[]
 ) {
   const payload = JSON.stringify({
-    op: 2,
+    op: OPCodes.IDENTIFY,
     d: {
       token,
       intents: intents.reduce(
@@ -16,9 +17,9 @@ export function sendIndentificationPayload(
       properties: {
         $os: Deno.build.os,
         $browser: "denocord",
-        $device: "denocord",
-      },
-    },
+        $device: "denocord"
+      }
+    }
   });
   websocket.send(payload);
 }
