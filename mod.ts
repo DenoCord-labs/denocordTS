@@ -3,4 +3,5 @@ export * from "./src/structures/MessageEmbed.ts";
 export * from "./src/structures/Button.ts";
 export * from "./src/structures/MessageActionRow.ts";
 export * from "./src/structures/SelectMenu.ts";
-export * from "./src/types/presence.ts"
+export * from "./src/types/presence.ts";
+export * from "./src/structures/ComponentCollector.ts";
