@@ -8,7 +8,7 @@ import { Payload } from "./ButtonInteraction.ts";
 export class Interaction {
   deferred = false;
   protected message_id: any;
-  constructor(protected d: any) {}
+  constructor(protected d: { [key: string]: any }) {}
   protected create() {
     const obj: Payload & {
       data: { custom_id: string; values: string[]; component_type: number }[];
