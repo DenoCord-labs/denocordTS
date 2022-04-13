@@ -89,6 +89,11 @@ export class BaseClient {
         case "GUILD_CREATE": {
           this.guilds.push({ ...d });
           this.cache.set("guilds", this.guilds);
+          this.guilds.forEach((g) => {
+            g.members!.forEach((m) => {
+              this.cache.set(`${m.user.id}`, m);
+            });
+          });
           if (
             this.cache.has("guilds") &&
             (this.cache.get("guilds") as Guild[]).length ==
