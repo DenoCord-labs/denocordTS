@@ -50,7 +50,7 @@ export class Embed {
     this.embed.footer = footer;
     return this;
   }
-  get() {
+  create() {
     return this.embed;
   }
 }
