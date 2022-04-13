@@ -17,7 +17,6 @@ export class InteractionCollector extends EventEmitter<
       if (e.message?.id == this.messageId) {
         switch (ComponentType[e.data?.component_type as number]) {
           case "BUTTON": {
-            console.log("button");
             const interaction = new ButtonInteraction(e);
             await this.emit("button", interaction.generate());
 

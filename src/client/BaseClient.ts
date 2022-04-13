@@ -1,8 +1,8 @@
-import { ws } from "../index.ts";
+import { ws } from "../websocket.ts";
 import EventEmitter from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
 import { GatewayEvents } from "../types/index.ts";
 import { GatewayIntents } from "../types/shared.ts";
-import { sendIndentificationPayload } from "../websockets/payloads/index.ts";
+import { sendIndentificationPayload } from "../websockets/payloads/identify.ts";
 import { Message } from "../structures/Message.ts";
 import { ClientUser } from "../types/Client.ts";
 import { BASE_AVATAR_URL } from "../constants/index.ts";
@@ -42,7 +42,7 @@ export class BaseClient {
   protected uptime = new Date().getTime();
 
   protected guilds: Guild[] = [];
-  ping: number = -1;
+  ping = -1;
 
   /**
    * Creates an instance of BaseClient.
@@ -69,7 +69,6 @@ export class BaseClient {
           sendIndentificationPayload(this.websocket, token, intents);
           break;
         case "HEARTBEAT_ACK":
-          console.log("heartbeat ack");
           this.ping = Date.now() - this.start;
           break;
       }
