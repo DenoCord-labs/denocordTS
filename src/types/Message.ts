@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { ReplyPayload } from "./ReplyPayload.ts";
+import { GuildMember } from "./GuildMember.ts";
 export type Message = {
   tts: boolean;
   timestamp: string;
@@ -7,14 +8,7 @@ export type Message = {
   mentioned_roles: string[] | [];
   mentioned_channels: string[] | [];
   mentioned_users: string[] | [];
-  member: {
-    nick: string | null;
-    roles: string[] | [];
-    joined_at: string;
-    mute: boolean;
-    deaf: boolean;
-    hoisted_role: string | null;
-  };
+  member: Partial<GuildMember>;
   id: string;
   flags: number;
   channel_id: string;
