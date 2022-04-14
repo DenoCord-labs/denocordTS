@@ -1,12 +1,15 @@
 import EventEmitter from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
-
+import { ComponentType } from "../types/mod.ts";
 import { CollectorEvents } from "../types/Collector.ts";
-import { ButtonInteraction, Payload } from "../classes/ButtonInteraction.ts";
+import {
+  Payload,
+  ButtonInteraction,
+  SelectMenuInteraction as SelectMenuInteractionType,
+} from "../classes/ButtonInteraction.ts";
 import { SelectMenuInteraction } from "../classes/SelectMenuInteraction.ts";
 import { BaseClient } from "../client/BaseClient.ts";
-import { ComponentType } from "../types/Component.ts";
 export class InteractionCollector extends EventEmitter<
-  CollectorEvents<Payload>
+  CollectorEvents<Payload, SelectMenuInteractionType>
 > {
   constructor(public readonly client: BaseClient, private messageId: string) {
     super();
@@ -18,13 +21,17 @@ export class InteractionCollector extends EventEmitter<
         switch (ComponentType[e.data?.component_type as number]) {
           case "BUTTON": {
             const interaction = new ButtonInteraction(e);
-            await this.emit("button", interaction.generate());
+            await this.emit(
+              "buttonInteraction",
+              interaction.generate() as unknown as Payload
+            );
 
             break;
           }
           case "SELECT_MENU": {
             const interaction = new SelectMenuInteraction(e);
-            await this.emit("selectMenu", interaction.generate());
+            const data = interaction.generate() as SelectMenuInteractionType;
+            await this.emit("selectMenuInteraction", data);
             break;
           }
         }
