@@ -1,5 +1,5 @@
 import {} from "./Interaction.ts";
-export type CollectorEvents<T> = {
-  button: (collected: T) => void;
-  selectMenu: (collected: T) => void;
+export type CollectorEvents<T,K> = {
+  buttonInteraction: (collected: T) => void;
+  selectMenuInteraction: (collected: K) => void;
 };
