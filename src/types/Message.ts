@@ -2,6 +2,7 @@
 import { InteractionCollector } from "../structures/ComponentCollector.ts";
 import { ReplyPayload } from "./ReplyPayload.ts";
 import { GuildMember } from "./GuildMember.ts";
+import { APITextChannel, APIVoiceChannel } from "./mod.ts";
 export type Message = {
   tts: boolean;
   timestamp: string;
@@ -26,14 +27,19 @@ export type Message = {
   attachments: any[];
   guild_id: string;
   edited_timestamp: string | null;
-  reply: (content: ReplyPayload) => Promise<Message>;
+  reply: (content: ReplyPayload & { ping?: boolean }) => Promise<Message>;
   events: InteractionCollector;
 };
 
 export type DeletableMessage = Message & {
   delete: () => Promise<any>;
 };
-
+export type ClientMessage = DeletableMessage & {
+  edit: (payload: ReplyPayload) => Promise<ClientMessage>;
+};
+export type MessageChannel = (APITextChannel | APIVoiceChannel) & {
+  send: (content: ReplyPayload) => Promise<ClientMessage>;
+};
 export enum MessageFlags {
   CROSSPOSTED = 1 << 0,
   IS_CROSSPOST = 1 << 1,
@@ -43,5 +49,5 @@ export enum MessageFlags {
   HAS_THREAD = 1 << 5,
   EPHEMERAL = 1 << 6,
   LOADING = 1 << 7,
-  FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8
+  FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8,
 }
