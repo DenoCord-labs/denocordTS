@@ -4,6 +4,7 @@ import { ApiRequest } from "../helpers/request.ts";
 import { InteractionCallbackType } from "../types/Interaction.ts";
 import { MessageFlags } from "../types/Message.ts";
 import { ReplyData, ReplyPayload } from "../types/ReplyPayload.ts";
+import { Payload } from "./ButtonInteraction.ts";
 export class Interaction {
   deferred = false;
   replied = false;
@@ -128,5 +129,8 @@ export class Interaction {
       "POST",
       { type: InteractionCallbackType.DEFERRED_UPDATE_MESSAGE }
     ).send();
+  }
+  generate(): Payload {
+    return {} as Payload;
   }
 }
