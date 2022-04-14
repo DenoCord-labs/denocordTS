@@ -4,15 +4,13 @@ import { ApiRequest } from "../helpers/request.ts";
 import { InteractionCallbackType } from "../types/Interaction.ts";
 import { MessageFlags } from "../types/Message.ts";
 import { ReplyData, ReplyPayload } from "../types/ReplyPayload.ts";
-import { Payload } from "./ButtonInteraction.ts";
 export class Interaction {
   deferred = false;
+  replied = false;
   protected message_id: any;
   constructor(protected d: { [key: string]: any }) {}
   protected create() {
-    const obj: Payload & {
-      data: { custom_id: string; values: string[]; component_type: number }[];
-    } = {
+    const obj = {
       application_id: this.d.application_id,
       data: this.d.data,
       guild_id: this.d.guild_id,
@@ -27,10 +25,15 @@ export class Interaction {
       followUp: this.followUp.bind(this),
       fetchFollowUp: this.fetchFollowUp.bind(this),
       editFollowUp: this.editFollowUp.bind(this),
-      deleteFollowUp: this.deleteFollowUp.bind(this)
+      deleteFollowUp: this.deleteFollowUp.bind(this),
+      id: this.d.id,
+      token: this.d.token,
+      locale: this.d.locale,
+      type: this.d.type,
+      version: this.d.version,
+      guild_locale: this.d.guild_locale,
     };
     this.message_id = this.d.message.id;
-
     return obj;
   }
   public async deferReply(payload?: { ephemeral?: boolean }): Promise<void> {
@@ -41,21 +44,22 @@ export class Interaction {
       "POST",
       {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-        ephemeral
+        ephemeral,
       }
     ).send();
   }
   public async reply(data: ReplyData) {
-    if (this.deferred) {
+    if (this.deferred || this.replied) {
       throw new Error("Interaction Already Acknowledged");
     }
+    this.replied = true;
     const { suppress_embeds, ephemeral, ...payloadData } = data;
     let flags = 0;
     if (ephemeral) flags |= MessageFlags.EPHEMERAL;
     if (suppress_embeds) flags |= MessageFlags.SUPPRESS_EMBEDS;
     const payload: ReplyPayload = {
       ...payloadData,
-      flags
+      flags,
     };
 
     await new ApiRequest(
@@ -63,7 +67,7 @@ export class Interaction {
       "POST",
       {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: payload
+        data: payload,
       }
     ).send();
   }
@@ -124,8 +128,5 @@ export class Interaction {
       "POST",
       { type: InteractionCallbackType.DEFERRED_UPDATE_MESSAGE }
     ).send();
-  }
-  generate(): Payload {
-    return {} as Payload;
   }
 }
