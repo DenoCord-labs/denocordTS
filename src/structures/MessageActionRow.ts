@@ -1,9 +1,10 @@
 import { MessageActionRow, Components } from "../types/ActionRow.ts";
+import { ComponentType } from "../types/Component.ts";
 import { SelectMenu } from "./SelectMenu.ts";
 export class ActionRow {
   actionRow: MessageActionRow = {
-    type: 1,
-    components: [],
+    type: ComponentType.ACTION_ROW,
+    components: []
   };
   constructor() {}
   addComponents(...components: Components[]) {

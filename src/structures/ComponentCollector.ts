@@ -1,43 +1,40 @@
 import EventEmitter from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
-
+import { ComponentType } from "../types/mod.ts";
 import { CollectorEvents } from "../types/Collector.ts";
-import { Client } from "../client/index.ts";
 import {
-  ButtonInteraction as ButtonInteractionClass,
   Payload,
+  ButtonInteraction,
+  SelectMenuInteraction as SelectMenuInteractionType,
 } from "../classes/ButtonInteraction.ts";
 import { SelectMenuInteraction } from "../classes/SelectMenuInteraction.ts";
-export class ButtonInteractionCollector extends EventEmitter<
-  CollectorEvents<Payload>
+import { BaseClient } from "../client/BaseClient.ts";
+export class InteractionCollector extends EventEmitter<
+  CollectorEvents<Payload, SelectMenuInteractionType>
 > {
-  constructor(public readonly client: Client, private channelId: string) {
+  constructor(public readonly client: BaseClient, private messageId: string) {
     super();
     this.listen();
   }
   listen() {
     this.client.events.on("componentInteraction", async (e) => {
-      if (e.channel_id == this.channelId) {
-        await this.emit("collected", new ButtonInteractionClass(e).generate());
-      }
-    });
-  }
-}
+      if (e.message?.id == this.messageId) {
+        switch (ComponentType[e.data?.component_type as number]) {
+          case "BUTTON": {
+            const interaction = new ButtonInteraction(e);
+            await this.emit(
+              "buttonInteraction",
+              interaction.generate() as unknown as Payload
+            );
 
-export class SelectMenuInteractionCollector extends EventEmitter<
-  CollectorEvents<
-    Payload & {
-      data: { custom_id: string; values: string[]; component_type: number }[];
-    }
-  >
-> {
-  constructor(public readonly client: Client, public channelId: string) {
-    super();
-    this.listen();
-  }
-  listen() {
-    this.client.events.on("componentInteraction", async (e) => {
-      if (this.channelId == e.channel_id) {
-        await this.emit("collected", new SelectMenuInteraction(e).generate());
+            break;
+          }
+          case "SELECT_MENU": {
+            const interaction = new SelectMenuInteraction(e);
+            const data = interaction.generate() as SelectMenuInteractionType;
+            await this.emit("selectMenuInteraction", data);
+            break;
+          }
+        }
       }
     });
   }

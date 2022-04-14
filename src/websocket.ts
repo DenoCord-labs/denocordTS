@@ -1,6 +1,6 @@
 import {
   WebSocketClient,
-  StandardWebSocketClient,
+  StandardWebSocketClient
 } from "https://deno.land/x/websocket@v0.1.3/mod.ts";
 import { BASE_WS_URL } from "./constants/index.ts";
 

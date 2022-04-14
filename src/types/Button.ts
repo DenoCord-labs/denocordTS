@@ -1,5 +1,7 @@
+import { ComponentType } from "./Component.ts";
+
 export type Button = {
-  type: 2;
+  type: ComponentType.BUTTON;
   style: number;
   label?: string;
   url?: string;

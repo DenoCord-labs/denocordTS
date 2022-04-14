@@ -28,3 +28,4 @@ export * from "./src/types/ThreadMember.ts";
 export * from "./src/types/ThreadMetadata.ts";
 export * from "./src/types/User.ts";
 export * from "./src/types/VoiceStates.ts";
+export * from "./src/structures/Timestamp.ts";

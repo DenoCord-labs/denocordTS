@@ -1,5 +1,7 @@
+import { ComponentType } from "./Component.ts";
+
 export type SelectMenu = {
-  type: 3;
+  type: ComponentType.SELECT_MENU;
   custom_id?: string;
   options: SelectMenuOption[];
   placeholder?: string;
