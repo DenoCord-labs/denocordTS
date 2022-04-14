@@ -1,18 +1,16 @@
+// deno-lint-ignore-file no-explicit-any
 import { Interaction } from "./Interaction.ts";
-import { Payload } from "./ButtonInteraction.ts";
-
 export class SelectMenuInteraction extends Interaction {
-  // deno-lint-ignore no-explicit-any
   constructor(protected d: any) {
     super(d);
   }
-  generate() {
+  generate(): any {
     const payload = this.create();
-    const obj: Payload & {
-      data: { custom_id: string; values: string[]; component_type: number }[];
-    } = {
+    const obj = {
       ...payload,
+      data: payload.data as any,
     };
+    console.log(obj);
     return obj;
   }
 }
