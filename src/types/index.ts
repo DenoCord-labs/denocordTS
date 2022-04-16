@@ -7,7 +7,7 @@ import { DeletableMessage } from "../types/Message.ts";
 export type GatewayEvents = {
   ready(): void;
   error(e: any): void;
-  message(e: DeletableMessage): void;
+  messageCreate(e: DeletableMessage): void;
   guildCreate(guild: Guild): void;
   componentInteraction(e: ButtonInteraction | SelectMenuInteraction): void;
 };
