@@ -24,7 +24,7 @@ export class Client extends BaseClient {
   constructor(options: ClientOptions) {
     super(
       options.token,
-      ["Guilds", "GuildMessages", ...options.intents],
+      ["Guilds", ...options.intents],
       options.clientId
     );
   }
