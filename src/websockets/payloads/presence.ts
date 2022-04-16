@@ -11,12 +11,12 @@ export async function setPresence(ws: WebSocketClient, presence: Presence) {
         activities: [
           {
             name: presence.activity.name,
-            type: ActivityType[presence.activity.type]
-          }
+            type: ActivityType[presence.activity.type],
+          },
         ],
         status: presence.status,
-        afk: presence.afk
-      }
+        afk: presence.afk || false,
+      },
     })
   );
 }
