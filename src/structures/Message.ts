@@ -21,7 +21,7 @@ export class Message {
   constructor(
     public msg: DeletableMessage,
     private token: string,
-    private client: BaseClient
+    public client: BaseClient
   ) {
     this.events = new InteractionCollector(client, msg.id);
   }
@@ -32,8 +32,8 @@ export class Message {
     if (payload.components && payload.components?.length > 5) {
       throw new Error("You can only add 5 ActionRows to a Message");
     }
-
-    const body: ReplyPayload = payload.ping
+    const ping = payload.ping ?? true;
+    const body: ReplyPayload = ping
       ? {
           ...payload,
           message_reference: {
