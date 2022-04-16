@@ -27,7 +27,7 @@ export type Message = {
   attachments: any[];
   guild_id: string;
   edited_timestamp: string | null;
-  reply: (content: ReplyPayload & { ping?: boolean }) => Promise<Message>;
+  reply: (content: ReplyPayload & { ping?: boolean }) => Promise<ClientMessage>;
   events: InteractionCollector;
 };
 
