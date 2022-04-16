@@ -2,7 +2,7 @@ export type Presence = {
   since?: number;
   activity: Activity;
   status: "online" | "idle" | "dnd" | "offline" | "invisible";
-  afk: boolean;
+  afk?: boolean;
 };
 
 export type Activity = {
