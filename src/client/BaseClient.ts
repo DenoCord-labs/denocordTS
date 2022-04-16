@@ -11,6 +11,7 @@ import { Cache } from "../cache/index.ts";
 import { WebSocketClient } from "https://deno.land/x/websocket@v0.1.3/mod.ts";
 import { OPCodes } from "../types/Gateway.ts";
 import { DeletableMessage } from "../types/Message.ts";
+import {GatewayDispatchEvents,GatewayOpcodes} from '../types/mod.ts'
 
 export class BaseClient {
   /**
@@ -60,8 +61,8 @@ export class BaseClient {
       Deno.exit(0);
     });
     this.websocket.on("message", (e) => {
-      const { op, d, t } = JSON.parse(e.data);
-
+      const { op, d, t }:{op:GatewayOpcodes,d:any,t:GatewayDispatchEvents} = JSON.parse(e.data);
+      
       switch (OPCodes[op]) {
         case "HELLO":
           this.heartbeatInterval = d.heartbeat_interval;
@@ -79,10 +80,10 @@ export class BaseClient {
           const messagePayload: DeletableMessage = {
             ...message.msg,
             reply: message.reply.bind(message),
-            delete: message.delete.bind(message)
+            delete: message.delete.bind(message),
           } as unknown as DeletableMessage;
 
-          this.events.emit("message", messagePayload);
+          this.events.emit("messageCreate", messagePayload);
           break;
         }
         case "READY": {
@@ -90,7 +91,7 @@ export class BaseClient {
             ...d.user,
             guilds: d.guilds.map(
               (g: { id: string; unavailable: boolean }) => g.id
-            )
+            ),
           };
           break;
         }
@@ -118,6 +119,7 @@ export class BaseClient {
             this.events.emit("componentInteraction", d);
           }
         }
+        
       }
     });
 
@@ -132,7 +134,7 @@ export class BaseClient {
   sendPingPayload(websocket: WebSocketClient) {
     const payload = JSON.stringify({
       op: OPCodes.HEARTBEAT,
-      d: null
+      d: null,
     });
     setInterval(() => {
       this.start = Date.now();
