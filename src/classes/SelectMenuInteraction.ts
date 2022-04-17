@@ -10,7 +10,6 @@ export class SelectMenuInteraction extends Interaction {
       ...payload,
       data: payload.data as any,
     };
-    console.log(obj);
     return obj;
   }
 }
