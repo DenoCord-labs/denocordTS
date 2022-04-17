@@ -1,4 +1,4 @@
-import { WebSocketClient } from "https://deno.land/x/websocket@v0.1.3/mod.ts";
+import { WebSocketClient } from "../../../deps.ts";
 import { OPCodes } from "../../types/Gateway.ts";
 import { Presence } from "../../types/presence.ts";
 import { ActivityType } from "../../types/presence.ts";

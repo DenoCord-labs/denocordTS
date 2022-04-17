@@ -1,4 +1,4 @@
-import { WebSocketClient } from "https://deno.land/x/websocket@v0.1.3/mod.ts";
+import { WebSocketClient } from "../../../deps.ts";
 import { OPCodes } from "../../types/Gateway.ts";
 import { GatewayIntents } from "../../types/shared.ts";
 export function sendIndentificationPayload(
@@ -17,9 +17,9 @@ export function sendIndentificationPayload(
       properties: {
         $os: Deno.build.os,
         $browser: "denocord",
-        $device: "denocord"
-      }
-    }
+        $device: "denocord",
+      },
+    },
   });
   websocket.send(payload);
 }

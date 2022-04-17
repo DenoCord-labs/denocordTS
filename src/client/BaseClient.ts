@@ -1,5 +1,4 @@
 import { ws } from "../websocket.ts";
-import EventEmitter from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
 import { GatewayEvents } from "../types/index.ts";
 import { GatewayIntents } from "../types/shared.ts";
 import { sendIndentificationPayload } from "../websockets/payloads/identify.ts";
@@ -8,10 +7,10 @@ import { ClientUser } from "../types/Client.ts";
 import { BASE_AVATAR_URL } from "../constants/index.ts";
 import { Guild } from "../types/Guild.ts";
 import { Cache } from "../cache/index.ts";
-import { WebSocketClient } from "https://deno.land/x/websocket@v0.1.3/mod.ts";
+import { WebSocketClient, EventEmitter } from "../../deps.ts";
 import { OPCodes } from "../types/Gateway.ts";
 import { DeletableMessage } from "../types/Message.ts";
-import {GatewayDispatchEvents,GatewayOpcodes} from '../types/mod.ts'
+import { GatewayDispatchEvents, GatewayOpcodes } from "../types/mod.ts";
 
 export class BaseClient {
   /**
@@ -25,7 +24,7 @@ export class BaseClient {
   /**
    * The Websocket for the Client
    */
-  protected websocket = ws;
+  websocket = ws;
   /**
    * The Heartbeat Interval for the Client
    * @default 41250
@@ -61,8 +60,14 @@ export class BaseClient {
       Deno.exit(0);
     });
     this.websocket.on("message", (e) => {
-      const { op, d, t }:{op:GatewayOpcodes,d:any,t:GatewayDispatchEvents} = JSON.parse(e.data);
-      
+      const {
+        op,
+        d,
+        t,
+      }: { op: GatewayOpcodes; d: any; t: GatewayDispatchEvents } = JSON.parse(
+        e.data
+      );
+
       switch (OPCodes[op]) {
         case "HELLO":
           this.heartbeatInterval = d.heartbeat_interval;
@@ -119,7 +124,6 @@ export class BaseClient {
             this.events.emit("componentInteraction", d);
           }
         }
-        
       }
     });
 

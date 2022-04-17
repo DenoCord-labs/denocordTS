@@ -1,4 +1,4 @@
-import EventEmitter from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
+import { EventEmitter } from "../../deps.ts";
 import { ComponentType } from "../types/mod.ts";
 import { CollectorEvents } from "../types/Collector.ts";
 import {
