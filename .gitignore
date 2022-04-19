@@ -1,5 +1,7 @@
 logs
 test
 *.json
+!settings.json
 .env
 .dccache
+!extensions.json
