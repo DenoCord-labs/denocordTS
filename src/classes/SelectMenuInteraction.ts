@@ -8,9 +8,8 @@ export class SelectMenuInteraction extends Interaction {
     const payload = this.create();
     const obj = {
       ...payload,
-      data: payload.data as any,
+      data: payload.data as any
     };
-    console.log(obj);
     return obj;
   }
 }

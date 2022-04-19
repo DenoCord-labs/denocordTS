@@ -24,7 +24,7 @@ export class BaseClient {
   /**
    * The Websocket for the Client
    */
-  protected websocket = ws;
+  websocket = ws;
   /**
    * The Heartbeat Interval for the Client
    * @default 41250

@@ -5,7 +5,7 @@ import { BaseClient } from "./BaseClient.ts";
 import { Guild } from "../types/Guild.ts";
 import { BASE_CDN_URL } from "../constants/index.ts";
 export const ALLOWED_SIZES = [
-  16, 32, 64, 128, 256, 512, 1024, 2048, 4096,
+  16, 32, 64, 128, 256, 512, 1024, 2048, 4096
 ] as const;
 type Format = {
   format?: "png" | "jpg" | "gif" | "webp";
@@ -96,7 +96,7 @@ export class Client extends BaseClient {
     format,
     guildId,
     userId,
-    size,
+    size
   }: {
     guildId: string;
     userId: string;
