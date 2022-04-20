@@ -1,9 +1,9 @@
 import {
-  APIGuild,
-  APIUser,
   APIChannel,
   APIEmoji,
+  APIGuild,
   APIRole,
+  APIUser,
 } from "../../deps.ts";
 import { cacheFields } from "../types/mod.ts";
 export class Cache {

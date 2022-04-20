@@ -60,14 +60,14 @@ export class WebSocketClient {
 
   on<T = Message>(
     event: "message",
-    listener: WebSocketEvents<T>["message"]
+    listener: WebSocketEvents<T>["message"],
   ): void;
   on(event: "close", listener: WebSocketEvents["close"]): void;
   on(event: "open", listener: WebSocketEvents["open"]): void;
 
   on(
     event: keyof WebSocketEvents,
-    listener: WebSocketEvents[keyof WebSocketEvents]
+    listener: WebSocketEvents[keyof WebSocketEvents],
   ): void {
     this.events.on(event, listener);
   }

@@ -1,6 +1,6 @@
 import { Base } from "./base.ts";
 import { ClientOptions } from "../types/mod.ts";
-import { GatewayPresenceUpdateData, GatewayOpcodes } from "../../deps.ts";
+import { GatewayOpcodes, GatewayPresenceUpdateData } from "../../deps.ts";
 export class Client extends Base {
   constructor(protected options: ClientOptions) {
     super(options);
@@ -12,7 +12,7 @@ export class Client extends Base {
         d: {
           ...presence,
         },
-      })
+      }),
     );
   }
 }
