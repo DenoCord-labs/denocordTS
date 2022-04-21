@@ -1,4 +1,4 @@
-import { discordFetch } from "../../helpers/request.ts";
+import { discordFetch } from "../../rest/mod.ts";
 import {
   APIInteraction,
   APIInteractionResponseCallbackData,

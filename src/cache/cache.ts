@@ -4,7 +4,7 @@ import {
   APIGuild,
   APIRole,
   APIUser,
-} from "../../deps.ts";
+} from "../types/mod.ts";
 import { cacheFields } from "../types/mod.ts";
 export class Cache {
   cache: cacheFields;
