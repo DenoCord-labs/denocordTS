@@ -1,4 +1,4 @@
-import { GatewayIntentBits } from "../../deps.ts";
+import { GatewayIntentBits } from "./mod.ts";
 export type ClientOptions = {
 	token: string;
 	clientId: string;
