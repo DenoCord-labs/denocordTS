@@ -1,7 +1,7 @@
 import {
   APIActionRowComponent,
   APIEmbed,
-  APIMessageActionRowComponent
+  APIMessageActionRowComponent,
 } from "./mod.ts";
 
 export type ResponsePayload = {

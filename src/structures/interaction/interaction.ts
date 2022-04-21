@@ -3,7 +3,7 @@ import {
   APIInteraction,
   APIInteractionResponseCallbackData,
   InteractionResponseType,
-  MessageFlags
+  MessageFlags,
 } from "../../types/mod.ts";
 
 export class Interaction {
@@ -11,7 +11,7 @@ export class Interaction {
   protected replied = false;
   constructor(
     protected interaction: APIInteraction & { locale: string },
-    protected token: string
+    protected token: string,
   ) {}
   protected create() {
     const obj = {
@@ -35,7 +35,7 @@ export class Interaction {
       locale: this.interaction.locale,
       type: this.interaction.type,
       version: this.interaction.version,
-      guild_locale: this.interaction.guild_locale
+      guild_locale: this.interaction.guild_locale,
     };
     return obj as APIInteractionResponseCallbackData;
   }
@@ -46,7 +46,7 @@ export class Interaction {
         suppress_embeds?: boolean;
       },
       "flags"
-    >
+    >,
   ) {
     const { suppress_embeds, ephemeral, ...payloadData } = data;
     this.replied = true;
@@ -57,7 +57,7 @@ export class Interaction {
     const payload = { ...payloadData, flags };
     await discordFetch(``, "POST", this.token, {
       type: InteractionResponseType.ChannelMessageWithSource,
-      data: payload
+      data: payload,
     });
   }
   async deferReply(payload = { ephemeral: false }) {
@@ -69,8 +69,8 @@ export class Interaction {
       this.token,
       {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
-        ephemeral
-      }
+        ephemeral,
+      },
     );
   }
   async editReply(payload: APIInteractionResponseCallbackData) {
@@ -78,7 +78,7 @@ export class Interaction {
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "PATCH",
       this.token,
-      payload
+      payload,
     );
   }
 
@@ -86,43 +86,47 @@ export class Interaction {
     await discordFetch(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "DELETE",
-      this.token
+      this.token,
     );
   }
 
   async followUp(payload: APIInteractionResponseCallbackData) {
     const res = await discordFetch(
-      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+        .interaction.message?.id}`,
       "GET",
       this.token,
-      payload
+      payload,
     );
     return await res.json();
   }
 
   async fetchFollowUp() {
     const res = await discordFetch(
-      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+        .interaction.message?.id}`,
       "GET",
-      this.token
+      this.token,
     );
     return await res.json();
   }
 
   async editFollowUp(payload: APIInteractionResponseCallbackData) {
     await discordFetch(
-      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+        .interaction.message?.id}`,
       "PATCH",
       this.token,
-      payload
+      payload,
     );
   }
 
   async deleteFollowUp() {
     await discordFetch(
-      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+        .interaction.message?.id}`,
       "DELETE",
-      this.token
+      this.token,
     );
   }
 
@@ -130,7 +134,7 @@ export class Interaction {
     await discordFetch(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "GET",
-      this.token
+      this.token,
     );
   }
 
@@ -139,14 +143,14 @@ export class Interaction {
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       this.token,
-      { type: InteractionResponseType.DeferredMessageUpdate }
+      { type: InteractionResponseType.DeferredMessageUpdate },
     );
   }
 
   generate() {
     const payload = this.create();
     const obj = {
-      ...payload
+      ...payload,
     };
     return obj;
   }

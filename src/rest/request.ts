@@ -6,7 +6,7 @@ export class ApiRequest {
     public method: string,
     public body?: any,
     public token?: string,
-    public headers?: Headers
+    public headers?: Headers,
   ) {}
   async send() {
     const headers = new Headers();
@@ -14,8 +14,9 @@ export class ApiRequest {
       ? this.url
       : BaseRestApiUrl + this.url;
     headers.append("Content-Type", "application/json");
-    if (this.headers)
+    if (this.headers) {
       for (const [key, value] of this.headers) headers.append(key, value);
+    }
     if (this.token) {
       headers.append("Authorization", `Bot ${this.token}`);
     }

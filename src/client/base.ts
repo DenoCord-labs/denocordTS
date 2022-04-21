@@ -8,14 +8,14 @@ import {
   GatewayDispatchEvents,
   GatewayIdentifyData,
   GatewayIntentBits,
-  GatewayOpcodes
+  GatewayOpcodes,
 } from "../types/mod.ts";
 import { EventEmitter } from "../../deps.ts";
 import {
   ClientOptions,
   ClientUser,
   GatewayEvents,
-  OPCodes
+  OPCodes,
 } from "../types/mod.ts";
 import { GatewayUrl } from "../constants/mod.ts";
 import { ClientMessage, Message } from "../structures/mod.ts";
@@ -35,22 +35,22 @@ export class Base extends EventEmitter<GatewayEvents> {
       token: options.token,
       intents: options.intents.reduce(
         (bits, next) => (bits |= GatewayIntentBits[next]),
-        0
+        0,
       ),
       properties: {
         $browser: "denocord",
         $device: "denocord",
-        $os: Deno.build.os
-      }
+        $os: Deno.build.os,
+      },
     };
     this.websocket.onopen = async () => {
       await this.websocket.send(
         JSON.stringify({
           op: GatewayOpcodes.Identify,
           d: {
-            ...payload
-          }
-        })
+            ...payload,
+          },
+        }),
       );
     };
     this.websocket.onerror = async (e) => {
@@ -61,11 +61,11 @@ export class Base extends EventEmitter<GatewayEvents> {
       const {
         d,
         op,
-        t
+        t,
       }: // deno-lint-ignore no-explicit-any
-      { op: OPCodes; d: any; t: GatewayDispatchEvents } = await JSON.parse(
-        e.data
-      );
+        { op: OPCodes; d: any; t: GatewayDispatchEvents } = await JSON.parse(
+          e.data,
+        );
       switch (op) {
         case OPCodes.HELLO: {
           this.heartbeatInterval = d.heartbeat_interval;
@@ -78,7 +78,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           if (d.author.id === this.user.id) {
             this.emit(
               "MessageCreate",
-              new ClientMessage(d, this.options.token)
+              new ClientMessage(d, this.options.token),
             );
           } else {
             this.emit("MessageCreate", new Message(d, this.options.token));
@@ -89,8 +89,8 @@ export class Base extends EventEmitter<GatewayEvents> {
           this.user = {
             ...d.user,
             guilds: d.guilds.map(
-              (g: { id: string; unavailable: boolean }) => g.id
-            )
+              (g: { id: string; unavailable: boolean }) => g.id,
+            ),
           };
           break;
         }
@@ -101,7 +101,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           this.addEmojisToCache(d.emojis);
           if (
             Object.keys(this.cacheInstance.cache.guilds).length ==
-            this.user.guilds.length
+              this.user.guilds.length
           ) {
             this.emit("Ready", undefined);
           }
@@ -114,8 +114,8 @@ export class Base extends EventEmitter<GatewayEvents> {
       this.websocket.send(
         JSON.stringify({
           op: OPCodes.HEARTBEAT,
-          d: null
-        })
+          d: null,
+        }),
       );
     }, this.heartbeatInterval);
   }

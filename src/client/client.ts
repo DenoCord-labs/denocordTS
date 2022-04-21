@@ -10,9 +10,9 @@ export class Client extends Base {
       JSON.stringify({
         op: GatewayOpcodes.PresenceUpdate,
         d: {
-          ...presence
-        }
-      })
+          ...presence,
+        },
+      }),
     );
   }
 }

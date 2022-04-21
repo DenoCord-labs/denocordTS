@@ -3,10 +3,10 @@ import {
   APIMessage,
   APIUser,
   Snowflake,
-} from "../../../deps.ts";
+} from "../../types/mod.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Messages } from "../../errors/messages.ts";
-import { ApiRequest } from "../../rest/mod.ts";
+import { discordFetch } from "../../rest/mod.ts";
 import { ClientMessage } from "./mod.ts";
 export class BaseMessage {
   /**
@@ -224,39 +224,36 @@ export class BaseMessage {
     this.checks(payload);
     const body: ReplyPayload = {
       ...payload,
-      message_reference: payload.ping
-        ? undefined
-        : {
-            channel_id: this.d.channel_id,
-            guild_id: this.d.guild_id!,
-            message_id: this.d.id,
-          },
+      message_reference: payload.ping ? undefined : {
+        channel_id: this.d.channel_id,
+        guild_id: this.d.guild_id!,
+        message_id: this.d.id,
+      },
     };
-    const request = await new ApiRequest(
+    const request = await discordFetch(
       `/channels/${this.d.channel_id}/messages`,
       "POST",
+      this.token,
       body,
-      this.token
-    ).send();
+    );
     const msg = new ClientMessage(await request.json(), this.token);
     return msg;
   }
   async delete(reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await new ApiRequest(
+    await discordFetch(
       `/channels/${this.d.channel_id}/messages/${this.d.id}`,
       "DELETE",
-      {},
       this.token,
-      headers
-    ).send();
-    return null;
+      {},
+      headers,
+    );
   }
   private checks(payload: ReplyPayload) {
     if (payload.components && payload.components.length > 5) {
       throw new Error(
-        Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length)
+        Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length),
       );
     }
     if (payload.embeds && payload.embeds.length > 10) {
