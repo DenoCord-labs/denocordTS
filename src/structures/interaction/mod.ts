@@ -1,1 +1,1 @@
-export * from "./Interaction.ts";
+export * from "./interaction.ts";
