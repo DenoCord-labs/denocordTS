@@ -1,4 +1,4 @@
-import { APISelectMenuComponent, APIButtonComponent } from "../../../deps.ts";
+import { APISelectMenuComponent, APIButtonComponent } from "../../types/mod.ts";
 import { SelectMenu } from "../../../mod.ts";
 export class ActionRow {
   private components: (APISelectMenuComponent | APIButtonComponent)[] = [];

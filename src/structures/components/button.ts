@@ -3,7 +3,7 @@ import {
   ButtonStyle,
   APIButtonComponentWithCustomId,
   APIMessageComponentEmoji,
-} from "../../../deps.ts";
+} from "../../types/mod.ts";
 import { BaseComponent } from "./base.ts";
 export class Button extends BaseComponent {
   private button: APIButtonComponent = { type: 2 } as APIButtonComponent;
