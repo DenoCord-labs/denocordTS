@@ -5,13 +5,13 @@ import {
   InteractionResponseType,
   MessageFlags,
 } from "../../types/mod.ts";
-
+import { Messages } from "../../errors/messages.ts";
 export class Interaction {
   protected deferred = false;
   protected replied = false;
   constructor(
     protected interaction: APIInteraction & { locale: string },
-    protected token: string,
+    protected token: string
   ) {}
   protected create() {
     const obj = {
@@ -46,8 +46,10 @@ export class Interaction {
         suppress_embeds?: boolean;
       },
       "flags"
-    >,
+    >
   ) {
+    if (this.replied) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
+    if (this.deferred) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     const { suppress_embeds, ephemeral, ...payloadData } = data;
     this.replied = true;
     let flags = 0;
@@ -55,30 +57,40 @@ export class Interaction {
     if (suppress_embeds) flags |= MessageFlags.SuppressEmbeds;
 
     const payload = { ...payloadData, flags };
-    await discordFetch(``, "POST", this.token, {
-      type: InteractionResponseType.ChannelMessageWithSource,
-      data: payload,
-    });
+    await discordFetch(
+      `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
+      "POST",
+      this.token,
+      {
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: payload,
+      }
+    );
   }
   async deferReply(payload = { ephemeral: false }) {
+    if (this.deferred) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
+    if (this.replied) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     this.deferred = true;
     const { ephemeral } = payload;
     await discordFetch(
-      `/interactions/${this.interaction.id}/${this.interaction.token}/defer`,
+      `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       this.token,
       {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
         ephemeral,
-      },
+      }
     );
   }
   async editReply(payload: APIInteractionResponseCallbackData) {
+    if (!this.replied && !this.deferred)
+      throw new Error(Messages.INTERACTION_NOT_REPLIED);
+
     await discordFetch(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "PATCH",
       this.token,
-      payload,
+      payload
     );
   }
 
@@ -86,47 +98,43 @@ export class Interaction {
     await discordFetch(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "DELETE",
-      this.token,
+      this.token
     );
   }
 
   async followUp(payload: APIInteractionResponseCallbackData) {
     const res = await discordFetch(
-      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-        .interaction.message?.id}`,
+      `/webhooks/${this.interaction.application_id}/${this.interaction.token}`,
       "GET",
       this.token,
-      payload,
+      payload
     );
     return await res.json();
   }
 
   async fetchFollowUp() {
     const res = await discordFetch(
-      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-        .interaction.message?.id}`,
+      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
       "GET",
-      this.token,
+      this.token
     );
     return await res.json();
   }
 
   async editFollowUp(payload: APIInteractionResponseCallbackData) {
     await discordFetch(
-      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-        .interaction.message?.id}`,
+      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
       "PATCH",
       this.token,
-      payload,
+      payload
     );
   }
 
   async deleteFollowUp() {
     await discordFetch(
-      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-        .interaction.message?.id}`,
+      `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
       "DELETE",
-      this.token,
+      this.token
     );
   }
 
@@ -134,7 +142,7 @@ export class Interaction {
     await discordFetch(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "GET",
-      this.token,
+      this.token
     );
   }
 
@@ -143,7 +151,7 @@ export class Interaction {
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       this.token,
-      { type: InteractionResponseType.DeferredMessageUpdate },
+      { type: InteractionResponseType.DeferredMessageUpdate }
     );
   }
 
