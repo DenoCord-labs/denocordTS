@@ -83,7 +83,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           if (d.author.id === this.user.id) {
             this.emit(
               "MessageCreate",
-              new ClientMessage(d, this.options.token),
+              new ClientMessage(d, this.options.token)
             );
           } else {
             this.emit("MessageCreate", new Message(d, this.options.token));
@@ -114,8 +114,9 @@ export class Base extends EventEmitter<GatewayEvents> {
         }
         case GatewayDispatchEvents.InteractionCreate: {
           if (this.collectors.has(d.message.id)) {
-			  console.log("collector found");
-            this.collected[d.message.id as string].push(d.interaction);
+            console.log(this.collectors);
+            this.collected[d.message.id].push(d);
+            console.log(this.collected);
           }
         }
       }
@@ -127,7 +128,7 @@ export class Base extends EventEmitter<GatewayEvents> {
         JSON.stringify({
           op: OPCodes.HEARTBEAT,
           d: null,
-        }),
+        })
       );
     }, this.heartbeatInterval);
   }
