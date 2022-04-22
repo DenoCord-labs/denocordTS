@@ -304,7 +304,7 @@ export class BaseMessage {
       `/channels/${this.d.channel_id}/messages/${this.d.id}/reactions`,
       "DELETE",
       this.token,
-      {},
+      {}
     );
     return null;
   }
@@ -315,7 +315,7 @@ export class BaseMessage {
       }/reactions/${parseEmoji(emoji)}`,
       "DELETE",
       this.token,
-      {},
+      {}
     );
     return null;
   }
@@ -324,7 +324,7 @@ export class BaseMessage {
       `/channels/${this.d.channel_id}/typing`,
       "POST",
       this.token,
-      {},
+      {}
     );
     return null;
   }
@@ -376,15 +376,12 @@ export class BaseMessage {
     );
     return request.json();
   }
-  waitForInteractions(client: Client, messageId: Snowflake) {
-    client.collectors.set(messageId, "");
-    const asyncIterable = {
-      async *[Symbol.asyncIterator]() {
-        yield client.collected[messageId];
-      },
-    };
+  async *collect(client: Client, messageId: Snowflake) {
+    client.collectors.set(messageId, this);
     client.collected[messageId] = [];
-    return asyncIterable;
+    while (true) {
+      yield client.collected[messageId];
+    }
   }
   private checks(payload: ReplyPayload) {
     if (payload.components && payload.components.length > 5) {
