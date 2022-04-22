@@ -25,6 +25,11 @@ export class Base extends EventEmitter<GatewayEvents> {
   private heartbeatInterval = 41250;
   protected websocket: WebSocket;
   public user = {} as ClientUser;
+  /**
+   * @warning You should not modify this
+   */
+  public collectors = new Map();
+  collected: Record<string, any> = {};
   protected options;
   constructor(options: ClientOptions) {
     super();
@@ -35,7 +40,7 @@ export class Base extends EventEmitter<GatewayEvents> {
       token: options.token,
       intents: options.intents.reduce(
         (bits, next) => (bits |= GatewayIntentBits[next]),
-        0,
+        0
       ),
       properties: {
         $browser: "denocord",
@@ -50,7 +55,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           d: {
             ...payload,
           },
-        }),
+        })
       );
     };
     this.websocket.onerror = async (e) => {
@@ -63,9 +68,9 @@ export class Base extends EventEmitter<GatewayEvents> {
         op,
         t,
       }: // deno-lint-ignore no-explicit-any
-        { op: OPCodes; d: any; t: GatewayDispatchEvents } = await JSON.parse(
-          e.data,
-        );
+      { op: OPCodes; d: any; t: GatewayDispatchEvents } = await JSON.parse(
+        e.data
+      );
       switch (op) {
         case OPCodes.HELLO: {
           this.heartbeatInterval = d.heartbeat_interval;
@@ -89,7 +94,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           this.user = {
             ...d.user,
             guilds: d.guilds.map(
-              (g: { id: string; unavailable: boolean }) => g.id,
+              (g: { id: string; unavailable: boolean }) => g.id
             ),
           };
           break;
@@ -101,9 +106,16 @@ export class Base extends EventEmitter<GatewayEvents> {
           this.addEmojisToCache(d.emojis);
           if (
             Object.keys(this.cacheInstance.cache.guilds).length ==
-              this.user.guilds.length
+            this.user.guilds.length
           ) {
             this.emit("Ready", undefined);
+          }
+          break;
+        }
+        case GatewayDispatchEvents.InteractionCreate: {
+          if (this.collectors.has(d.message.id)) {
+			  console.log("collector found");
+            this.collected[d.message.id as string].push(d.interaction);
           }
         }
       }

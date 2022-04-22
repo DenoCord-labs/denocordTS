@@ -5,7 +5,7 @@ export async function discordFetch(
   method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT",
   token: string,
   body: { [key: string]: unknown } = {},
-  headers?: HeadersInit,
+  headers?: HeadersInit
 ) {
   const res = await fetch(`${BaseRestApiUrl}${url}`, {
     body: JSON.stringify(body),
@@ -18,7 +18,7 @@ export async function discordFetch(
   });
   if (!res.ok) {
     throw new Error(
-      JSON.stringify({ statusCode: res.status, ...(await res.json()) }),
+      JSON.stringify({ statusCode: res.status, ...(await res.json()) })
     );
   }
   return res;

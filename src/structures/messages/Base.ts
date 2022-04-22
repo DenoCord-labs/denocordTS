@@ -8,6 +8,9 @@ import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Messages } from "../../errors/messages.ts";
 import { discordFetch } from "../../rest/mod.ts";
 import { ClientMessage } from "./mod.ts";
+import { parseEmoji } from "../../utils/mod.ts";
+import { Client } from "../../client/client.ts";
+
 export class BaseMessage {
   /**
    * Id of the Message
@@ -224,17 +227,19 @@ export class BaseMessage {
     this.checks(payload);
     const body: ReplyPayload = {
       ...payload,
-      message_reference: payload.ping ? undefined : {
-        channel_id: this.d.channel_id,
-        guild_id: this.d.guild_id!,
-        message_id: this.d.id,
-      },
+      message_reference: payload.ping
+        ? undefined
+        : {
+            channel_id: this.d.channel_id,
+            guild_id: this.d.guild_id!,
+            message_id: this.d.id,
+          },
     };
     const request = await discordFetch(
       `/channels/${this.d.channel_id}/messages`,
       "POST",
       this.token,
-      body,
+      body
     );
     const msg = new ClientMessage(await request.json(), this.token);
     return msg;
@@ -247,13 +252,144 @@ export class BaseMessage {
       "DELETE",
       this.token,
       {},
-      headers,
+      headers
     );
+  }
+  async addReaction(emoji: string) {
+    await discordFetch(
+      `/channels/${this.d.channel_id}/messages/${
+        this.d.id
+      }/reactions/${parseEmoji(emoji)}/@me`,
+      "PUT",
+      this.token,
+      {}
+    );
+    return null;
+  }
+  async removeClientReaction(emoji: string) {
+    await discordFetch(
+      `/channels/${this.d.channel_id}/messages/${
+        this.d.id
+      }/reactions/${parseEmoji(emoji)}/@me`,
+      "DELETE",
+      this.token,
+      {}
+    );
+    return null;
+  }
+  async removeUserReaction(emoji: string, userId: Snowflake) {
+    await discordFetch(
+      `/channels/${this.d.channel_id}/messages/${
+        this.d.id
+      }/reactions/${parseEmoji(emoji)}/${userId}`,
+      "DELETE",
+      this.token,
+      {}
+    );
+    return null;
+  }
+  async getReactions(emoji: string) {
+    const request = await discordFetch(
+      `/channels/${this.d.channel_id}/messages/${
+        this.d.id
+      }/reactions/${parseEmoji(emoji)}`,
+      "GET",
+      this.token,
+      {}
+    );
+    return request.json();
+  }
+  async deleteAllReactions() {
+    await discordFetch(
+      `/channels/${this.d.channel_id}/messages/${this.d.id}/reactions`,
+      "DELETE",
+      this.token,
+      {},
+    );
+    return null;
+  }
+  async deleteAllReactionsByEmoji(emoji: string) {
+    await discordFetch(
+      `/channels/${this.d.channel_id}/messages/${
+        this.d.id
+      }/reactions/${parseEmoji(emoji)}`,
+      "DELETE",
+      this.token,
+      {},
+    );
+    return null;
+  }
+  async sendTyping() {
+    await discordFetch(
+      `/channels/${this.d.channel_id}/typing`,
+      "POST",
+      this.token,
+      {},
+    );
+    return null;
+  }
+  async pinMessage(reason?: string) {
+    const headers = new Headers();
+    if (reason) headers.append("X-Audit-Log-Reason", reason);
+    await discordFetch(
+      `/channels/${this.d.channel_id}/pins/${this.d.id}`,
+      "PUT",
+      this.token,
+      {},
+      headers
+    );
+    return null;
+  }
+  async unpinMessage(reason?: string) {
+    const headers = new Headers();
+    if (reason) headers.append("X-Audit-Log-Reason", reason);
+    await discordFetch(
+      `/channels/${this.d.channel_id}/pins/${this.d.id}`,
+      "DELETE",
+      this.token,
+      {},
+      headers
+    );
+    return null;
+  }
+  async startThreadFromMessage(reason?: string) {
+    const headers = new Headers();
+    if (reason) headers.append("X-Audit-Log-Reason", reason);
+    const request = await discordFetch(
+      `/channels/${this.d.channel_id}/messages/${this.d.id}/threads`,
+      "PUT",
+      this.token,
+      {},
+      headers
+    );
+    return request.json();
+  }
+  async createNewThread(reason?: string) {
+    const headers = new Headers();
+    if (reason) headers.append("X-Audit-Log-Reason", reason);
+    const request = await discordFetch(
+      `/channels/${this.d.channel_id}/threads`,
+      "POST",
+      this.token,
+      {},
+      headers
+    );
+    return request.json();
+  }
+  waitForInteractions(client: Client, messageId: Snowflake) {
+    client.collectors.set(messageId, "");
+    const asyncIterable = {
+      async *[Symbol.asyncIterator]() {
+        yield client.collected[messageId];
+      },
+    };
+    client.collected[messageId] = [];
+    return asyncIterable;
   }
   private checks(payload: ReplyPayload) {
     if (payload.components && payload.components.length > 5) {
       throw new Error(
-        Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length),
+        Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length)
       );
     }
     if (payload.embeds && payload.embeds.length > 10) {
