@@ -181,7 +181,7 @@ export const Messages = {
   MODAL_SUBMIT_INTERACTION_FIELD_TYPE: (
     customId: any,
     type: any,
-    expected: any,
+    expected: any
   ) =>
     `Field with custom id "${customId}" is of type: ${type}; expected ${expected}.`,
 
@@ -203,6 +203,8 @@ export const Messages = {
     `The Max Action Rows for a Message is 5 but you have ${length} Action Rows.`,
   EMBEDS_LENGTH_EXCEEDED: (length: number) =>
     `The Max Embeds for a Message is 25 but you have ${length} Embeds.`,
+  INVALID_URL_SCHEME: (scheme: any) =>
+    `The URL scheme "${scheme}" is not supported. Must be http or https.`,
 };
 
 Messages.AuthenticationFailed = Messages.TOKEN_INVALID;
