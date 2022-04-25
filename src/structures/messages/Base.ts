@@ -227,14 +227,14 @@ export class BaseMessage {
     this.checks(payload);
     const body: ReplyPayload = {
       ...payload,
-      message_reference: payload.ping
+      message_reference: !payload.ping
         ? undefined
         : {
             channel_id: this.d.channel_id,
             guild_id: this.d.guild_id!,
             message_id: this.d.id,
           },
-    };
+    }
     const request = await discordFetch(
       `/channels/${this.d.channel_id}/messages`,
       "POST",
@@ -375,13 +375,6 @@ export class BaseMessage {
       headers
     );
     return request.json();
-  }
-  async *collect(client: Client, messageId: Snowflake) {
-    client.collectors.set(messageId, this);
-    client.collected[messageId] = [];
-    while (true) {
-      yield client.collected[messageId];
-    }
   }
   private checks(payload: ReplyPayload) {
     if (payload.components && payload.components.length > 5) {
