@@ -18,22 +18,24 @@ import {
   OPCodes,
 } from "../types/mod.ts";
 import { GatewayUrl } from "../constants/mod.ts";
-import { ClientMessage, Message } from "../structures/mod.ts";
+import {
+  ClientMessage,
+  Message,
+  ComponentCollector,
+} from "../structures/mod.ts";
 export class Base extends EventEmitter<GatewayEvents> {
   private cacheInstance = new Cache();
   public cache;
   private heartbeatInterval = 41250;
   protected websocket: WebSocket;
   public user = {} as ClientUser;
-  /**
-   * @warning You should not modify this
-   */
-  public collectors = new Map();
-  collected: Record<string, any> = {};
+  token: string = "";
+ 
   protected options;
   constructor(options: ClientOptions) {
     super();
     this.options = options;
+    this.token = options.token;
     this.websocket = new WebSocket(GatewayUrl);
     this.cache = this.cacheInstance.cache;
     const payload: GatewayIdentifyData = {
@@ -43,8 +45,8 @@ export class Base extends EventEmitter<GatewayEvents> {
         0
       ),
       properties: {
-        $browser: "denocord",
-        $device: "denocord",
+        $browser: "denocordts",
+        $device: "denocordts",
         $os: Deno.build.os,
       },
     };
@@ -113,11 +115,21 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.InteractionCreate: {
-          if (this.collectors.has(d.message.id)) {
-            console.log(this.collectors);
-            this.collected[d.message.id].push(d);
-            console.log(this.collected);
+          this.emit("InteractionCreate", d);
+          break;
+        }
+        case GatewayDispatchEvents.GuildMemberUpdate: {
+        }
+        case GatewayDispatchEvents.GuildRoleCreate: {
+          if (d.role) {
+            this.cacheInstance.cache.roles[d.role.id] = d;
           }
+        }
+        case GatewayDispatchEvents.GuildRoleDelete: {
+          delete this.cacheInstance.cache.roles[d.role_id];
+        }
+        case GatewayDispatchEvents.GuildRoleUpdate: {
+          this.cacheInstance.cache.roles[d.role.id] = d;
         }
       }
     };
