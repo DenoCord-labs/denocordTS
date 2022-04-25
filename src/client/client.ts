@@ -1,7 +1,13 @@
 import { Base } from "./base.ts";
 import { ClientOptions } from "../types/mod.ts";
-import { GatewayOpcodes, GatewayPresenceUpdateData } from "../types/mod.ts";
+import {
+  GatewayOpcodes,
+  GatewayPresenceUpdateData,
+  APIInteractionGuildMember,
+} from "../types/mod.ts";
+import { PermissionBits } from "../types/permission.ts";
 import { CDN } from "../rest/cdn.ts";
+import { discordFetch as request } from "../rest/mod.ts";
 export class Client extends Base {
   public cdn = new CDN();
   constructor(protected options: ClientOptions) {
@@ -16,5 +22,30 @@ export class Client extends Base {
         },
       })
     );
+  }
+  checkMemberPermission({
+    member,
+    permission,
+  }: {
+    member: APIInteractionGuildMember;
+    permission: keyof typeof PermissionBits;
+  }) {
+    return parseInt(member.permissions) & PermissionBits[permission]
+      ? true
+      : false;
+  }
+  async fetchGuildMember({
+    guildId,
+    userId,
+  }: {
+    guildId: string;
+    userId: string;
+  }): Promise<APIInteractionGuildMember> {
+    const res = await request(
+      `/guilds/${guildId}/members/${userId}`,
+      "GET",
+      this.options.token
+    );
+    return await res.json();
   }
 }
