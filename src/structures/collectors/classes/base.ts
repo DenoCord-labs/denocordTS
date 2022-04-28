@@ -18,7 +18,8 @@ export class BaseComponent {
   public readonly id!: APIMessageComponentButtonInteraction["id"];
   public readonly guildId?: APIMessageComponentButtonInteraction["guild_id"];
   public data!: {};
-  public readonly clientId!: APIMessageComponentButtonInteraction["application_id"];
+  public readonly clientId!:
+    APIMessageComponentButtonInteraction["application_id"];
   constructor(public client: Client, public channelId: string, private d: any) {
     this.token = d.token;
     this.message = this.d.message;
@@ -32,8 +33,8 @@ export class BaseComponent {
     this.deferred = true;
     const data = ephemeral
       ? {
-          flags: 1 << 6,
-        }
+        flags: 1 << 6,
+      }
       : {};
     await discordFetch(
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
@@ -42,7 +43,7 @@ export class BaseComponent {
       {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
         data,
-      }
+      },
     );
   }
   public async reply(payload: ReplyPayload) {
@@ -56,21 +57,22 @@ export class BaseComponent {
       {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: { ...payload },
-      }
+      },
     );
     this.replied = true;
     return null;
   }
   public async editReply(payload: ReplyPayload) {
-    if (!this.deferred && !this.replied)
+    if (!this.deferred && !this.replied) {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
+    }
     await discordFetch(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "PATCH",
       this.client.token,
       {
         ...payload,
-      }
+      },
     );
     return null;
   }
@@ -81,7 +83,7 @@ export class BaseComponent {
     const res = await discordFetch(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "GET",
-      this.client.token
+      this.client.token,
     );
     return new ClientMessage(await res.json(), this.client.token);
   }
@@ -92,7 +94,7 @@ export class BaseComponent {
     await discordFetch(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "DELETE",
-      this.client.token
+      this.client.token,
     );
     return null;
   }
@@ -102,7 +104,7 @@ export class BaseComponent {
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
       "POST",
       this.client.token,
-      { type: InteractionResponseType.DeferredMessageUpdate }
+      { type: InteractionResponseType.DeferredMessageUpdate },
     );
     this.deferred = true;
     return null;

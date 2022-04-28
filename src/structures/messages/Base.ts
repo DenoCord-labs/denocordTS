@@ -227,19 +227,17 @@ export class BaseMessage {
     this.checks(payload);
     const body: ReplyPayload = {
       ...payload,
-      message_reference: !payload.ping
-        ? undefined
-        : {
-            channel_id: this.d.channel_id,
-            guild_id: this.d.guild_id!,
-            message_id: this.d.id,
-          },
-    }
+      message_reference: !payload.ping ? undefined : {
+        channel_id: this.d.channel_id,
+        guild_id: this.d.guild_id!,
+        message_id: this.d.id,
+      },
+    };
     const request = await discordFetch(
       `/channels/${this.d.channel_id}/messages`,
       "POST",
       this.token,
-      body
+      body,
     );
     const msg = new ClientMessage(await request.json(), this.token);
     return msg;
@@ -252,50 +250,50 @@ export class BaseMessage {
       "DELETE",
       this.token,
       {},
-      headers
+      headers,
     );
   }
   async addReaction(emoji: string) {
     await discordFetch(
-      `/channels/${this.d.channel_id}/messages/${
-        this.d.id
-      }/reactions/${parseEmoji(emoji)}/@me`,
+      `/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+        parseEmoji(emoji)
+      }/@me`,
       "PUT",
       this.token,
-      {}
+      {},
     );
     return null;
   }
   async removeClientReaction(emoji: string) {
     await discordFetch(
-      `/channels/${this.d.channel_id}/messages/${
-        this.d.id
-      }/reactions/${parseEmoji(emoji)}/@me`,
+      `/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+        parseEmoji(emoji)
+      }/@me`,
       "DELETE",
       this.token,
-      {}
+      {},
     );
     return null;
   }
   async removeUserReaction(emoji: string, userId: Snowflake) {
     await discordFetch(
-      `/channels/${this.d.channel_id}/messages/${
-        this.d.id
-      }/reactions/${parseEmoji(emoji)}/${userId}`,
+      `/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+        parseEmoji(emoji)
+      }/${userId}`,
       "DELETE",
       this.token,
-      {}
+      {},
     );
     return null;
   }
   async getReactions(emoji: string) {
     const request = await discordFetch(
-      `/channels/${this.d.channel_id}/messages/${
-        this.d.id
-      }/reactions/${parseEmoji(emoji)}`,
+      `/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+        parseEmoji(emoji)
+      }`,
       "GET",
       this.token,
-      {}
+      {},
     );
     return request.json();
   }
@@ -304,18 +302,18 @@ export class BaseMessage {
       `/channels/${this.d.channel_id}/messages/${this.d.id}/reactions`,
       "DELETE",
       this.token,
-      {}
+      {},
     );
     return null;
   }
   async deleteAllReactionsByEmoji(emoji: string) {
     await discordFetch(
-      `/channels/${this.d.channel_id}/messages/${
-        this.d.id
-      }/reactions/${parseEmoji(emoji)}`,
+      `/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+        parseEmoji(emoji)
+      }`,
       "DELETE",
       this.token,
-      {}
+      {},
     );
     return null;
   }
@@ -324,7 +322,7 @@ export class BaseMessage {
       `/channels/${this.d.channel_id}/typing`,
       "POST",
       this.token,
-      {}
+      {},
     );
     return null;
   }
@@ -336,7 +334,7 @@ export class BaseMessage {
       "PUT",
       this.token,
       {},
-      headers
+      headers,
     );
     return null;
   }
@@ -348,7 +346,7 @@ export class BaseMessage {
       "DELETE",
       this.token,
       {},
-      headers
+      headers,
     );
     return null;
   }
@@ -360,7 +358,7 @@ export class BaseMessage {
       "PUT",
       this.token,
       {},
-      headers
+      headers,
     );
     return request.json();
   }
@@ -372,14 +370,14 @@ export class BaseMessage {
       "POST",
       this.token,
       {},
-      headers
+      headers,
     );
     return request.json();
   }
   private checks(payload: ReplyPayload) {
     if (payload.components && payload.components.length > 5) {
       throw new Error(
-        Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length)
+        Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length),
       );
     }
     if (payload.embeds && payload.embeds.length > 10) {

@@ -64,6 +64,7 @@ export class WebSocketClient {
   ): void;
   on(event: "close", listener: WebSocketEvents["close"]): void;
   on(event: "open", listener: WebSocketEvents["open"]): void;
+  on(event: "error", listener: WebSocketEvents["error"]): void;
 
   on(
     event: keyof WebSocketEvents,

@@ -1,8 +1,8 @@
 import {
   APIButtonComponent,
-  ButtonStyle,
   APIButtonComponentWithCustomId,
   APIMessageComponentEmoji,
+  ButtonStyle,
 } from "../../types/mod.ts";
 import { BaseComponent } from "./base.ts";
 export class Button extends BaseComponent {

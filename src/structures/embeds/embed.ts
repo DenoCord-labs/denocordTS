@@ -1,7 +1,7 @@
 import {
+  AuthorFields,
   Embed as EmbedType,
   EmbedFields,
-  AuthorFields,
   FooterFields,
 } from "../../types/embed.ts";
 

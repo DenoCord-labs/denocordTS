@@ -5,7 +5,7 @@ export class ButtonInteraction extends BaseComponent {
   constructor(
     client: Client,
     channelId: string,
-    d: APIMessageComponentButtonInteraction
+    d: APIMessageComponentButtonInteraction,
   ) {
     super(client, channelId, d);
   }

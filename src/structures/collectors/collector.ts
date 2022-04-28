@@ -14,7 +14,7 @@ export class ComponentCollector extends EventEmitter<CollectorEvents> {
       ) {
         this.emit(
           "buttonInteraction",
-          new ButtonInteraction(this.client, this.channelId, e)
+          new ButtonInteraction(this.client, this.channelId, e),
         );
       } else if (
         e.type == 3 &&
@@ -23,7 +23,7 @@ export class ComponentCollector extends EventEmitter<CollectorEvents> {
       ) {
         this.emit(
           "selectMenuInteraction",
-          new SelectMenuInteraction(this.client, this.channelId, e)
+          new SelectMenuInteraction(this.client, this.channelId, e),
         );
       }
     });

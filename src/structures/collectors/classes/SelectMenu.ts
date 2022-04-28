@@ -6,7 +6,7 @@ export class SlashMenuInteraction extends BaseComponent {
   constructor(
     public client: Client,
     public channelId: string,
-    d: APIMessageComponentSelectMenuInteraction
+    d: APIMessageComponentSelectMenuInteraction,
   ) {
     super(client, channelId, d);
     this.values = d.data.values;

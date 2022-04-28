@@ -1,9 +1,9 @@
 import { Base } from "./base.ts";
 import { ClientOptions } from "../types/mod.ts";
 import {
+  APIInteractionGuildMember,
   GatewayOpcodes,
   GatewayPresenceUpdateData,
-  APIInteractionGuildMember,
 } from "../types/mod.ts";
 import { PermissionBits } from "../types/permission.ts";
 import { CDN } from "../rest/cdn.ts";
@@ -20,7 +20,7 @@ export class Client extends Base {
         d: {
           ...presence,
         },
-      })
+      }),
     );
   }
   checkMemberPermission({
@@ -30,7 +30,7 @@ export class Client extends Base {
     member: APIInteractionGuildMember;
     permission: keyof typeof PermissionBits;
   }) {
-    return parseInt(member.permissions) & PermissionBits[permission]
+    return BigInt(member.permissions) & PermissionBits[permission]
       ? true
       : false;
   }
@@ -44,7 +44,7 @@ export class Client extends Base {
     const res = await request(
       `/guilds/${guildId}/members/${userId}`,
       "GET",
-      this.options.token
+      this.options.token,
     );
     return await res.json();
   }

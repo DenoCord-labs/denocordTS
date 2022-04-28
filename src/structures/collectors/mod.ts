@@ -1,1 +1,1 @@
-export * from './collector.ts'
+export * from "./collector.ts";

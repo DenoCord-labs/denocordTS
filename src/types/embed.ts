@@ -1,6 +1,6 @@
 import {
-  APIEmbedField,
   APIEmbedAuthor,
+  APIEmbedField,
   APIEmbedFooter,
   EmbedType,
 } from "./mod.ts";

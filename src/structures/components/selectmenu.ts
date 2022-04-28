@@ -1,4 +1,7 @@
-import { APISelectMenuComponent, APISelectMenuOption } from "../../types/mod.ts";
+import {
+  APISelectMenuComponent,
+  APISelectMenuOption,
+} from "../../types/mod.ts";
 import { BaseComponent } from "./base.ts";
 export class SelectMenu extends BaseComponent {
   private selectMenu: APISelectMenuComponent = {

@@ -6,7 +6,15 @@ export enum FileTypes {
   WEBP = "webp",
 }
 export const ALLOWED_SIZES = [
-  16, 32, 64, 128, 256, 512, 1024, 2048, 4096,
+  16,
+  32,
+  64,
+  128,
+  256,
+  512,
+  1024,
+  2048,
+  4096,
 ] as const;
 type Format = {
   format?: keyof typeof FileTypes;
