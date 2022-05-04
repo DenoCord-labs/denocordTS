@@ -1,7 +1,7 @@
 import { ReplyPayload } from "./responsepayload.ts";
 import { ClientMessage } from "../structures/mod.ts";
 import { ButtonInteraction } from "../structures/collectors/classes/Button.ts";
-import { SlashMenuInteraction } from "../structures/collectors/classes/SelectMenu.ts";
+import { SelectMenuInteraction } from "../structures/collectors/classes/SelectMenu.ts";
 type ComponentFunctions = {
   reply: (e: ReplyPayload) => any;
   deferReply: (e: { ephemeral?: boolean }) => any;
@@ -16,5 +16,5 @@ type ComponentFunctions = {
 };
 export type CollectorEvents = {
   buttonInteraction: (collected: ButtonInteraction) => any;
-  selectMenuInteraction: (collected: SlashMenuInteraction) => any;
+  selectMenuInteraction: (collected: SelectMenuInteraction) => any;
 };
