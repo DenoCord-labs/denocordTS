@@ -2,8 +2,6 @@ import { Cache } from "../cache/mod.ts";
 import {
   APIChannel,
   APIEmoji,
-  APIGuild,
-  APIMessage,
   APIRole,
   APIUser,
   GatewayDispatchEvents,
@@ -156,18 +154,24 @@ export class Base extends EventEmitter<GatewayEvents> {
     );
   }
   private addRolesToCache(roles: APIRole[]) {
-    for (const role of roles) {
-      this.cacheInstance.addRoleToCache(role.id, role);
-    }
+    Promise.all(
+      roles.map((role) => {
+        this.cacheInstance.addRoleToCache(role.id, role);
+      })
+    );
   }
   private addEmojisToCache(emojis: APIEmoji[]) {
-    for (const emoji of emojis) {
-      this.cacheInstance.addEmojiToCache(emoji.id!, emoji);
-    }
+    Promise.all(
+      emojis.map((emoji) => {
+        this.cacheInstance.addEmojiToCache(emoji.id!, emoji);
+      })
+    );
   }
   private addUsersToCache(users: APIUser[]) {
-    for (const user of users) {
-      this.cacheInstance.addUserToCache(user.id, user);
-    }
+    Promise.all(
+      users.map((user) => {
+        this.cacheInstance.addUserToCache(user.id, user);
+      })
+    );
   }
 }
