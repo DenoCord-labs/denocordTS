@@ -1,14 +1,36 @@
-import { APIChannel, APIEmoji, APIGuild, APIRole, APIUser } from "./mod.ts";
+import {
+	APIChannel,
+	APIEmoji,
+	APIGuild,
+	APIGuildMember,
+	APIRole,
+	APIUser,
+} from "./mod.ts";
+import { SnakeToCamelCase } from "./events.ts";
+export type Member = {
+	[K in keyof APIGuildMember as SnakeToCamelCase<K>]: APIGuildMember[K];
+};
+export type Guild = {
+	[K in keyof APIGuild as SnakeToCamelCase<K>]: APIGuild[K];
+};
+export type Channel = {
+	[K in keyof APIChannel as SnakeToCamelCase<K>]: APIChannel[K];
+};
+export type User = {
+	[K in keyof APIUser as SnakeToCamelCase<K>]: APIUser[K];
+};
+export type Role = {
+	[K in keyof APIRole as SnakeToCamelCase<K>]: APIRole[K];
+};
+export type Emoji = {
+	[K in keyof APIEmoji as SnakeToCamelCase<K>]: APIEmoji[K];
+};
 
 export type cacheFields = {
-  guilds: Record<string, APIGuild>;
-  channels: Record<string, APIChannel>;
-  users: Record<string, APIUser>;
-  emojis: Record<string, APIEmoji>;
-  roles: Record<string, APIRole>;
-  getGuild(guildId: string): APIGuild | undefined;
-  getChannel(channelId: string): APIChannel | undefined;
-  getUser(userId: string): APIUser | undefined;
-  getEmoji(emojiId: string): APIEmoji | undefined;
-  getRole(roleId: string): APIRole | undefined;
+	guilds: Record<string, Guild>;
+	channels: Record<string, Channel>;
+	users: Record<string, User>;
+	emojis: Record<string, Emoji>;
+	roles: Record<string, Role>;
+	members: Record<string, Member>;
 };
