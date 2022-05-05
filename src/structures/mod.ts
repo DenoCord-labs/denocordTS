@@ -4,6 +4,6 @@ export { Button, SelectMenu } from "./components/mod.ts";
 export { Embed } from "./embeds/mod.ts";
 export { ComponentCollector } from "./collectors/mod.ts";
 export type {
-  ButtonInteraction,
-  SelectMenuInteraction,
+	ButtonInteraction,
+	SelectMenuInteraction,
 } from "./collectors/mod.ts";

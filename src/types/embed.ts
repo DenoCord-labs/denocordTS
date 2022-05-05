@@ -1,24 +1,24 @@
 import {
-  APIEmbedAuthor,
-  APIEmbedField,
-  APIEmbedFooter,
-  EmbedType,
+	APIEmbedAuthor,
+	APIEmbedField,
+	APIEmbedFooter,
+	EmbedType,
 } from "./mod.ts";
 export type Embed = {
-  title?: string;
-  type: EmbedType.Rich;
-  description?: string;
-  color?: number;
-  image?: {
-    url: string;
-  };
-  thumbnail?: {
-    url: string;
-  };
-  fields?: APIEmbedField[];
-  author: APIEmbedAuthor;
-  footer?: APIEmbedFooter;
-  timestamp?: string;
+	title?: string;
+	type: EmbedType.Rich;
+	description?: string;
+	color?: number;
+	image?: {
+		url: string;
+	};
+	thumbnail?: {
+		url: string;
+	};
+	fields?: APIEmbedField[];
+	author: APIEmbedAuthor;
+	footer?: APIEmbedFooter;
+	timestamp?: string;
 };
 
 export type EmbedFields = APIEmbedField;
