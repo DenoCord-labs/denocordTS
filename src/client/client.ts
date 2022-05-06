@@ -5,6 +5,7 @@ import {
 	GatewayOpcodes,
 	GatewayPresenceUpdateData,
 } from "../types/mod.ts";
+import type { SlashCommand } from "../structures/commands/slashCommands/builder.ts";
 import { PermissionBits } from "../types/permission.ts";
 import { CDN } from "../rest/cdn.ts";
 import { discordFetch as request } from "../rest/mod.ts";
@@ -20,7 +21,7 @@ export class Client extends Base {
 				d: {
 					...presence,
 				},
-			}),
+			})
 		);
 	}
 	checkMemberPermission({
@@ -44,8 +45,20 @@ export class Client extends Base {
 		const res = await request(
 			`/guilds/${guildId}/members/${userId}`,
 			"GET",
-			this.options.token,
+			this.options.token
 		);
 		return await res.json();
+	}
+	async registerGlobalSlashCommands(commands: SlashCommand[]) {
+		for (const command of commands) {
+			await request(
+				`/applications/${this.options.clientId}/commands`,
+				"POST",
+				this.options.token,
+				{
+					...command.toJSON(),
+				}
+			);
+		}
 	}
 }
