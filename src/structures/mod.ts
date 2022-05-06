@@ -7,4 +7,4 @@ export type {
 	ButtonInteraction,
 	SelectMenuInteraction,
 } from "./collectors/mod.ts";
-export * from "./commands/mod.ts"
+export * from "./commands/mod.ts";

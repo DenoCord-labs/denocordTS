@@ -1,14 +1,14 @@
 import { CommandType } from "../../../types/commands/mod.ts";
 import {
-	StringOption,
-	IntegerOption,
+	AttachmentOptions,
 	BooleanOption,
-	UserOption,
-	RoleOption,
+	ChannelOptions,
+	IntegerOption,
 	MentionableOptions,
 	NumberOptions,
-	AttachmentOptions,
-	ChannelOptions,
+	RoleOption,
+	StringOption,
+	UserOption,
 } from "./options/mod.ts";
 export class SlashCommand {
 	name = "";
@@ -24,8 +24,9 @@ export class SlashCommand {
 		return this;
 	}
 	setDescription(description: string) {
-		if (description.length > 100)
+		if (description.length > 100) {
 			throw new Error("Description must be less than 100 characters");
+		}
 		this.description = description;
 		return this;
 	}
@@ -55,7 +56,7 @@ export class SlashCommand {
 		return this;
 	}
 	addMentionableOption(
-		callback: (e: MentionableOptions) => MentionableOptions
+		callback: (e: MentionableOptions) => MentionableOptions,
 	): this {
 		this.options.push(callback(new MentionableOptions()).toJSON());
 		return this;
@@ -65,7 +66,7 @@ export class SlashCommand {
 		return this;
 	}
 	addAttachmentOption(
-		callback: (e: AttachmentOptions) => AttachmentOptions
+		callback: (e: AttachmentOptions) => AttachmentOptions,
 	): this {
 		this.options.push(callback(new AttachmentOptions()).toJSON());
 		return this;

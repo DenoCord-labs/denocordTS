@@ -1,7 +1,7 @@
 import {
 	APIApplicationCommandMentionableOption,
-	ApplicationCommandOptionType,
 	APIApplicationCommandOptionChoice,
+	ApplicationCommandOptionType,
 } from "../../../../types/mod.ts";
 import { BaseCommandOption } from "./base.ts";
 

@@ -21,7 +21,7 @@ export class Client extends Base {
 				d: {
 					...presence,
 				},
-			})
+			}),
 		);
 	}
 	checkMemberPermission({
@@ -45,7 +45,7 @@ export class Client extends Base {
 		const res = await request(
 			`/guilds/${guildId}/members/${userId}`,
 			"GET",
-			this.options.token
+			this.options.token,
 		);
 		return await res.json();
 	}
@@ -57,7 +57,7 @@ export class Client extends Base {
 				this.options.token,
 				{
 					...command.toJSON(),
-				}
+				},
 			);
 		}
 	}

@@ -2,8 +2,8 @@
 import { ClientMessage } from "../structures/messages/mod.ts";
 import { BaseMessage } from "../structures/messages/Base.ts";
 import { APIMessage } from "./mod.ts";
-export type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}`
-	? `${T}${Capitalize<SnakeToCamelCase<U>>}`
+export type SnakeToCamelCase<S extends string> = S extends
+	`${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}`
 	: S;
 export type Message = {
 	[K in keyof APIMessage as SnakeToCamelCase<K>]: APIMessage[K];

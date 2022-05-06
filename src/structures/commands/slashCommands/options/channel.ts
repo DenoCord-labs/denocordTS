@@ -42,7 +42,7 @@ export class ChannelOptions extends BaseCommandOption {
 	}
 	setChannelType(...channelTypes: (keyof typeof ChannelTypeParameter)[]) {
 		this.options.channel_types = channelTypes.map(
-			(c) => ChannelTypeParameter[c]
+			(c) => ChannelTypeParameter[c],
 		) as any;
 
 		return this;
