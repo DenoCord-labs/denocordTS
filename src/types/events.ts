@@ -2,9 +2,11 @@
 import { ClientMessage } from "../structures/messages/mod.ts";
 import { BaseMessage } from "../structures/messages/Base.ts";
 import { APIMessage } from "./mod.ts";
-export type SnakeToCamelCase<S extends string> = S extends
-	`${infer T}_${infer U}` ? `${T}${Capitalize<SnakeToCamelCase<U>>}`
-	: S;
+import { CommandInteraction } from "./commandInteraction.ts";
+export type SnakeToCamelCase<S extends string> =
+	S extends `${infer T}_${infer U}`
+		? `${T}${Capitalize<SnakeToCamelCase<U>>}`
+		: S;
 export type Message = {
 	[K in keyof APIMessage as SnakeToCamelCase<K>]: APIMessage[K];
 };
@@ -31,7 +33,7 @@ export type GatewayEvents = {
 	IntegrationCreate: (e: any) => any;
 	IntegrationDelete: (e: any) => any;
 	IntegrationUpdate: (e: any) => any;
-	InteractionCreate: (e: any) => any;
+	InteractionCreate: (e: CommandInteraction) => any;
 	InviteCreate: (e: any) => any;
 	InviteDelete: (e: any) => any;
 	MessageCreate: (e: ClientMessage | BaseMessage) => any;
@@ -63,5 +65,6 @@ export type GatewayEvents = {
 	GuildScheduledEventDelete: (e: any) => any;
 	GuildScheduledEventUserAdd: (e: any) => any;
 	GuildScheduledEventUserRemove: (e: any) => any;
+	CommandInteraction: (e: CommandInteraction) => any;
 	Error: (e: any) => any;
 };
