@@ -4,22 +4,26 @@ export async function discordFetch(
 	href: string,
 	method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT",
 	token: string,
-	body: { [key: string]: unknown } = {},
+	body: any = {},
 	headers?: HeadersInit,
+	strignifyBody?: boolean
 ) {
 	const url = href.includes("http") ? href : BaseRestApiUrl + href;
 	const res = await fetch(`${url}`, {
-		body: method === "GET" ? undefined : JSON.stringify(body),
 		headers: {
 			"Content-Type": "application/json",
 			...headers,
 			Authorization: `Bot ${token}`,
 		},
 		method,
+		body:
+			method == "GET"
+				? undefined
+				: ((!strignifyBody ? JSON.stringify(body) : body) as any),
 	});
 	if (!res.ok) {
 		throw new Error(
-			JSON.stringify({ statusCode: res.status, ...(await res.json()) }),
+			JSON.stringify({ statusCode: res.status, ...(await res.json()) })
 		);
 	}
 	return res;
