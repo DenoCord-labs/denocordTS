@@ -21,7 +21,7 @@ export class Client extends Base {
 				d: {
 					...presence,
 				},
-			}),
+			})
 		);
 	}
 	checkMemberPermission({
@@ -45,7 +45,7 @@ export class Client extends Base {
 		const res = await request(
 			`/guilds/${guildId}/members/${userId}`,
 			"GET",
-			this.options.token,
+			this.options.token
 		);
 		return await res.json();
 	}
@@ -57,7 +57,23 @@ export class Client extends Base {
 				this.options.token,
 				{
 					...command.toJSON(),
-				},
+				}
+			);
+		}
+	}
+	async registerGuildSlashCommands({
+		commands,
+		guildId,
+	}: {
+		guildId: string;
+		commands: SlashCommand[];
+	}) {
+		for (const command of commands) {
+			await request(
+				`/applications/${this.options.clientId}/guilds/${guildId}/commands`,
+				"POST",
+				this.options.token,
+				{ ...command.toJSON() }
 			);
 		}
 	}
