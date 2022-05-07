@@ -1,63 +1,63 @@
 import { Client } from "../../client/client.ts";
 import { ButtonInteraction } from "./classes/Button.ts";
-import { SelectMenuInteraction as SelectMenuInteraction } from "./classes/SelectMenu.ts";
-export class ComponentCollector extends EventTarget {
+import { SelectMenuInteraction } from "./classes/SelectMenu.ts";
+export class ComponentCollector {
+	private target = new EventTarget();
 	constructor(
 		private client: Client,
 		private channelId: string,
-		disposeInterval?: number,
+		private disposeInterval?: number
 	) {
-		super();
-		this.client.on("InteractionCreate", (e) => {
+		this.client.on("InteractionCreate", async (e: any) => {
 			if (
 				e.type == 3 &&
-				e.channel_id == this.channelId &&
+				e.channelId == this.channelId &&
 				e.data.component_type == 2
 			) {
-				super.dispatchEvent(
+				this.target.dispatchEvent(
 					new CustomEvent("buttonInteraction", {
 						detail: new ButtonInteraction(
 							this.client,
 							this.channelId,
-							e,
+							e
 						),
-					}),
+					})
 				);
 			} else if (
 				e.type == 3 &&
-				e.channel_id == this.channelId &&
+				e.channelId == this.channelId &&
 				e.data.component_type == 3
 			) {
-				super.dispatchEvent(
+				this.target.dispatchEvent(
 					new CustomEvent("selectMenuInteraction", {
 						detail: new SelectMenuInteraction(
 							this.client,
 							this.channelId,
-							e,
+							e
 						),
-					}),
+					})
 				);
 			}
 		});
-		if (disposeInterval) {
-			setTimeout(() => {
-				this.dispose();
-			}, disposeInterval);
-		}
-		super.removeEventListener("buttonInteraction", () => {});
-	}
-	dispose() {
-		super.removeEventListener("buttonInteraction", () => {});
-
-		super.removeEventListener("selectMenuInteraction", () => {});
 	}
 	waitForInteraction({
-		type,
 		listener,
+		type,
+		once,
 	}: {
 		type: "buttonInteraction" | "selectMenuInteraction";
 		listener: (e: any) => any;
+		once?: boolean;
 	}) {
-		super.addEventListener(type, listener);
+		this.target.addEventListener(
+			type,
+			listener,
+			once ? { once: true } : {}
+		);
+		if (this.disposeInterval) {
+			setTimeout(() => {
+				this.target.removeEventListener(type, listener);
+			}, this.disposeInterval);
+		}
 	}
 }
