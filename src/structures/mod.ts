@@ -8,3 +8,4 @@ export type {
 	SelectMenuInteraction,
 } from "./collectors/mod.ts";
 export * from "./commands/mod.ts";
+export * from "./interaction/commands/applicationCommand.ts"
