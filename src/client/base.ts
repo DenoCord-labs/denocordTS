@@ -126,15 +126,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 							this.options.token
 						) as any
 					);
-					if (d.type == 2) {
-						this.emit(
-							"CommandInteraction",
-							new ApplicationCommandInteraction(
-								d,
-								this.options.token
-							) as any
-						);
-					}
+					
 					break;
 				}
 				case GatewayDispatchEvents.GuildMemberUpdate: {

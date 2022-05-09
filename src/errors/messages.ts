@@ -186,8 +186,9 @@ export const Messages = {
 	MODAL_SUBMIT_INTERACTION_FIELD_TYPE: (
 		customId: any,
 		type: any,
-		expected: any,
-	) => `Field with custom id "${customId}" is of type: ${type}; expected ${expected}.`,
+		expected: any
+	) =>
+		`Field with custom id "${customId}" is of type: ${type}; expected ${expected}.`,
 
 	INVITE_MISSING_SCOPES:
 		"At least one valid scope must be provided for the invite",
@@ -209,6 +210,8 @@ export const Messages = {
 		`The Max Embeds for a Message is 25 but you have ${length} Embeds.`,
 	INVALID_URL_SCHEME: (scheme: any) =>
 		`The URL scheme "${scheme}" is not supported. Must be http or https.`,
+	TOO_MANY_AUTOCOMPLETE_OPTIONS: (length: number) =>
+		`You have ${length} autocomplete options. The maximum is 25.`,
 };
 
 Messages.AuthenticationFailed = Messages.TOKEN_INVALID;
