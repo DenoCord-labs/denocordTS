@@ -93,7 +93,11 @@ export class BaseComponent {
 			"GET",
 			this.client.token,
 		);
-		return new ClientMessage(await res.json(), this.client.token,this.client);
+		return new ClientMessage(
+			await res.json(),
+			this.client.token,
+			this.client,
+		);
 	}
 	public async deleteReply() {
 		if (!this.replied && !this.deferred) {

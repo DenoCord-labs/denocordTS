@@ -186,9 +186,8 @@ export const Messages = {
 	MODAL_SUBMIT_INTERACTION_FIELD_TYPE: (
 		customId: any,
 		type: any,
-		expected: any
-	) =>
-		`Field with custom id "${customId}" is of type: ${type}; expected ${expected}.`,
+		expected: any,
+	) => `Field with custom id "${customId}" is of type: ${type}; expected ${expected}.`,
 
 	INVITE_MISSING_SCOPES:
 		"At least one valid scope must be provided for the invite",

@@ -1,9 +1,9 @@
 import { SubCommand } from "./subCommand.ts";
 import { BaseApplicationCommand } from "../base.ts";
 import {
-	ApplicationCommandOptionType,
-	APIApplicationCommandSubcommandOption,
 	APIApplicationCommandSubcommandGroupOption,
+	APIApplicationCommandSubcommandOption,
+	ApplicationCommandOptionType,
 } from "../../../../types/mod.ts";
 export class SubCommandGroup {
 	private options: APIApplicationCommandSubcommandOption[] = [];

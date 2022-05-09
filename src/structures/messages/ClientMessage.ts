@@ -15,7 +15,7 @@ export class ClientMessage extends BaseMessage {
 			`/channels/${this.d.channel_id}/messages/${this.d.id}`,
 			"PATCH",
 			this.clientToken,
-			content
+			content,
 		);
 		return await res.json();
 	}

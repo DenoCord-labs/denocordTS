@@ -1,8 +1,8 @@
 import { Interaction } from "../interaction.ts";
 import {
+	APICommandAutocompleteInteractionResponseCallbackData,
 	APIInteraction,
 	InteractionResponseType,
-	APICommandAutocompleteInteractionResponseCallbackData,
 } from "../../../types/mod.ts";
 import { camelize } from "../../../../deps.ts";
 import { discordFetch as request } from "../../../rest/request.ts";
@@ -22,7 +22,7 @@ export class ApplicationCommandInteraction extends Interaction {
 	guildLocale?: string;
 	constructor(
 		protected interaction: APIInteraction & { locale: string },
-		protected token: string
+		protected token: string,
 	) {
 		super(interaction, token);
 		for (const key in this.interaction) {
@@ -31,11 +31,11 @@ export class ApplicationCommandInteraction extends Interaction {
 		}
 	}
 	async populateAutoCompleteChoices(
-		choices: { name: string; value: string }[]
+		choices: { name: string; value: string }[],
 	) {
 		if (choices.length > 25) {
 			throw new Error(
-				Messages.TOO_MANY_AUTOCOMPLETE_OPTIONS(choices.length)
+				Messages.TOO_MANY_AUTOCOMPLETE_OPTIONS(choices.length),
 			);
 		}
 		if (!this.isAutoComplete) {
@@ -49,9 +49,10 @@ export class ApplicationCommandInteraction extends Interaction {
 			"POST",
 			this.token,
 			{
-				type: InteractionResponseType.ApplicationCommandAutocompleteResult,
+				type: InteractionResponseType
+					.ApplicationCommandAutocompleteResult,
 				data: { choices },
-			}
+			},
 		);
 		this.replied = true;
 	}

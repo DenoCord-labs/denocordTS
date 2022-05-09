@@ -6,7 +6,7 @@ export class ComponentCollector {
 	constructor(
 		private client: Client,
 		private channelId: string,
-		private disposeInterval?: number
+		private disposeInterval?: number,
 	) {
 		this.client.on("InteractionCreate", async (e: any) => {
 			if (
@@ -19,9 +19,9 @@ export class ComponentCollector {
 						detail: new ButtonInteraction(
 							this.client,
 							this.channelId,
-							e
+							e,
 						),
-					})
+					}),
 				);
 			} else if (
 				e.type == 3 &&
@@ -33,9 +33,9 @@ export class ComponentCollector {
 						detail: new SelectMenuInteraction(
 							this.client,
 							this.channelId,
-							e
+							e,
 						),
-					})
+					}),
 				);
 			}
 		});
@@ -52,7 +52,7 @@ export class ComponentCollector {
 		this.target.addEventListener(
 			type,
 			listener,
-			once ? { once: true } : {}
+			once ? { once: true } : {},
 		);
 		if (this.disposeInterval) {
 			setTimeout(() => {

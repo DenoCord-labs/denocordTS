@@ -2,7 +2,8 @@ import { Camelize } from "../../deps.ts";
 import { GatewayInteractionCreateDispatchData } from "./mod.ts";
 import type { ApplicationCommandInteraction } from "../structures/interaction/commands/applicationCommand.ts";
 export type CommandInteraction =
-	Camelize<GatewayInteractionCreateDispatchData> & {
+	& Camelize<GatewayInteractionCreateDispatchData>
+	& {
 		reply: ApplicationCommandInteraction["reply"];
 		deferReply: ApplicationCommandInteraction["deferReply"];
 		editReply: ApplicationCommandInteraction["editReply"];
@@ -15,5 +16,6 @@ export type CommandInteraction =
 		isComponentInteraction: boolean;
 		isAutoComplete: boolean;
 		isModalSubmit: boolean;
-		populateAutoCompleteChoices: ApplicationCommandInteraction["populateAutoCompleteChoices"];
+		populateAutoCompleteChoices:
+			ApplicationCommandInteraction["populateAutoCompleteChoices"];
 	};

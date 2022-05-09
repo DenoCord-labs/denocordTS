@@ -16,11 +16,11 @@ export class BaseCommandOption {
 	}) {
 		if (
 			!new RegExp(
-				/^[-_\p{L}\p{N}\p{sc=Devanagari}\p{sc=Thai}]{1,32}$/u
+				/^[-_\p{L}\p{N}\p{sc=Devanagari}\p{sc=Thai}]{1,32}$/u,
 			).test(name)
 		) {
 			throw new Error(
-				"Name must be between 1 and 32 characters and can only contain letters, numbers, underscores, and dashes."
+				"Name must be between 1 and 32 characters and can only contain letters, numbers, underscores, and dashes.",
 			);
 		}
 		if (description.length > 100) {

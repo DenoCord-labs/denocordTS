@@ -75,7 +75,7 @@ export class BaseApplicationCommand {
 		this.options.push(callback(new ChannelOptions()).toJSON());
 		return this;
 	}
-	toJSON():any {
+	toJSON(): any {
 		this.options.sort((a, b) => {
 			if (a.required && !b.required) return -1;
 			if (!a.required && b.required) return 1;
@@ -86,7 +86,7 @@ export class BaseApplicationCommand {
 			name_localizations: this.name_localizations,
 			description: this.description,
 			description_localizations: this.description_localizations,
-			options: this.options.length>0?this.options:[],
+			options: this.options.length > 0 ? this.options : [],
 			dm_permission: this.dm_permission,
 		};
 	}

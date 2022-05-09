@@ -13,7 +13,7 @@ export class SlashCommand extends BaseApplicationCommand {
 		return this;
 	}
 	addSubCommandGroup(
-		callback: (e: SubCommandGroup) => SubCommandGroup
+		callback: (e: SubCommandGroup) => SubCommandGroup,
 	): this {
 		this.options.push({
 			...callback(new SubCommandGroup()).ToJSON(),

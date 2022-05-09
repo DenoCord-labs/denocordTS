@@ -6,7 +6,7 @@ export async function discordFetch(
 	token: string,
 	body: any = {},
 	headers?: HeadersInit,
-	strignifyBody?: boolean
+	strignifyBody?: boolean,
 ) {
 	const url = href.includes("http") ? href : BaseRestApiUrl + href;
 	const res = await fetch(`${url}`, {
@@ -16,14 +16,13 @@ export async function discordFetch(
 			Authorization: `Bot ${token}`,
 		},
 		method,
-		body:
-			method == "GET"
-				? undefined
-				: ((!strignifyBody ? JSON.stringify(body) : body) as any),
+		body: method == "GET"
+			? undefined
+			: ((!strignifyBody ? JSON.stringify(body) : body) as any),
 	});
 	if (!res.ok) {
 		throw new Error(
-			JSON.stringify({ statusCode: res.status, ...(await res.json()) })
+			JSON.stringify({ statusCode: res.status, ...(await res.json()) }),
 		);
 	}
 	return res;

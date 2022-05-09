@@ -7,5 +7,5 @@ export * from "./mentionable.ts";
 export * from "./number.ts";
 export * from "./attachment.ts";
 export * from "./channel.ts";
-export * from "./subCommand.ts"
-export * from "./subCommandGroup.ts"
+export * from "./subCommand.ts";
+export * from "./subCommandGroup.ts";

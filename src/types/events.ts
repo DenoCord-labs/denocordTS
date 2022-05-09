@@ -3,9 +3,9 @@ import { ClientMessage } from "../structures/messages/mod.ts";
 import { BaseMessage } from "../structures/messages/Base.ts";
 import { APIMessage } from "./mod.ts";
 import { CommandInteraction } from "./commandInteraction.ts";
-import { Camelize } from "../../deps.ts"
+import { Camelize } from "../../deps.ts";
 
-export type Message = Camelize<APIMessage>
+export type Message = Camelize<APIMessage>;
 export type GatewayEvents = {
 	ChannelCreate: (e: any) => any;
 	ChannelDelete: (e: any) => any;

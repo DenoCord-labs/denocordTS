@@ -1,16 +1,16 @@
 import { Base } from "./base.ts";
 import { ClientOptions } from "../types/mod.ts";
 import {
+	APIAuditLog,
 	APIInteractionGuildMember,
 	GatewayOpcodes,
 	GatewayPresenceUpdateData,
-	APIAuditLog,
 } from "../types/mod.ts";
 import type { SlashCommand } from "../structures/commands/slashCommands/builder.ts";
 import { PermissionBits } from "../types/permission.ts";
 import { CDN } from "../rest/cdn.ts";
 import { discordFetch as request } from "../rest/mod.ts";
-import { camelize, Camelize } from "../../deps.ts";
+import { Camelize, camelize } from "../../deps.ts";
 export class Client extends Base {
 	public cdn = new CDN();
 	constructor(protected options: ClientOptions) {
@@ -23,7 +23,7 @@ export class Client extends Base {
 				d: {
 					...presence,
 				},
-			})
+			}),
 		);
 	}
 	checkMemberPermission({
@@ -47,7 +47,7 @@ export class Client extends Base {
 		const res = await request(
 			`/guilds/${guildId}/members/${userId}`,
 			"GET",
-			this.options.token
+			this.options.token,
 		);
 		return await res.json();
 	}
@@ -59,7 +59,7 @@ export class Client extends Base {
 				this.options.token,
 				{
 					...command.toJSON(),
-				}
+				},
 			);
 		}
 	}
@@ -75,7 +75,7 @@ export class Client extends Base {
 				`/applications/${this.options.clientId}/guilds/${guildId}/commands`,
 				"POST",
 				this.options.token,
-				{ ...command.toJSON() }
+				{ ...command.toJSON() },
 			);
 		}
 	}
@@ -83,7 +83,7 @@ export class Client extends Base {
 		const r = await request(
 			`/guilds/${guildId}/audit-logs`,
 			"GET",
-			this.options.token
+			this.options.token,
 		);
 		return camelize(await r.json()) as Camelize<APIAuditLog>;
 	}
