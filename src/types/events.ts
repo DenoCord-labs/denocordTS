@@ -3,13 +3,9 @@ import { ClientMessage } from "../structures/messages/mod.ts";
 import { BaseMessage } from "../structures/messages/Base.ts";
 import { APIMessage } from "./mod.ts";
 import { CommandInteraction } from "./commandInteraction.ts";
-export type SnakeToCamelCase<S extends string> =
-	S extends `${infer T}_${infer U}`
-		? `${T}${Capitalize<SnakeToCamelCase<U>>}`
-		: S;
-export type Message = {
-	[K in keyof APIMessage as SnakeToCamelCase<K>]: APIMessage[K];
-};
+import { Camelize } from "../../deps.ts"
+
+export type Message = Camelize<APIMessage>
 export type GatewayEvents = {
 	ChannelCreate: (e: any) => any;
 	ChannelDelete: (e: any) => any;

@@ -6,6 +6,7 @@ import { ClientMessage } from "./mod.ts";
 import { parseEmoji } from "../../utils/mod.ts";
 import { Member } from "../../types/cache.ts";
 import { camelize } from "../../../deps.ts";
+import { Base } from "../../client/base.ts";
 export class BaseMessage {
 	/**
 	 * Id of the Message
@@ -36,7 +37,7 @@ export class BaseMessage {
 	 *
 	 * See https://discord.com/developers/docs/resources/guild#guild-member-object
 	 */
-	member?: Member;
+	member?: Member & { permissions: number };
 	/**
 	 * Contents of the message
 	 */
@@ -186,7 +187,11 @@ export class BaseMessage {
 	 * See https://discord.com/developers/docs/resources/sticker#sticker-item-object
 	 */
 	stickerItems?: APIMessage["sticker_items"];
-	constructor(public d: APIMessage, private readonly token: string) {
+	constructor(
+		public d: APIMessage,
+		private readonly token: string,
+		private client: Base
+	) {
 		this.id = d.id;
 		this.channelId = d.channel_id;
 		this.guildId = d.guild_id;
@@ -216,7 +221,26 @@ export class BaseMessage {
 		this.components = d.components;
 		this.stickerItems = d.sticker_items;
 		this.mentionEveryone = d.mention_everyone;
-		this.member = d.member ? camelize(d.member) : undefined;
+		let permissions: number | undefined;
+		if (d.member) {
+			for (const role of d.member.roles) {
+				const rolePermission = parseInt(
+					this.client.cache.roles[role].permissions
+				);
+				if (permissions) {
+					permissions |= rolePermission;
+				} else {
+					permissions = rolePermission;
+				}
+			}
+			console.log({ permissions });
+		}
+		this.member = d.member
+			? {
+					...camelize(d.member),
+					permissions: permissions as number,
+			  }
+			: undefined;
 	}
 	async reply(payload: ReplyPayload & { ping?: boolean; inline?: boolean }) {
 		this.checks(payload);
@@ -233,9 +257,13 @@ export class BaseMessage {
 			`/channels/${this.d.channel_id}/messages`,
 			"POST",
 			this.token,
-			body,
+			body
 		);
-		const msg = new ClientMessage(await request.json(), this.token);
+		const msg = new ClientMessage(
+			await request.json(),
+			this.token,
+			this.client
+		);
 		return msg;
 	}
 	async delete(reason?: string) {
@@ -246,50 +274,50 @@ export class BaseMessage {
 			"DELETE",
 			this.token,
 			{},
-			headers,
+			headers
 		);
 	}
 	async addReaction(emoji: string) {
 		await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}/@me`,
+			`/channels/${this.d.channel_id}/messages/${
+				this.d.id
+			}/reactions/${parseEmoji(emoji)}/@me`,
 			"PUT",
 			this.token,
-			{},
+			{}
 		);
 		return null;
 	}
 	async removeClientReaction(emoji: string) {
 		await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}/@me`,
+			`/channels/${this.d.channel_id}/messages/${
+				this.d.id
+			}/reactions/${parseEmoji(emoji)}/@me`,
 			"DELETE",
 			this.token,
-			{},
+			{}
 		);
 		return null;
 	}
 	async removeUserReaction(emoji: string, userId: Snowflake) {
 		await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}/${userId}`,
+			`/channels/${this.d.channel_id}/messages/${
+				this.d.id
+			}/reactions/${parseEmoji(emoji)}/${userId}`,
 			"DELETE",
 			this.token,
-			{},
+			{}
 		);
 		return null;
 	}
 	async getReactions(emoji: string) {
 		const request = await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}`,
+			`/channels/${this.d.channel_id}/messages/${
+				this.d.id
+			}/reactions/${parseEmoji(emoji)}`,
 			"GET",
 			this.token,
-			{},
+			{}
 		);
 		return request.json();
 	}
@@ -298,18 +326,18 @@ export class BaseMessage {
 			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions`,
 			"DELETE",
 			this.token,
-			{},
+			{}
 		);
 		return null;
 	}
 	async deleteAllReactionsByEmoji(emoji: string) {
 		await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}`,
+			`/channels/${this.d.channel_id}/messages/${
+				this.d.id
+			}/reactions/${parseEmoji(emoji)}`,
 			"DELETE",
 			this.token,
-			{},
+			{}
 		);
 		return null;
 	}
@@ -318,7 +346,7 @@ export class BaseMessage {
 			`/channels/${this.d.channel_id}/typing`,
 			"POST",
 			this.token,
-			{},
+			{}
 		);
 		return null;
 	}
@@ -330,7 +358,7 @@ export class BaseMessage {
 			"PUT",
 			this.token,
 			{},
-			headers,
+			headers
 		);
 		return null;
 	}
@@ -342,7 +370,7 @@ export class BaseMessage {
 			"DELETE",
 			this.token,
 			{},
-			headers,
+			headers
 		);
 		return null;
 	}
@@ -354,7 +382,7 @@ export class BaseMessage {
 			"PUT",
 			this.token,
 			{},
-			headers,
+			headers
 		);
 		return request.json();
 	}
@@ -366,19 +394,19 @@ export class BaseMessage {
 			"POST",
 			this.token,
 			{},
-			headers,
+			headers
 		);
 		return request.json();
 	}
 	private checks(payload: ReplyPayload) {
 		if (payload.components && payload.components.length > 5) {
 			throw new Error(
-				Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length),
+				Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length)
 			);
 		}
 		if (payload.embeds && payload.embeds.length > 10) {
 			throw new Error(
-				Messages.EMBEDS_LENGTH_EXCEEDED(payload.embeds.length),
+				Messages.EMBEDS_LENGTH_EXCEEDED(payload.embeds.length)
 			);
 		}
 	}

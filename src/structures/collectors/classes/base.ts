@@ -6,7 +6,7 @@ import { ReplyPayload } from "../../../types/responsepayload.ts";
 import { discordFetch } from "../../../rest/mod.ts";
 import { ClientMessage } from "../../messages/ClientMessage.ts";
 import { Messages } from "../../../errors/messages.ts";
-import { Client } from "../../../client/client.ts";
+import { Base } from "../../../client/base.ts";
 export class BaseComponent {
 	protected deferred = false;
 	protected replied = false;
@@ -21,7 +21,7 @@ export class BaseComponent {
 	public readonly clientId!:
 		APIMessageComponentButtonInteraction["application_id"];
 	constructor(
-		protected client: Client,
+		protected client: Base,
 		protected channelId: string,
 		protected d: any,
 	) {
@@ -93,7 +93,7 @@ export class BaseComponent {
 			"GET",
 			this.client.token,
 		);
-		return new ClientMessage(await res.json(), this.client.token);
+		return new ClientMessage(await res.json(), this.client.token,this.client);
 	}
 	public async deleteReply() {
 		if (!this.replied && !this.deferred) {

@@ -9,12 +9,13 @@ import {
 	GatewayIntentBits,
 	GatewayOpcodes,
 } from "../types/mod.ts";
-import { EventEmitter } from "../../deps.ts";
+import { EventEmitter, camelize, Camelize } from "../../deps.ts";
 import {
 	ClientOptions,
 	ClientUser,
 	GatewayEvents,
 	OPCodes,
+	APIMessage,
 } from "../types/mod.ts";
 import { GatewayUrl } from "../constants/mod.ts";
 import {
@@ -82,16 +83,13 @@ export class Base extends EventEmitter<GatewayEvents> {
 			switch (t) {
 				case GatewayDispatchEvents.MessageCreate: {
 					if (d.author.id === this.user.id) {
-						this.emit(
-							"MessageCreate",
-							new ClientMessage(d, this.options.token)
-						);
-					} else {
-						this.emit(
-							"MessageCreate",
-							new Message(d, this.options.token)
-						);
+						return;
 					}
+					this.emit(
+						"MessageCreate",
+						new Message(d, this.options.token, this)
+					);
+
 					break;
 				}
 				case GatewayDispatchEvents.Ready: {
@@ -143,17 +141,21 @@ export class Base extends EventEmitter<GatewayEvents> {
 				}
 				case GatewayDispatchEvents.GuildRoleCreate: {
 					if (d.role) {
-						this.cacheInstance.cache.roles[d.role.id] = d;
+						this.cacheInstance.cache.roles[d.role.id] = d.role;
 					}
 				}
 				case GatewayDispatchEvents.GuildRoleDelete: {
 					delete this.cacheInstance.cache.roles[d.role_id];
 				}
 				case GatewayDispatchEvents.GuildRoleUpdate: {
-					d.role && (this.cacheInstance.cache.roles[d.role.id] = d);
+					d.role &&
+						(this.cacheInstance.cache.roles[d.role.id] = d.role);
 				}
 				case GatewayDispatchEvents.MessageDelete: {
-					this.emit("MessageDelete", d);
+					this.emit(
+						"MessageDelete",
+						camelize(d) as Camelize<APIMessage>
+					);
 				}
 			}
 			this.websocket.onclose = (e) => {
@@ -174,28 +176,31 @@ export class Base extends EventEmitter<GatewayEvents> {
 	private addChannelsToCache(channels: APIChannel[]) {
 		Promise.all(
 			channels.map((channel) => {
-				this.cacheInstance.addChannelToCache(channel.id, channel);
+				this.cacheInstance.addChannelToCache(
+					channel.id,
+					channel as any
+				);
 			})
 		);
 	}
 	private addRolesToCache(roles: APIRole[]) {
 		Promise.all(
 			roles.map((role) => {
-				this.cacheInstance.addRoleToCache(role.id, role);
+				this.cacheInstance.addRoleToCache(role.id, role as any);
 			})
 		);
 	}
 	private addEmojisToCache(emojis: APIEmoji[]) {
 		Promise.all(
 			emojis.map((emoji) => {
-				this.cacheInstance.addEmojiToCache(emoji.id!, emoji);
+				this.cacheInstance.addEmojiToCache(emoji.id!, emoji as any);
 			})
 		);
 	}
 	private addUsersToCache(users: APIUser[]) {
 		Promise.all(
 			users.map((user) => {
-				this.cacheInstance.addUserToCache(user.id, user);
+				this.cacheInstance.addUserToCache(user.id, user as any);
 			})
 		);
 	}

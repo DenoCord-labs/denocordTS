@@ -4,11 +4,13 @@ import {
 	APIInteractionGuildMember,
 	GatewayOpcodes,
 	GatewayPresenceUpdateData,
+	APIAuditLog,
 } from "../types/mod.ts";
 import type { SlashCommand } from "../structures/commands/slashCommands/builder.ts";
 import { PermissionBits } from "../types/permission.ts";
 import { CDN } from "../rest/cdn.ts";
 import { discordFetch as request } from "../rest/mod.ts";
+import { camelize, Camelize } from "../../deps.ts";
 export class Client extends Base {
 	public cdn = new CDN();
 	constructor(protected options: ClientOptions) {
@@ -76,5 +78,13 @@ export class Client extends Base {
 				{ ...command.toJSON() }
 			);
 		}
+	}
+	async fetchGuildAuditLog(guildId: string) {
+		const r = await request(
+			`/guilds/${guildId}/audit-logs`,
+			"GET",
+			this.options.token
+		);
+		return camelize(await r.json()) as Camelize<APIAuditLog>;
 	}
 }

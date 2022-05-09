@@ -2,10 +2,12 @@ import { BaseMessage } from "./Base.ts";
 import { APIMessage } from "../../types/mod.ts";
 import { discordFetch } from "../../rest/mod.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
+import { Base } from "../../client/base.ts";
+
 export class ClientMessage extends BaseMessage {
 	clientToken: string;
-	constructor(d: APIMessage, token: string) {
-		super(d, token);
+	constructor(d: APIMessage, token: string, client: Base) {
+		super(d, token, client);
 		this.clientToken = token;
 	}
 	async edit(content: ReplyPayload) {
@@ -13,7 +15,7 @@ export class ClientMessage extends BaseMessage {
 			`/channels/${this.d.channel_id}/messages/${this.d.id}`,
 			"PATCH",
 			this.clientToken,
-			content,
+			content
 		);
 		return await res.json();
 	}
