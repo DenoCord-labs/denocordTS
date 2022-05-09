@@ -15,4 +15,5 @@ export type CommandInteraction =
 		isComponentInteraction: boolean;
 		isAutoComplete: boolean;
 		isModalSubmit: boolean;
+		populateAutoCompleteChoices: ApplicationCommandInteraction["populateAutoCompleteChoices"];
 	};

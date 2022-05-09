@@ -6,6 +6,7 @@ import {
 } from "../../../types/mod.ts";
 import { camelize } from "../../../../deps.ts";
 import { discordFetch as request } from "../../../rest/request.ts";
+import { Messages } from "../../../errors/messages.ts";
 export class ApplicationCommandInteraction extends Interaction {
 	id = "";
 	applicationId: APIInteraction["application_id"] = "";
@@ -30,10 +31,18 @@ export class ApplicationCommandInteraction extends Interaction {
 		}
 	}
 	async populateAutoCompleteChoices(
-		choices: APICommandAutocompleteInteractionResponseCallbackData["choices"][]
+		choices: { name: string; value: string }[]
 	) {
+		if (choices.length > 25) {
+			throw new Error(
+				Messages.TOO_MANY_AUTOCOMPLETE_OPTIONS(choices.length)
+			);
+		}
 		if (!this.isAutoComplete) {
 			throw new Error("This is not an autocomplete interaction");
+		}
+		if (this.replied) {
+			throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
 		}
 		await request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
@@ -41,8 +50,9 @@ export class ApplicationCommandInteraction extends Interaction {
 			this.token,
 			{
 				type: InteractionResponseType.ApplicationCommandAutocompleteResult,
-				choices,
+				data: { choices },
 			}
 		);
+		this.replied = true;
 	}
 }
