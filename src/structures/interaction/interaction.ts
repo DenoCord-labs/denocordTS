@@ -6,6 +6,7 @@ import {
 	InteractionResponseType,
 	MessageFlags,
 } from "../../types/mod.ts";
+import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Messages } from "../../errors/messages.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 export class Interaction {
@@ -17,7 +18,7 @@ export class Interaction {
 	isModalSubmit = false;
 	constructor(
 		protected interaction: APIInteraction & { locale: string },
-		protected token: string,
+		protected token: string
 	) {
 		switch (this.interaction.type) {
 			case 2: {
@@ -64,15 +65,7 @@ export class Interaction {
 		};
 		return obj as Camelize<APIInteractionResponseCallbackData>;
 	}
-	async reply(
-		data: Omit<
-			APIInteractionResponseCallbackData & {
-				ephemeral?: boolean;
-				suppress_embeds?: boolean;
-			},
-			"flags"
-		>,
-	) {
+	async reply(data: ReplyPayload) {
 		if (this.replied) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
 		if (this.deferred) {
 			throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
@@ -90,8 +83,25 @@ export class Interaction {
 			this.token,
 			{
 				type: InteractionResponseType.ChannelMessageWithSource,
-				data: payload,
-			},
+				data: {
+					...payload,
+					embeds: payload.embeds
+						? payload.embeds.map((emb) => emb.toJSON())
+						: [],
+					components: payload.components
+						? payload.components.map((c) => {
+								const components = c.components;
+								c.removeAllComponents();
+								c.addComponents(
+									components.map((component) =>
+										component.toJSON()
+									) as any
+								);
+								return c;
+						  })
+						: [],
+				},
+			}
 		);
 	}
 	async deferReply(payload = { ephemeral: false }) {
@@ -108,10 +118,10 @@ export class Interaction {
 			{
 				type: InteractionResponseType.DeferredChannelMessageWithSource,
 				ephemeral,
-			},
+			}
 		);
 	}
-	async editReply(payload: APIInteractionResponseCallbackData) {
+	async editReply(payload: ReplyPayload) {
 		if (!this.replied && !this.deferred) {
 			throw new Error(Messages.INTERACTION_NOT_REPLIED);
 		}
@@ -120,7 +130,24 @@ export class Interaction {
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
 			"PATCH",
 			this.token,
-			payload,
+			{
+				...payload,
+				embeds: payload.embeds
+					? payload.embeds.map((emb) => emb.toJSON())
+					: [],
+				components: payload.components
+					? payload.components.map((c) => {
+							const components = c.components;
+							c.removeAllComponents();
+							c.addComponents(
+								components.map((component) =>
+									component.toJSON()
+								) as any
+							);
+							return c;
+					  })
+					: [],
+			}
 		);
 		return camelize(await r.json()) as Camelize<APIMessage>;
 	}
@@ -129,7 +156,7 @@ export class Interaction {
 		await discordFetch(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
 			"DELETE",
-			this.token,
+			this.token
 		);
 	}
 
@@ -138,37 +165,51 @@ export class Interaction {
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}`,
 			"GET",
 			this.token,
-			{ ...payload },
+			{ ...payload }
 		);
 		return await res.json();
 	}
 
 	async fetchFollowUp() {
 		const res = await discordFetch(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-				.interaction.message?.id}`,
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
 			"GET",
-			this.token,
+			this.token
 		);
 		return await res.json();
 	}
 
-	async editFollowUp(payload: APIInteractionResponseCallbackData) {
+	async editFollowUp(payload: ReplyPayload) {
 		await discordFetch(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-				.interaction.message?.id}`,
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
 			"PATCH",
 			this.token,
-			{ ...payload },
+			{
+				...payload,
+				embeds: payload.embeds
+					? payload.embeds.map((emb) => emb.toJSON())
+					: [],
+				components: payload.components
+					? payload.components.map((c) => {
+							const components = c.components;
+							c.removeAllComponents();
+							c.addComponents(
+								components.map((component) =>
+									component.toJSON()
+								) as any
+							);
+							return c;
+					  })
+					: [],
+			}
 		);
 	}
 
 	async deleteFollowUp() {
 		await discordFetch(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-				.interaction.message?.id}`,
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
 			"DELETE",
-			this.token,
+			this.token
 		);
 	}
 
@@ -176,7 +217,7 @@ export class Interaction {
 		await discordFetch(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
 			"GET",
-			this.token,
+			this.token
 		);
 	}
 
@@ -185,7 +226,7 @@ export class Interaction {
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
 			this.token,
-			{ type: InteractionResponseType.DeferredMessageUpdate },
+			{ type: InteractionResponseType.DeferredMessageUpdate }
 		);
 	}
 
