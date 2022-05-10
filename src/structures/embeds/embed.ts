@@ -55,7 +55,7 @@ export class Embed {
 		this.embed.footer = footer;
 		return this;
 	}
-	create() {
+	toJSON() {
 		return this.embed;
 	}
 }

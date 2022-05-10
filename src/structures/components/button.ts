@@ -30,7 +30,7 @@ export class Button extends BaseComponent {
 		(this.button as APIButtonComponentWithCustomId).custom_id = id;
 		return this;
 	}
-	create() {
+	toJSON() {
 		return this.button;
 	}
 }

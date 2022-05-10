@@ -34,7 +34,7 @@ export class SelectMenu extends BaseComponent {
 		}
 		return this;
 	}
-	create() {
+	toJSON() {
 		return this.selectMenu;
 	}
 }
