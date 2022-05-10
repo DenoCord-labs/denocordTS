@@ -7,6 +7,7 @@ import {
 	APIUser,
 	Camelize,
 } from "./mod.ts";
+import {Collection} from "../../deps.ts"
 export type Member = Camelize<APIGuildMember>;
 export type Guild = Camelize<APIGuild>;
 export type Channel = Camelize<APIChannel>;
@@ -15,10 +16,10 @@ export type Role = Camelize<APIRole>;
 export type Emoji = Camelize<APIEmoji>;
 
 export type cacheFields = {
-	guilds: Record<string, Guild>;
-	channels: Record<string, Channel>;
-	users: Record<string, User>;
-	emojis: Record<string, Emoji>;
-	roles: Record<string, Role>;
-	members: Record<string, Member>;
+	guilds: Collection<string, Guild>;
+	channels: Collection<string, Channel>;
+	users: Collection<string, User>;
+	emojis: Collection<string, Emoji>;
+	roles: Collection<string, Role>;
+	members: Collection<string, Member>;
 };
