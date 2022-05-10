@@ -190,7 +190,7 @@ export class BaseMessage {
 	constructor(
 		public d: APIMessage,
 		private readonly token: string,
-		private client: Base
+		private client: Base,
 	) {
 		this.id = d.id;
 		this.channelId = d.channel_id;
@@ -227,7 +227,7 @@ export class BaseMessage {
 				const rolePermission = parseInt(
 					this.client.cache.roles.get(role)
 						? this.client.cache.roles.get(role)!.permissions
-						: "0"
+						: "0",
 				);
 				if (permissions) {
 					permissions |= rolePermission;
@@ -238,9 +238,9 @@ export class BaseMessage {
 		}
 		this.member = d.member
 			? {
-					...camelize(d.member),
-					permissions: permissions as number,
-			  }
+				...camelize(d.member),
+				permissions: permissions as number,
+			}
 			: undefined;
 	}
 	async reply(payload: ReplyPayload & { ping?: boolean; inline?: boolean }) {
@@ -258,12 +258,12 @@ export class BaseMessage {
 			`/channels/${this.d.channel_id}/messages`,
 			"POST",
 			this.token,
-			body
+			body,
 		);
 		const msg = new ClientMessage(
 			await request.json(),
 			this.token,
-			this.client
+			this.client,
 		);
 		return msg;
 	}
@@ -275,50 +275,50 @@ export class BaseMessage {
 			"DELETE",
 			this.token,
 			{},
-			headers
+			headers,
 		);
 	}
 	async addReaction(emoji: string) {
 		await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${
-				this.d.id
-			}/reactions/${parseEmoji(emoji)}/@me`,
+			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+				parseEmoji(emoji)
+			}/@me`,
 			"PUT",
 			this.token,
-			{}
+			{},
 		);
 		return null;
 	}
 	async removeClientReaction(emoji: string) {
 		await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${
-				this.d.id
-			}/reactions/${parseEmoji(emoji)}/@me`,
+			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+				parseEmoji(emoji)
+			}/@me`,
 			"DELETE",
 			this.token,
-			{}
+			{},
 		);
 		return null;
 	}
 	async removeUserReaction(emoji: string, userId: Snowflake) {
 		await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${
-				this.d.id
-			}/reactions/${parseEmoji(emoji)}/${userId}`,
+			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+				parseEmoji(emoji)
+			}/${userId}`,
 			"DELETE",
 			this.token,
-			{}
+			{},
 		);
 		return null;
 	}
 	async getReactions(emoji: string) {
 		const request = await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${
-				this.d.id
-			}/reactions/${parseEmoji(emoji)}`,
+			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+				parseEmoji(emoji)
+			}`,
 			"GET",
 			this.token,
-			{}
+			{},
 		);
 		return request.json();
 	}
@@ -327,18 +327,18 @@ export class BaseMessage {
 			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions`,
 			"DELETE",
 			this.token,
-			{}
+			{},
 		);
 		return null;
 	}
 	async deleteAllReactionsByEmoji(emoji: string) {
 		await discordFetch(
-			`/channels/${this.d.channel_id}/messages/${
-				this.d.id
-			}/reactions/${parseEmoji(emoji)}`,
+			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
+				parseEmoji(emoji)
+			}`,
 			"DELETE",
 			this.token,
-			{}
+			{},
 		);
 		return null;
 	}
@@ -347,7 +347,7 @@ export class BaseMessage {
 			`/channels/${this.d.channel_id}/typing`,
 			"POST",
 			this.token,
-			{}
+			{},
 		);
 		return null;
 	}
@@ -359,7 +359,7 @@ export class BaseMessage {
 			"PUT",
 			this.token,
 			{},
-			headers
+			headers,
 		);
 		return null;
 	}
@@ -371,7 +371,7 @@ export class BaseMessage {
 			"DELETE",
 			this.token,
 			{},
-			headers
+			headers,
 		);
 		return null;
 	}
@@ -383,7 +383,7 @@ export class BaseMessage {
 			"PUT",
 			this.token,
 			{},
-			headers
+			headers,
 		);
 		return request.json();
 	}
@@ -395,19 +395,19 @@ export class BaseMessage {
 			"POST",
 			this.token,
 			{},
-			headers
+			headers,
 		);
 		return request.json();
 	}
 	private checks(payload: ReplyPayload) {
 		if (payload.components && payload.components.length > 5) {
 			throw new Error(
-				Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length)
+				Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length),
 			);
 		}
 		if (payload.embeds && payload.embeds.length > 10) {
 			throw new Error(
-				Messages.EMBEDS_LENGTH_EXCEEDED(payload.embeds.length)
+				Messages.EMBEDS_LENGTH_EXCEEDED(payload.embeds.length),
 			);
 		}
 	}

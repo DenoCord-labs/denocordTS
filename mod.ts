@@ -1,8 +1,9 @@
 const _stringify = JSON.stringify;
 JSON.stringify = (value, replacer) =>
 	_stringify(value, (key, val) => {
-		const value =
-			typeof val === "bigint" ? `BigInt(${val.toString()}n)` : val;
+		const value = typeof val === "bigint"
+			? `BigInt(${val.toString()}n)`
+			: val;
 		return replacer
 			? (replacer as (key: string, value: unknown) => string)(key, value)
 			: value;
@@ -20,9 +21,9 @@ export {
 	Button,
 	ComponentCollector,
 	Embed,
+	Modal,
 	SelectMenu,
 	SlashCommand,
-	Modal,
 	TextInput,
 } from "./src/structures/mod.ts";
 export type {

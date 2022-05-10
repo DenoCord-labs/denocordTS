@@ -7,7 +7,7 @@ import {
 	APIUser,
 	Camelize,
 } from "./mod.ts";
-import {Collection} from "../../deps.ts"
+import { Collection } from "../../deps.ts";
 export type Member = Camelize<APIGuildMember>;
 export type Guild = Camelize<APIGuild>;
 export type Channel = Camelize<APIChannel>;
