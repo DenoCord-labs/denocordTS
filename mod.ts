@@ -1,9 +1,8 @@
 const _stringify = JSON.stringify;
 JSON.stringify = (value, replacer) =>
 	_stringify(value, (key, val) => {
-		const value = typeof val === "bigint"
-			? `BigInt(${val.toString()}n)`
-			: val;
+		const value =
+			typeof val === "bigint" ? `BigInt(${val.toString()}n)` : val;
 		return replacer
 			? (replacer as (key: string, value: unknown) => string)(key, value)
 			: value;
@@ -23,6 +22,8 @@ export {
 	Embed,
 	SelectMenu,
 	SlashCommand,
+	Modal,
+	TextInput,
 } from "./src/structures/mod.ts";
 export type {
 	ButtonInteraction,
@@ -30,3 +31,4 @@ export type {
 } from "./src/structures/mod.ts";
 export { parseEmojiForComponents } from "./src/utils/mod.ts";
 export * from "./src/helpers/mod.ts";
+export * as emojis from "https://deno.land/x/discord_emoji@v2.0.5/mod.ts";
