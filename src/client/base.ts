@@ -43,7 +43,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 			token: options.token,
 			intents: options.intents.reduce(
 				(bits, next) => (bits |= GatewayIntentBits[next]),
-				0,
+				0
 			),
 			properties: {
 				$browser: "denocordts",
@@ -58,7 +58,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					d: {
 						...payload,
 					},
-				}),
+				})
 			);
 		};
 		this.websocket.onerror = async (e) => {
@@ -70,8 +70,8 @@ export class Base extends EventEmitter<GatewayEvents> {
 				op,
 				t,
 			}: // deno-lint-ignore no-explicit-any
-				{ op: OPCodes; d: any; t: GatewayDispatchEvents } = await JSON
-					.parse(e.data);
+			{ op: OPCodes; d: any; t: GatewayDispatchEvents } =
+				await JSON.parse(e.data);
 
 			switch (op) {
 				case OPCodes.HELLO: {
@@ -87,7 +87,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					}
 					this.emit(
 						"MessageCreate",
-						new Message(d, this.options.token, this),
+						new Message(d, this.options.token, this)
 					);
 
 					break;
@@ -96,7 +96,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					this.user = {
 						...d.user,
 						guilds: d.guilds.map(
-							(g: { id: string; unavailable: boolean }) => g.id,
+							(g: { id: string; unavailable: boolean }) => g.id
 						),
 					};
 					break;
@@ -106,25 +106,18 @@ export class Base extends EventEmitter<GatewayEvents> {
 					this.addChannelsToCache(d.channels);
 					this.addRolesToCache(d.roles);
 					this.addEmojisToCache(d.emojis);
-					if (
-						Object.keys(this.cacheInstance.cache.guilds).length ==
-							this.user.guilds.length
-					) {
+					if (this.cache.guilds.size == this.user.guilds.length) {
 						this.emit("Ready", undefined);
 					}
 					break;
 				}
 				case GatewayDispatchEvents.InteractionCreate: {
-					Deno.writeTextFileSync(
-						"interaction.json",
-						JSON.stringify(d),
-					);
 					this.emit(
 						"InteractionCreate",
 						new ApplicationCommandInteraction(
 							d,
-							this.options.token,
-						) as any,
+							this.options.token
+						) as any
 					);
 
 					break;
@@ -133,20 +126,27 @@ export class Base extends EventEmitter<GatewayEvents> {
 				}
 				case GatewayDispatchEvents.GuildRoleCreate: {
 					if (d.role) {
-						this.cacheInstance.cache.roles[d.role.id] = d.role;
+						this.cacheInstance.cache.roles.set(
+							d.role.id,
+							camelize(d.role) as any
+						);
 					}
 				}
 				case GatewayDispatchEvents.GuildRoleDelete: {
-					delete this.cacheInstance.cache.roles[d.role_id];
+					this.cacheInstance.cache.roles.delete(d.role_id);
 				}
 				case GatewayDispatchEvents.GuildRoleUpdate: {
 					d.role &&
-						(this.cacheInstance.cache.roles[d.role.id] = d.role);
+						d.role &&
+						this.cacheInstance.cache.roles.set(
+							d.role.id,
+							camelize(d.role) as any
+						);
 				}
 				case GatewayDispatchEvents.MessageDelete: {
 					this.emit(
 						"MessageDelete",
-						camelize(d) as Camelize<APIMessage>,
+						camelize(d) as Camelize<APIMessage>
 					);
 				}
 			}
@@ -161,7 +161,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 				JSON.stringify({
 					op: OPCodes.HEARTBEAT,
 					d: null,
-				}),
+				})
 			);
 		}, this.heartbeatInterval);
 	}
@@ -170,30 +170,30 @@ export class Base extends EventEmitter<GatewayEvents> {
 			channels.map((channel) => {
 				this.cacheInstance.addChannelToCache(
 					channel.id,
-					channel as any,
+					channel as any
 				);
-			}),
+			})
 		);
 	}
 	private addRolesToCache(roles: APIRole[]) {
 		Promise.all(
 			roles.map((role) => {
 				this.cacheInstance.addRoleToCache(role.id, role as any);
-			}),
+			})
 		);
 	}
 	private addEmojisToCache(emojis: APIEmoji[]) {
 		Promise.all(
 			emojis.map((emoji) => {
 				this.cacheInstance.addEmojiToCache(emoji.id!, emoji as any);
-			}),
+			})
 		);
 	}
 	private addUsersToCache(users: APIUser[]) {
 		Promise.all(
 			users.map((user) => {
 				this.cacheInstance.addUserToCache(user.id, user as any);
-			}),
+			})
 		);
 	}
 }
