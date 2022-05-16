@@ -1,7 +1,7 @@
 import { APIPartialChannel, Snowflake } from "../../types/mod.ts";
 import { Base } from "../../client/base.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
-import { Message, ClientMessage } from "../mod.ts";
+import { ClientMessage, Message } from "../mod.ts";
 import { request } from "../../rest/request.ts";
 export class BaseChannel implements APIPartialChannel {
 	id: APIPartialChannel["id"];
@@ -13,7 +13,6 @@ export class BaseChannel implements APIPartialChannel {
 		this.name = data.name;
 	}
 	/**
-	 *
 	 * For Community guilds, the Rules or Guidelines channel and the Community Updates channel cannot be deleted.
 	 */
 	async closeChannel(reason?: string) {
@@ -35,12 +34,12 @@ export class BaseChannel implements APIPartialChannel {
 			{
 				body: JSON.stringify(content),
 				headers,
-			}
+			},
 		);
 		return new ClientMessage(
 			await res.json(),
 			this.client.token,
-			this.client
+			this.client,
 		);
 	}
 	async deleteMessage({
@@ -57,13 +56,11 @@ export class BaseChannel implements APIPartialChannel {
 			"DELETE",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		);
 	}
 	/**
-	 *
 	 * Minimum 2, Maximum 100
-	 *
 	 */
 	async bulkDeleteMessages(count: number) {
 		if (count < 2) {
@@ -75,14 +72,14 @@ export class BaseChannel implements APIPartialChannel {
 		return void (await request(
 			`/channels/${this.id}/messages/bulk-delete`,
 			"POST",
-			this.client.token
+			this.client.token,
 		));
 	}
 	async sendTyping() {
 		return void (await request(
 			`/channels/${this.id}/typing`,
 			"POST",
-			this.client.token
+			this.client.token,
 		));
 	}
 	async getPinnedMessages(): Promise<Message[]> {
@@ -90,7 +87,7 @@ export class BaseChannel implements APIPartialChannel {
 			await request(`/channels/${this.id}/pins`, "GET", this.client.token)
 		).json();
 		return res.map(
-			(m: any) => new Message(m, this.client.token, this.client)
+			(m: any) => new Message(m, this.client.token, this.client),
 		);
 	}
 	async pinMessage({
@@ -107,7 +104,7 @@ export class BaseChannel implements APIPartialChannel {
 			"PUT",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		);
 	}
 	async unPinMessage({
@@ -124,7 +121,7 @@ export class BaseChannel implements APIPartialChannel {
 			"DELETE",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		);
 	}
 }

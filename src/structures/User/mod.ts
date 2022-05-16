@@ -59,10 +59,10 @@ export class User {
 		// urls
 		this.avatarUrl = this.avatar
 			? CDN.getUserAvatar({
-					id: this.id,
-					hash: this.avatar,
-					animated: true,
-			  })
+				id: this.id,
+				hash: this.avatar,
+				animated: true,
+			})
 			: CDN.getDefaultUserAvatar({ discriminator: this.discriminator });
 		this.bannerUrl = CDN.getUserBanner({
 			id: this.id,
@@ -77,32 +77,30 @@ export class User {
 			(d.public_flags & UserFlags.Hypesquad) === UserFlags.Hypesquad;
 		this.isBravelyMember =
 			(d.public_flags & UserFlags.HypeSquadOnlineHouse1) ===
-			UserFlags.HypeSquadOnlineHouse1;
+				UserFlags.HypeSquadOnlineHouse1;
 		this.isBrillianceMember =
 			(d.public_flags & UserFlags.HypeSquadOnlineHouse2) ===
-			UserFlags.HypeSquadOnlineHouse2;
+				UserFlags.HypeSquadOnlineHouse2;
 		this.isBalanceMember =
 			(d.public_flags & UserFlags.HypeSquadOnlineHouse3) ===
-			UserFlags.HypeSquadOnlineHouse3;
+				UserFlags.HypeSquadOnlineHouse3;
 		this.isEarlyNitroSupporter =
 			(d.public_flags & UserFlags.PremiumEarlySupporter) ===
-			UserFlags.PremiumEarlySupporter;
-		this.isTeam =
-			(d.public_flags & UserFlags.TeamPseudoUser) ===
+				UserFlags.PremiumEarlySupporter;
+		this.isTeam = (d.public_flags & UserFlags.TeamPseudoUser) ===
 			UserFlags.TeamPseudoUser;
 		this.isBugHunterLevel2 =
 			(d.public_flags & UserFlags.BugHunterLevel2) ===
-			UserFlags.BugHunterLevel2;
+				UserFlags.BugHunterLevel2;
 		this.isVerifiedBot =
 			(d.public_flags & UserFlags.VerifiedBot) === UserFlags.VerifiedBot;
 		this.isVerifiedDeveloper =
 			(d.public_flags & UserFlags.VerifiedDeveloper) ===
-			UserFlags.VerifiedDeveloper;
+				UserFlags.VerifiedDeveloper;
 		this.isCertifiedMod =
 			(d.public_flags & UserFlags.CertifiedModerator) ===
-			UserFlags.CertifiedModerator;
-		this.isHttpBot =
-			(d.public_flags & UserFlags.BotHTTPInteractions) ===
+				UserFlags.CertifiedModerator;
+		this.isHttpBot = (d.public_flags & UserFlags.BotHTTPInteractions) ===
 			UserFlags.BotHTTPInteractions;
 		this.hasNitro = this.premiumType !== 0;
 		if (this.hasNitro) {
@@ -114,7 +112,7 @@ export class User {
 			await request(
 				`/users/${this.id}/channels`,
 				"POST",
-				this.client.token
+				this.client.token,
 			)
 		).json();
 	}

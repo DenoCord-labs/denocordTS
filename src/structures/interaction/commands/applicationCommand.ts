@@ -1,10 +1,10 @@
 import { Interaction } from "../interaction.ts";
 import {
-	APIInteraction,
-	InteractionResponseType,
-	APIChannel,
-	APIRole,
 	APIAttachment,
+	APIChannel,
+	APIInteraction,
+	APIRole,
+	InteractionResponseType,
 } from "../../../types/mod.ts";
 import { camelize } from "../../../../deps.ts";
 import { request as request } from "../../../rest/request.ts";
@@ -27,7 +27,7 @@ export class ApplicationCommandInteraction extends Interaction {
 	constructor(
 		protected interaction: APIInteraction & { locale: string },
 		protected token: string,
-		protected client: Base
+		protected client: Base,
 	) {
 		super(interaction, token, client);
 		for (const key in this.interaction) {
@@ -36,11 +36,11 @@ export class ApplicationCommandInteraction extends Interaction {
 		}
 	}
 	async populateAutoCompleteChoices(
-		choices: { name: string; value: string }[]
+		choices: { name: string; value: string }[],
 	) {
 		if (choices.length > 25) {
 			throw new Error(
-				Messages.TOO_MANY_AUTOCOMPLETE_OPTIONS(choices.length)
+				Messages.TOO_MANY_AUTOCOMPLETE_OPTIONS(choices.length),
 			);
 		}
 		if (!this.isAutoComplete) {
@@ -52,9 +52,10 @@ export class ApplicationCommandInteraction extends Interaction {
 			"POST",
 			this.token,
 			{
-				type: InteractionResponseType.ApplicationCommandAutocompleteResult,
+				type: InteractionResponseType
+					.ApplicationCommandAutocompleteResult,
 				data: { choices },
-			}
+			},
 		);
 	}
 	async showModal(modal: Modal) {
@@ -71,7 +72,7 @@ export class ApplicationCommandInteraction extends Interaction {
 			{
 				type: InteractionResponseType.Modal,
 				data: { ...modal.toJSON() },
-			}
+			},
 		);
 		this.replied = true;
 	}
@@ -85,7 +86,7 @@ export class ApplicationCommandInteraction extends Interaction {
 			this.token,
 			{
 				type: InteractionResponseType.DeferredMessageUpdate,
-			}
+			},
 		);
 	}
 	getStringFromOption(option: string) {
@@ -109,9 +110,10 @@ export class ApplicationCommandInteraction extends Interaction {
 		if (!this.data) return;
 		(this.data as any).options.map(
 			(o: Record<string, string | number | boolean>) => {
-				if (o.name === option && o.type === 5)
+				if (o.name === option && o.type === 5) {
 					value = o.value as boolean;
-			}
+				}
+			},
 		);
 		return value;
 	}
@@ -120,9 +122,10 @@ export class ApplicationCommandInteraction extends Interaction {
 		if (!this.data) return;
 		(this.data as any).options.map(
 			(o: Record<string, string | number | boolean>) => {
-				if (o.name === option && o.type === 6)
+				if (o.name === option && o.type === 6) {
 					value = o.value as unknown as APIInteraction["user"];
-			}
+				}
+			},
 		);
 		return value;
 	}
@@ -131,9 +134,10 @@ export class ApplicationCommandInteraction extends Interaction {
 		if (!this.data) return;
 		(this.data as any).options.map(
 			(o: Record<string, string | number | boolean>) => {
-				if (o.name === option && o.type === 7)
+				if (o.name === option && o.type === 7) {
 					value = o.value as unknown as APIChannel;
-			}
+				}
+			},
 		);
 		return value;
 	}
@@ -142,9 +146,10 @@ export class ApplicationCommandInteraction extends Interaction {
 		if (!this.data) return;
 		(this.data as any).options.map(
 			(o: Record<string, string | number | boolean>) => {
-				if (o.name === option && o.type === 8)
+				if (o.name === option && o.type === 8) {
 					value = o.value as unknown as APIRole;
-			}
+				}
+			},
 		);
 		return value;
 	}
@@ -153,11 +158,12 @@ export class ApplicationCommandInteraction extends Interaction {
 		if (!this.data) return;
 		(this.data as any).options.map(
 			(o: Record<string, string | number | boolean>) => {
-				if (o.name === option && o.type === 9)
+				if (o.name === option && o.type === 9) {
 					value = o.value as unknown as
 						| APIRole
 						| APIInteraction["user"];
-			}
+				}
+			},
 		);
 		return value;
 	}
@@ -166,9 +172,10 @@ export class ApplicationCommandInteraction extends Interaction {
 		if (!this.data) return;
 		(this.data as any).options.map(
 			(o: Record<string, string | number | boolean>) => {
-				if (o.name === option && o.type === 10)
+				if (o.name === option && o.type === 10) {
 					value = o.value as number;
-			}
+				}
+			},
 		);
 		return value;
 	}
@@ -177,9 +184,10 @@ export class ApplicationCommandInteraction extends Interaction {
 		if (!this.data) return;
 		(this.data as any).options.map(
 			(o: Record<string, string | number | boolean>) => {
-				if (o.name === option && o.type === 11)
+				if (o.name === option && o.type === 11) {
 					value = o.value as unknown as APIAttachment;
-			}
+				}
+			},
 		);
 		return value;
 	}

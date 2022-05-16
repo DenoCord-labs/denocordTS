@@ -22,7 +22,7 @@ export class Interaction {
 	constructor(
 		protected interaction: APIInteraction & { locale: string },
 		protected token: string,
-		protected client: Base
+		protected client: Base,
 	) {
 		switch (this.interaction.type) {
 			case 2: {
@@ -57,7 +57,7 @@ export class Interaction {
 				? new GuildMember(this.interaction, this.client, isGuildOwner)
 				: undefined,
 			user: this.interaction.user
-				? new User(this.interaction.user,this.client)
+				? new User(this.interaction.user, this.client)
 				: undefined,
 			message: this.interaction.message,
 			deferReply: this.deferReply.bind(this),
@@ -98,7 +98,7 @@ export class Interaction {
 				data: {
 					...payload,
 				},
-			}
+			},
 		);
 	}
 	async deferReply(payload = { ephemeral: false }) {
@@ -115,7 +115,7 @@ export class Interaction {
 			{
 				type: InteractionResponseType.DeferredChannelMessageWithSource,
 				ephemeral,
-			}
+			},
 		);
 	}
 	async editReply(payload: ReplyPayload) {
@@ -129,7 +129,7 @@ export class Interaction {
 			this.token,
 			{
 				...payload,
-			}
+			},
 		);
 		return camelize(await r.json()) as Camelize<APIMessage>;
 	}
@@ -138,7 +138,7 @@ export class Interaction {
 		await request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
 			"DELETE",
-			this.token
+			this.token,
 		);
 	}
 
@@ -147,36 +147,39 @@ export class Interaction {
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}`,
 			"GET",
 			this.token,
-			{ ...payload }
+			{ ...payload },
 		);
 		return await res.json();
 	}
 
 	async fetchFollowUp() {
 		const res = await request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+				.interaction.message?.id}`,
 			"GET",
-			this.token
+			this.token,
 		);
 		return await res.json();
 	}
 
 	async editFollowUp(payload: ReplyPayload) {
 		await request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+				.interaction.message?.id}`,
 			"PATCH",
 			this.token,
 			{
 				...payload,
-			}
+			},
 		);
 	}
 
 	async deleteFollowUp() {
 		await request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+				.interaction.message?.id}`,
 			"DELETE",
-			this.token
+			this.token,
 		);
 	}
 
@@ -184,7 +187,7 @@ export class Interaction {
 		await request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
 			"GET",
-			this.token
+			this.token,
 		);
 	}
 
@@ -193,7 +196,7 @@ export class Interaction {
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
 			this.token,
-			{ type: InteractionResponseType.DeferredMessageUpdate }
+			{ type: InteractionResponseType.DeferredMessageUpdate },
 		);
 	}
 

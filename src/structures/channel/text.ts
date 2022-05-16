@@ -1,4 +1,4 @@
-import { Snowflake, APIInvite } from "../../types/mod.ts";
+import { APIInvite, Snowflake } from "../../types/mod.ts";
 import { Base } from "../../client/base.ts";
 import { request } from "../../rest/request.ts";
 import { BaseChannel } from "./base.ts";
@@ -39,7 +39,7 @@ export class TextChannel extends BaseChannel {
 			`/channels/${this.id}/invites`,
 			"POST",
 			this.clientInstance.token,
-			body
+			body,
 		);
 		return camelize(await res.json()) as Camelize<APIInvite>;
 	}
@@ -79,7 +79,7 @@ export class TextChannel extends BaseChannel {
 			`/channels/${this.id}/messages`,
 			"POST",
 			this.clientInstance.token,
-			body
+			body,
 		);
 	}
 	async createThreadFromMessage({
@@ -104,7 +104,7 @@ export class TextChannel extends BaseChannel {
 			`/channels/${this.id}/messages/${messageId}/thread`,
 			"POST",
 			this.clientInstance.token,
-			body
+			body,
 		);
 	}
 }

@@ -4,7 +4,8 @@ import { request } from "../../rest/mod.ts";
 
 export class GuildMember implements APIGuildMember {
 	avatar: APIGuildMember["avatar"];
-	communication_disabled_until?: APIGuildMember["communication_disabled_until"];
+	communication_disabled_until?:
+		APIGuildMember["communication_disabled_until"];
 	deaf: APIGuildMember["deaf"];
 	joined_at: APIGuildMember["joined_at"];
 	mute: APIGuildMember["mute"];
@@ -18,7 +19,7 @@ export class GuildMember implements APIGuildMember {
 	constructor(
 		private d: any,
 		private client: Base,
-		public guildOwner?: boolean
+		public guildOwner?: boolean,
 	) {
 		this.avatar = d.member.avatar;
 		this.communication_disabled_until =
@@ -46,7 +47,7 @@ export class GuildMember implements APIGuildMember {
 				this.permission &
 					// @ts-ignore
 					(BigInt(PermissionFlagsBits[permission]) ===
-						BigInt(PermissionFlagsBits[permission]))
+						BigInt(PermissionFlagsBits[permission])),
 			);
 		};
 	}
@@ -61,10 +62,10 @@ export class GuildMember implements APIGuildMember {
 			"DELETE",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		);
 	}
-	async ban(reason?:string){
+	async ban(reason?: string) {
 		let headers: undefined | HeadersInit;
 		if (reason) {
 			headers = new Headers();
@@ -75,7 +76,7 @@ export class GuildMember implements APIGuildMember {
 			"PUT",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		);
 	}
 }

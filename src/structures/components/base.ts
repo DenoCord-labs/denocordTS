@@ -1,3 +1,3 @@
 export class BaseComponent {
-  constructor() {}
+	constructor() {}
 }
