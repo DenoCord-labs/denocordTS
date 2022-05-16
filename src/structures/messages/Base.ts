@@ -1,7 +1,7 @@
 import { APIMessage, APIGuildMember, Snowflake } from "../../types/mod.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Messages } from "../../errors/messages.ts";
-import { discordFetch } from "../../rest/mod.ts";
+import { request } from "../../rest/mod.ts";
 import { ClientMessage } from "./mod.ts";
 import { parseEmoji } from "../../utils/mod.ts";
 import { Member } from "../../types/cache.ts";
@@ -196,7 +196,7 @@ export class BaseMessage {
 		this.id = d.id;
 		this.channelId = d.channel_id;
 		this.guildId = d.guild_id;
-		this.author = new User(d.author);
+		this.author = new User(d.author, client);
 		this.content = d.content;
 		this.timestamp = d.timestamp;
 		this.editedTimestamp = d.edited_timestamp;
@@ -226,7 +226,7 @@ export class BaseMessage {
 			this.client.cache.guilds.get(this.d.guild_id || "")?.ownerId ===
 			this.author.id;
 		this.member = d.member
-			? new GuildMember(d.member, this.client, isServerOwner)
+			? new GuildMember(d, this.client, isServerOwner)
 			: undefined;
 	}
 	async reply(payload: ReplyPayload & { ping?: boolean; inline?: boolean }) {
@@ -238,29 +238,18 @@ export class BaseMessage {
 				guild_id: this.d.guild_id!,
 				message_id: this.d.id,
 			},
-			embeds: payload.embeds ? payload.embeds.map((e) => e.toJSON()) : [],
-			components: payload.components
-				? payload.components.map((c) => {
-						const components = c.components;
-						c.removeAllComponents();
-						c.addComponents(
-							components.map((component) =>
-								component.toJSON()
-							) as any
-						);
-						return c;
-				  })
-				: [],
+			embeds: payload.embeds ? payload.embeds : [],
+			components: payload.components ? payload.components : [],
 			allowed_mentions: payload.inline ? { parse: [] } : undefined,
 		};
-		const request = await discordFetch(
+		const res = await request(
 			`/channels/${this.d.channel_id}/messages`,
 			"POST",
 			this.token,
 			body
 		);
 		const msg = new ClientMessage(
-			await request.json(),
+			await res.json(),
 			this.token,
 			this.client
 		);
@@ -269,7 +258,7 @@ export class BaseMessage {
 	async delete(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/messages/${this.d.id}`,
 			"DELETE",
 			this.token,
@@ -278,7 +267,7 @@ export class BaseMessage {
 		);
 	}
 	async addReaction(emoji: string) {
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/messages/${
 				this.d.id
 			}/reactions/${parseEmoji(emoji)}/@me`,
@@ -289,7 +278,7 @@ export class BaseMessage {
 		return null;
 	}
 	async removeClientReaction(emoji: string) {
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/messages/${
 				this.d.id
 			}/reactions/${parseEmoji(emoji)}/@me`,
@@ -300,7 +289,7 @@ export class BaseMessage {
 		return null;
 	}
 	async removeUserReaction(emoji: string, userId: Snowflake) {
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/messages/${
 				this.d.id
 			}/reactions/${parseEmoji(emoji)}/${userId}`,
@@ -311,7 +300,7 @@ export class BaseMessage {
 		return null;
 	}
 	async getReactions(emoji: string) {
-		const request = await discordFetch(
+		const res = await request(
 			`/channels/${this.d.channel_id}/messages/${
 				this.d.id
 			}/reactions/${parseEmoji(emoji)}`,
@@ -319,10 +308,10 @@ export class BaseMessage {
 			this.token,
 			{}
 		);
-		return request.json();
+		return res.json();
 	}
 	async deleteAllReactions() {
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions`,
 			"DELETE",
 			this.token,
@@ -331,7 +320,7 @@ export class BaseMessage {
 		return null;
 	}
 	async deleteAllReactionsByEmoji(emoji: string) {
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/messages/${
 				this.d.id
 			}/reactions/${parseEmoji(emoji)}`,
@@ -342,7 +331,7 @@ export class BaseMessage {
 		return null;
 	}
 	async sendTyping() {
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/typing`,
 			"POST",
 			this.token,
@@ -353,7 +342,7 @@ export class BaseMessage {
 	async pinMessage(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/pins/${this.d.id}`,
 			"PUT",
 			this.token,
@@ -365,7 +354,7 @@ export class BaseMessage {
 	async unpinMessage(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		await discordFetch(
+		await request(
 			`/channels/${this.d.channel_id}/pins/${this.d.id}`,
 			"DELETE",
 			this.token,
@@ -377,26 +366,26 @@ export class BaseMessage {
 	async startThreadFromMessage(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		const request = await discordFetch(
+		const res = await request(
 			`/channels/${this.d.channel_id}/messages/${this.d.id}/threads`,
 			"PUT",
 			this.token,
 			{},
 			headers
 		);
-		return request.json();
+		return res.json();
 	}
 	async createNewThread(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		const request = await discordFetch(
+		const res = await request(
 			`/channels/${this.d.channel_id}/threads`,
 			"POST",
 			this.token,
 			{},
 			headers
 		);
-		return request.json();
+		return res.json();
 	}
 	private checks(payload: ReplyPayload) {
 		if (payload.components && payload.components.length > 5) {

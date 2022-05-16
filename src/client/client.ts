@@ -9,7 +9,7 @@ import {
 import type { SlashCommand } from "../structures/commands/slashCommands/builder.ts";
 import { PermissionBits } from "../types/permission.ts";
 import { CDN } from "../rest/cdn.ts";
-import { discordFetch as request } from "../rest/mod.ts";
+import { request as request } from "../rest/mod.ts";
 import { Camelize, camelize } from "../../deps.ts";
 export class Client extends Base {
   public cdn = CDN;

@@ -3,7 +3,7 @@ import {
   InteractionResponseType,
 } from "../../../types/mod.ts";
 import { ReplyPayload } from "../../../types/responsepayload.ts";
-import { discordFetch } from "../../../rest/mod.ts";
+import { request } from "../../../rest/mod.ts";
 import { ClientMessage } from "../../messages/ClientMessage.ts";
 import { Messages } from "../../../errors/messages.ts";
 import { Base } from "../../../client/base.ts";
@@ -40,7 +40,7 @@ export class BaseComponent {
         flags: 1 << 6,
       }
       : {};
-    await discordFetch(
+    await request(
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
       "POST",
       this.client.token,
@@ -54,7 +54,7 @@ export class BaseComponent {
     if (this.deferred) {
       throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     }
-    await discordFetch(
+    await request(
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
       "POST",
       this.client.token,
@@ -70,7 +70,7 @@ export class BaseComponent {
     if (!this.deferred && !this.replied) {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
     }
-    await discordFetch(
+    await request(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "PATCH",
       this.client.token,
@@ -84,7 +84,7 @@ export class BaseComponent {
     if (!this.replied && !this.deferred) {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
     }
-    const res = await discordFetch(
+    const res = await request(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "GET",
       this.client.token,
@@ -99,7 +99,7 @@ export class BaseComponent {
     if (!this.replied && !this.deferred) {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
     }
-    await discordFetch(
+    await request(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "DELETE",
       this.client.token,
@@ -108,7 +108,7 @@ export class BaseComponent {
   }
 
   public async deferUpdate() {
-    await discordFetch(
+    await request(
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
       "POST",
       this.client.token,

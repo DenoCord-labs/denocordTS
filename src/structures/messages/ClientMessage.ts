@@ -1,6 +1,6 @@
 import { BaseMessage } from "./Base.ts";
 import { APIMessage } from "../../types/mod.ts";
-import { discordFetch } from "../../rest/mod.ts";
+import { request } from "../../rest/mod.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Base } from "../../client/base.ts";
 
@@ -25,7 +25,7 @@ export class ClientMessage extends BaseMessage {
         })
         : [],
     };
-    const res = await discordFetch(
+    const res = await request(
       `/channels/${this.d.channel_id}/messages/${this.d.id}`,
       "PATCH",
       this.clientToken,
