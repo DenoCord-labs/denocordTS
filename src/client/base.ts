@@ -27,8 +27,10 @@ export class Base extends EventEmitter<GatewayEvents> {
 	protected websocket: WebSocket;
 	public user = {} as ClientUser;
 	token = "";
-
+	public readonly uptime = new Date().getTime();
+	protected start: number = Date.now();
 	protected options;
+	ping: number = -1;
 	constructor(options: ClientOptions) {
 		super();
 		this.options = options;
@@ -39,7 +41,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 			token: options.token,
 			intents: options.intents.reduce(
 				(bits, next) => (bits |= GatewayIntentBits[next]),
-				0,
+				0
 			),
 			properties: {
 				$browser: "denocordts",
@@ -54,7 +56,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					d: {
 						...payload,
 					},
-				}),
+				})
 			);
 		};
 		this.websocket.onerror = async (e) => {
@@ -66,14 +68,18 @@ export class Base extends EventEmitter<GatewayEvents> {
 				op,
 				t,
 			}: // deno-lint-ignore no-explicit-any
-				{ op: OPCodes; d: any; t: GatewayDispatchEvents } = await JSON
-					.parse(e.data);
+			{ op: OPCodes; d: any; t: GatewayDispatchEvents } =
+				await JSON.parse(e.data);
 
 			switch (op) {
 				case OPCodes.HELLO: {
 					this.heartbeatInterval = d.heartbeat_interval;
+					this.ping = Date.now() - this.start;
 					this.sendHeartBeat();
 					break;
+				}
+				case OPCodes.HEARTBEAT_ACK: {
+					this.ping = Date.now() - this.start;
 				}
 			}
 			switch (t) {
@@ -83,7 +89,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					}
 					this.emit(
 						"MessageCreate",
-						new Message(d, this.options.token, this),
+						new Message(d, this.options.token, this)
 					);
 
 					break;
@@ -92,7 +98,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					this.user = {
 						...d.user,
 						guilds: d.guilds.map(
-							(g: { id: string; unavailable: boolean }) => g.id,
+							(g: { id: string; unavailable: boolean }) => g.id
 						),
 					};
 					break;
@@ -113,8 +119,8 @@ export class Base extends EventEmitter<GatewayEvents> {
 						new ApplicationCommandInteraction(
 							d,
 							this.options.token,
-							this,
-						) as any,
+							this
+						) as any
 					);
 
 					break;
@@ -125,7 +131,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					if (d.role) {
 						this.cacheInstance.cache.roles.set(
 							d.role.id,
-							camelize(d.role) as any,
+							camelize(d.role) as any
 						);
 					}
 				}
@@ -137,13 +143,13 @@ export class Base extends EventEmitter<GatewayEvents> {
 						d.role &&
 						this.cacheInstance.cache.roles.set(
 							d.role.id,
-							camelize(d.role) as any,
+							camelize(d.role) as any
 						);
 				}
 				case GatewayDispatchEvents.MessageDelete: {
 					this.emit(
 						"MessageDelete",
-						camelize(d) as Camelize<APIMessage>,
+						camelize(d) as Camelize<APIMessage>
 					);
 				}
 			}
@@ -154,11 +160,12 @@ export class Base extends EventEmitter<GatewayEvents> {
 	}
 	private sendHeartBeat() {
 		setInterval(() => {
+			this.start = Date.now();
 			this.websocket.send(
 				JSON.stringify({
 					op: OPCodes.HEARTBEAT,
 					d: null,
-				}),
+				})
 			);
 		}, this.heartbeatInterval);
 	}
@@ -167,30 +174,30 @@ export class Base extends EventEmitter<GatewayEvents> {
 			channels.map((channel) => {
 				this.cacheInstance.addChannelToCache(
 					channel.id,
-					channel as any,
+					channel as any
 				);
-			}),
+			})
 		);
 	}
 	private addRolesToCache(roles: APIRole[]) {
 		Promise.all(
 			roles.map((role) => {
 				this.cacheInstance.addRoleToCache(role.id, role as any);
-			}),
+			})
 		);
 	}
 	private addEmojisToCache(emojis: APIEmoji[]) {
 		Promise.all(
 			emojis.map((emoji) => {
 				this.cacheInstance.addEmojiToCache(emoji.id!, emoji as any);
-			}),
+			})
 		);
 	}
 	private addUsersToCache(users: APIUser[]) {
 		Promise.all(
 			users.map((user) => {
 				this.cacheInstance.addUserToCache(user.id, user as any);
-			}),
+			})
 		);
 	}
 }
