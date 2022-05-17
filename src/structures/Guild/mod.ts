@@ -1,6 +1,16 @@
-import { APIGuild } from "../../types/mod.ts";
-import { Camelize } from "../../../deps.ts";
-
+import {
+	APIGuild,
+	ChannelType,
+	Snowflake,
+	APIBan,
+	APIRole,
+	PermissionFlagsBits,
+} from "../../types/mod.ts";
+import { Camelize, camelize } from "../../../deps.ts";
+import { request } from "../../rest/request.ts";
+import { Base } from "../../client/base.ts";
+import { GuildMember } from "../mod.ts";
+import { resolveColor, ColorResolvable } from "../../utils/mod.ts";
 interface GuildProperties extends Camelize<APIGuild> {}
 
 export class Guild {
@@ -56,7 +66,7 @@ export class Guild {
 	splash: string | null;
 	unavailable: GuildProperties["unavailable"];
 	id: GuildProperties["id"];
-	constructor(d: any) {
+	constructor(d: any, private client: Base) {
 		this.afkChannelId = d.afk_channel_id;
 		this.afkTimeout = d.afk_timeout;
 		this.approximateMemberCount = d.approximate_member_count;
@@ -109,5 +119,378 @@ export class Guild {
 		this.verificationLevel = d.verification_level;
 		this.region = d.region;
 		this.preferredLocale = d.preferred_locale;
+	}
+	async createChannel({
+		channelType,
+		name,
+		parentId,
+		autoArchiveDuration,
+		bitrate,
+		nsfw,
+		position,
+		slowMode,
+		topic,
+		userLimit,
+		reason,
+	}: {
+		/**
+		 * The name of the channel
+		 */
+		name: string;
+		/**
+		 * The Type of the channel
+		 */
+		channelType: keyof typeof ChannelType;
+		/**
+		 * Topic of the channel
+		 */
+		topic?: string;
+		/**
+		 * Bitrate (in bits) of the voice channel
+		 */
+		bitrate?: number;
+		/**
+		 * User Limit of the voice channel
+		 */
+		userLimit?: number;
+		/**
+		 * SlowMode Duration
+		 * Value must be between `0 - 21600`
+		 */
+		slowMode?: number;
+		/**
+		 * Position of the channel in the category
+		 */
+		position?: number;
+		/**
+		 * Id of the Category
+		 */
+		parentId: number;
+		/**
+		 * Whether the channel is nsfw
+		 */
+		nsfw?: boolean;
+		/**
+		 * Duration in minutes to archive the thread automatically
+		 * Available Values: `60` | `1440` | `10080` | `43200`
+		 */
+		autoArchiveDuration?: 60 | 1440 | 4320 | 10080;
+		/**
+		 * The Reason to Create this channel
+		 */
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) {
+			headers.append("X-Audit-Log-Reason", reason);
+		}
+		const body: Record<string, any> = {};
+		body["name"] = name;
+		body["parent_id"] = parentId;
+		body["topic"] = topic || "";
+		body["type"] = ChannelType[channelType];
+		body["rate_limit_per_user"] = slowMode;
+		body["position"] = position;
+		body["nsfw"] = Boolean(nsfw);
+		if (
+			body.type == ChannelType["GuildVoice"] ||
+			body.type == ChannelType["GuildStageVoice"]
+		) {
+			body["bitrate"] = bitrate;
+			body["user_limit"] = userLimit;
+		}
+		if (
+			body.type == ChannelType["GuildNewsThread"] ||
+			body.type == ChannelType["GuildPublicThread"] ||
+			body.type == ChannelType["GuildPrivateThread"]
+		) {
+			body["default_auto_arhive_duration"] = autoArchiveDuration;
+		}
+		return await request(
+			`/guilds/${this.id}/channels`,
+			"POST",
+			this.client.token,
+			body,
+			headers
+		);
+	}
+	async changeChannelPosition({
+		channelId,
+		position,
+		lockPermissions,
+		parentId,
+		reason,
+	}: {
+		channelId: Snowflake;
+		position: number;
+		parentId?: Snowflake;
+		lockPermissions?: boolean;
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		const body: Record<string, Snowflake | boolean | number> = {};
+		body["id"] = channelId;
+		if (position) body["position"] = position;
+		body["lock_permissions"] = lockPermissions || true;
+		if (parentId) body["parent_id"] = parentId;
+		await request(
+			`/guilds/${this.id}/channels`,
+			"PATCH",
+			this.client.token,
+			body,
+			reason ? headers : undefined
+		);
+	}
+	async fetchGuildMember(userId: Snowflake) {
+		const res = await (
+			await request(
+				`/guilds/${this.id}/members/${userId}`,
+				"GET",
+				this.client.token
+			)
+		).json();
+
+		return new GuildMember(
+			res,
+			this.client,
+			this.client.cache.guilds.get(`${this.id}`)?.ownerId === res.user?.id
+		) as Partial<GuildMember>;
+	}
+	async changeClientNickname({
+		nickname,
+		reason,
+	}: {
+		nickname: string;
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		return void (await request(
+			`/guilds/${this.id}/members/@me`,
+			"PATCH",
+			this.client.token,
+			{ nick: nickname },
+			reason ? headers : undefined
+		));
+	}
+	async addRoleToGuildMember({
+		roleId,
+		userId,
+		reason,
+	}: {
+		userId: Snowflake;
+		roleId: Snowflake;
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		return void (await request(
+			`/guilds/${this.id}/members/${userId}/roles/${roleId}`,
+			"PUT",
+			this.client.token,
+			undefined,
+			reason ? headers : undefined
+		));
+	}
+	async removeRoleFromGuildMember({
+		roleId,
+		userId,
+		reason,
+	}: {
+		reason?: string;
+		userId: Snowflake;
+		roleId: Snowflake;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		return void (await request(
+			`/guilds/${this.id}/members/${userId}/roles/${roleId}`,
+			"DELETE",
+			this.client.token,
+			undefined,
+			reason ? headers : undefined
+		));
+	}
+	async removeGuildMember({
+		userId,
+		reason,
+	}: {
+		userId: Snowflake;
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		return void (await request(
+			`/guilds/${this.id}/members/${userId}`,
+			"DELETE",
+			this.client.token,
+			undefined,
+			reason ? headers : undefined
+		));
+	}
+	/**
+	 * Used to fetch Guild Bans, Will fetch top 10 if limit isn't specified
+	 */
+	async fetchGuildBans(limit?: number) {
+		const body: Record<string, number> = {};
+		body["limit"] = limit || 10;
+		return (await (
+			await request(`/guilds/${this.id}/bans`, "GET", this.client.token)
+		).json()) as Camelize<APIBan>[];
+	}
+
+	async fetchGuildBan({ userId }: { userId: Snowflake }) {
+		return (await await (
+			await request(
+				`/guilds/${this.id}/bans/${userId}`,
+				"GET",
+				this.client.token
+			)
+		).json()) as Camelize<APIBan>;
+	}
+
+	async createBan({
+		userId,
+		reason,
+	}: {
+		userId: Snowflake;
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		return void (await request(
+			`/guilds/${this.id}/bans/${userId}`,
+			"PUT",
+			this.client.token,
+			undefined,
+			reason ? headers : undefined
+		));
+	}
+	async removeGuildBan({
+		userId,
+		reason,
+	}: {
+		userId: Snowflake;
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		return void (await request(
+			`/guilds/${this.id}/bans/${userId}`,
+			"DELETE",
+			this.client.token,
+			undefined,
+			headers
+		));
+	}
+	async fetchRoles() {
+		return camelize(
+			await (
+				await request(
+					`/guilds/${this.id}/roles`,
+					"GET",
+					this.client.token
+				)
+			).json()
+		) as Camelize<APIRole>[];
+	}
+
+	async createRole({
+		name,
+		permission,
+		color,
+		displaySeparatelyInSidebar,
+		mentionable,
+		reason,
+	}: {
+		name: string;
+		permission: (keyof typeof PermissionFlagsBits)[];
+		color?: ColorResolvable;
+		displaySeparatelyInSidebar?: boolean;
+		mentionable?: boolean;
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		const body: Record<string, any> = {};
+		body["name"] = name;
+		let permissions: bigint = 0n;
+		for await (const perm of permission) {
+			permissions |= PermissionFlagsBits[perm];
+		}
+		body["permissions"] = String(permissions);
+		body["color"] = color ? (resolveColor(color) as number) : 0;
+		body["hoist"] = displaySeparatelyInSidebar || false;
+		body["mentionable"] = mentionable || false;
+		return camelize(
+			await (
+				await request(
+					`/guilds/${this.id}/roles`,
+					"POST",
+					this.client.token,
+					body,
+					headers
+				)
+			).json()
+		) as Camelize<APIRole>;
+	}
+	async modifyRole({
+		name,
+		permission,
+		color,
+		displaySeparatelyInSidebar,
+		mentionable,
+		reason,
+		roleId,
+	}: {
+		name: string;
+		permission: (keyof typeof PermissionFlagsBits)[];
+		color?: ColorResolvable;
+		displaySeparatelyInSidebar?: boolean;
+		mentionable?: boolean;
+		reason?: string;
+		roleId: Snowflake;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		const body: Record<string, any> = {};
+		body["name"] = name;
+		let permissions: bigint = 0n;
+		for await (const perm of permission) {
+			permissions |= PermissionFlagsBits[perm];
+		}
+		body["permissions"] = String(permissions);
+		body["color"] = color ? (resolveColor(color) as number) : 0;
+		body["hoist"] = displaySeparatelyInSidebar || false;
+		body["mentionable"] = mentionable || false;
+		return camelize(
+			await (
+				await request(
+					`/guilds/${this.id}/roles/${roleId}`,
+					"PATCH",
+					this.client.token,
+					body,
+					headers
+				)
+			).json()
+		) as Camelize<APIRole>;
+	}
+	async deleteRole({
+		roleId,
+		reason,
+	}: {
+		roleId: Snowflake;
+		reason?: string;
+	}) {
+		const headers = new Headers();
+		if (reason) headers.append("X-Audit-Log-Reason", reason);
+		return void (await request(
+			`/guilds/${this.id}/roles/${roleId}`,
+			"DELETE",
+			this.client.token,
+			undefined,
+			headers
+		));
 	}
 }
