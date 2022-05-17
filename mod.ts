@@ -21,6 +21,11 @@ export {
 export type {
 	ButtonInteraction,
 	SelectMenuInteraction,
+	TextChannel,
+	ThreadChannel,
+	GuildMember,
+	Guild,
+	User,
 } from "./src/structures/mod.ts";
 export { parseEmojiForComponents } from "./src/utils/mod.ts";
 export * from "./src/helpers/mod.ts";
