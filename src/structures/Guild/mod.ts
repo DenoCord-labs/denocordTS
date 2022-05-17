@@ -9,9 +9,12 @@ import {
 import { Camelize, camelize } from "../../../deps.ts";
 import { request } from "../../rest/request.ts";
 import { Base } from "../../client/base.ts";
-import { GuildMember } from "../mod.ts";
+import { GuildMember, TextChannel, ThreadChannel } from "../mod.ts";
 import { resolveColor, ColorResolvable } from "../../utils/mod.ts";
-interface GuildProperties extends Camelize<APIGuild> {}
+import { camelToSnakeCase } from "../../helpers/caseConversion.ts";
+interface GuildProperties extends Camelize<APIGuild> {
+	channnels: (TextChannel | ThreadChannel)[];
+}
 
 export class Guild {
 	iconHash: GuildProperties["iconHash"];
@@ -39,7 +42,7 @@ export class Guild {
 	memberCount: GuildProperties["memberCount"];
 	voiceStates: GuildProperties["voiceStates"];
 	members: GuildProperties["members"];
-	channels: GuildProperties["channels"];
+	channels: (TextChannel | ThreadChannel)[];
 	threads: GuildProperties["threads"];
 	presences: GuildProperties["presences"];
 	maxPresences: GuildProperties["maxPresences"];
@@ -66,13 +69,16 @@ export class Guild {
 	splash: string | null;
 	unavailable: GuildProperties["unavailable"];
 	id: GuildProperties["id"];
-	constructor(d: any, private client: Base) {
+	constructor(data: any, private client: Base) {
+		const d: Record<string, any> = {};
+		Object.keys(data || {})?.map((key) => {
+			d[camelToSnakeCase(key)] = data[key];
+		});
 		this.afkChannelId = d.afk_channel_id;
 		this.afkTimeout = d.afk_timeout;
 		this.approximateMemberCount = d.approximate_member_count;
 		this.approximatePresenceCount = d.approximate_presence_count;
 		this.banner = d.banner;
-		this.channels = d.channels;
 		this.defaultMessageNotifications = d.default_message_notifications;
 		this.description = d.description;
 		this.discoverySplash = d.discovery_splash;
@@ -119,6 +125,24 @@ export class Guild {
 		this.verificationLevel = d.verification_level;
 		this.region = d.region;
 		this.preferredLocale = d.preferred_locale;
+		this.channels = [];
+		d.channels.map((channel: Record<string, any>) => {
+			switch (channel.type) {
+				case 0: {
+					this.channels!.push(new TextChannel(channel, this.client));
+				}
+				case 11: {
+					this.channels!.push(
+						new ThreadChannel(channel, this.client)
+					);
+				}
+				case 12: {
+					this.channels!.push(
+						new ThreadChannel(channel, this.client)
+					);
+				}
+			}
+		});
 	}
 	async createChannel({
 		channelType,
@@ -165,7 +189,7 @@ export class Guild {
 		/**
 		 * Id of the Category
 		 */
-		parentId: number;
+		parentId: Snowflake;
 		/**
 		 * Whether the channel is nsfw
 		 */
@@ -335,19 +359,27 @@ export class Guild {
 	async fetchGuildBans(limit?: number) {
 		const body: Record<string, number> = {};
 		body["limit"] = limit || 10;
-		return (await (
-			await request(`/guilds/${this.id}/bans`, "GET", this.client.token)
-		).json()) as Camelize<APIBan>[];
+		return camelize(
+			await (
+				await request(
+					`/guilds/${this.id}/bans`,
+					"GET",
+					this.client.token
+				)
+			).json()
+		) as Camelize<APIBan>[];
 	}
 
 	async fetchGuildBan({ userId }: { userId: Snowflake }) {
-		return (await await (
-			await request(
-				`/guilds/${this.id}/bans/${userId}`,
-				"GET",
-				this.client.token
-			)
-		).json()) as Camelize<APIBan>;
+		return camelize(
+			await await (
+				await request(
+					`/guilds/${this.id}/bans/${userId}`,
+					"GET",
+					this.client.token
+				)
+			).json()
+		) as Camelize<APIBan>;
 	}
 
 	async createBan({
