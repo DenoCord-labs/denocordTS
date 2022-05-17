@@ -9,9 +9,9 @@ Basic Example:
 import { Client } from 'https://deno.land/x/denocordts/mod.ts'
 
 const client = new Client({
-              token: '...',
-              clientId:'...',
-              intents:['Guilds','GuildMessages','MessageContent,'GuildMembers']
+      token: '...',
+      clientId:'...',
+      intents:['Guilds','GuildMessages','MessageContent','GuildMembers']
 })
               
 client.on('Ready',()=>console.log(`Logged in as ${client.user.username}`))
