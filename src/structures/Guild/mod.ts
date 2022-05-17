@@ -1,16 +1,16 @@
 import {
-	APIGuild,
-	ChannelType,
-	Snowflake,
 	APIBan,
+	APIGuild,
 	APIRole,
+	ChannelType,
 	PermissionFlagsBits,
+	Snowflake,
 } from "../../types/mod.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 import { request } from "../../rest/request.ts";
 import { Base } from "../../client/base.ts";
 import { GuildMember, TextChannel, ThreadChannel } from "../mod.ts";
-import { resolveColor, ColorResolvable } from "../../utils/mod.ts";
+import { ColorResolvable, resolveColor } from "../../utils/mod.ts";
 import { camelToSnakeCase } from "../../helpers/caseConversion.ts";
 interface GuildProperties extends Camelize<APIGuild> {
 	channnels: (TextChannel | ThreadChannel)[];
@@ -133,12 +133,12 @@ export class Guild {
 				}
 				case 11: {
 					this.channels!.push(
-						new ThreadChannel(channel, this.client)
+						new ThreadChannel(channel, this.client),
 					);
 				}
 				case 12: {
 					this.channels!.push(
-						new ThreadChannel(channel, this.client)
+						new ThreadChannel(channel, this.client),
 					);
 				}
 			}
@@ -235,7 +235,7 @@ export class Guild {
 			"POST",
 			this.client.token,
 			body,
-			headers
+			headers,
 		);
 	}
 	async changeChannelPosition({
@@ -263,7 +263,7 @@ export class Guild {
 			"PATCH",
 			this.client.token,
 			body,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		);
 	}
 	async fetchGuildMember(userId: Snowflake) {
@@ -271,14 +271,15 @@ export class Guild {
 			await request(
 				`/guilds/${this.id}/members/${userId}`,
 				"GET",
-				this.client.token
+				this.client.token,
 			)
 		).json();
 
 		return new GuildMember(
 			res,
 			this.client,
-			this.client.cache.guilds.get(`${this.id}`)?.ownerId === res.user?.id
+			this.client.cache.guilds.get(`${this.id}`)?.ownerId ===
+				res.user?.id,
 		) as Partial<GuildMember>;
 	}
 	async changeClientNickname({
@@ -295,7 +296,7 @@ export class Guild {
 			"PATCH",
 			this.client.token,
 			{ nick: nickname },
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	async addRoleToGuildMember({
@@ -314,7 +315,7 @@ export class Guild {
 			"PUT",
 			this.client.token,
 			undefined,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	async removeRoleFromGuildMember({
@@ -333,7 +334,7 @@ export class Guild {
 			"DELETE",
 			this.client.token,
 			undefined,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	async removeGuildMember({
@@ -350,7 +351,7 @@ export class Guild {
 			"DELETE",
 			this.client.token,
 			undefined,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	/**
@@ -364,9 +365,9 @@ export class Guild {
 				await request(
 					`/guilds/${this.id}/bans`,
 					"GET",
-					this.client.token
+					this.client.token,
 				)
-			).json()
+			).json(),
 		) as Camelize<APIBan>[];
 	}
 
@@ -376,9 +377,9 @@ export class Guild {
 				await request(
 					`/guilds/${this.id}/bans/${userId}`,
 					"GET",
-					this.client.token
+					this.client.token,
 				)
-			).json()
+			).json(),
 		) as Camelize<APIBan>;
 	}
 
@@ -396,7 +397,7 @@ export class Guild {
 			"PUT",
 			this.client.token,
 			undefined,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	async removeGuildBan({
@@ -413,7 +414,7 @@ export class Guild {
 			"DELETE",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		));
 	}
 	async fetchRoles() {
@@ -422,9 +423,9 @@ export class Guild {
 				await request(
 					`/guilds/${this.id}/roles`,
 					"GET",
-					this.client.token
+					this.client.token,
 				)
-			).json()
+			).json(),
 		) as Camelize<APIRole>[];
 	}
 
@@ -462,9 +463,9 @@ export class Guild {
 					"POST",
 					this.client.token,
 					body,
-					headers
+					headers,
 				)
-			).json()
+			).json(),
 		) as Camelize<APIRole>;
 	}
 	async modifyRole({
@@ -503,9 +504,9 @@ export class Guild {
 					"PATCH",
 					this.client.token,
 					body,
-					headers
+					headers,
 				)
-			).json()
+			).json(),
 		) as Camelize<APIRole>;
 	}
 	async deleteRole({
@@ -522,7 +523,7 @@ export class Guild {
 			"DELETE",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		));
 	}
 }

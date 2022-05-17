@@ -32,12 +32,12 @@ export class BaseChannel implements APIPartialChannel {
 			"POST",
 			this.client.token,
 			content,
-			headers
+			headers,
 		);
 		return new ClientMessage(
 			await res.json(),
 			this.client.token,
-			this.client
+			this.client,
 		);
 	}
 	async deleteMessage({
@@ -54,7 +54,7 @@ export class BaseChannel implements APIPartialChannel {
 			"DELETE",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		);
 	}
 	/**
@@ -70,14 +70,14 @@ export class BaseChannel implements APIPartialChannel {
 		return void (await request(
 			`/channels/${this.id}/messages/bulk-delete`,
 			"POST",
-			this.client.token
+			this.client.token,
 		));
 	}
 	async sendTyping() {
 		return void (await request(
 			`/channels/${this.id}/typing`,
 			"POST",
-			this.client.token
+			this.client.token,
 		));
 	}
 	async getPinnedMessages(): Promise<Message[]> {
@@ -85,7 +85,7 @@ export class BaseChannel implements APIPartialChannel {
 			await request(`/channels/${this.id}/pins`, "GET", this.client.token)
 		).json();
 		return res.map(
-			(m: any) => new Message(m, this.client.token, this.client)
+			(m: any) => new Message(m, this.client.token, this.client),
 		);
 	}
 	async pinMessage({
@@ -102,7 +102,7 @@ export class BaseChannel implements APIPartialChannel {
 			"PUT",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		);
 	}
 	async unPinMessage({
@@ -119,7 +119,7 @@ export class BaseChannel implements APIPartialChannel {
 			"DELETE",
 			this.client.token,
 			undefined,
-			headers
+			headers,
 		);
 	}
 }

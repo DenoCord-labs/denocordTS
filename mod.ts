@@ -20,11 +20,11 @@ export {
 } from "./src/structures/mod.ts";
 export type {
 	ButtonInteraction,
+	Guild,
+	GuildMember,
 	SelectMenuInteraction,
 	TextChannel,
 	ThreadChannel,
-	GuildMember,
-	Guild,
 	User,
 } from "./src/structures/mod.ts";
 export { parseEmojiForComponents } from "./src/utils/mod.ts";

@@ -8,7 +8,7 @@ import {
 } from "../types/mod.ts";
 import type { SlashCommand } from "../structures/commands/slashCommands/builder.ts";
 import { PermissionBits } from "../types/permission.ts";
-import { CDN, FileTypes, ALLOWED_SIZES } from "../rest/cdn.ts";
+import { ALLOWED_SIZES, CDN, FileTypes } from "../rest/cdn.ts";
 import { request as request } from "../rest/mod.ts";
 import { Camelize, camelize } from "../../deps.ts";
 import { BaseCdnUrl } from "../constants/mod.ts";
@@ -17,10 +17,9 @@ export class Client extends Base {
 	displayAvatarUrl;
 	constructor(protected options: ClientOptions) {
 		super(options);
-		this.displayAvatarUrl =
-			super.user && super.user.avatar
-				? this.cdn.getUserAvatar
-				: this.cdn.getDefaultUserAvatar;
+		this.displayAvatarUrl = super.user && super.user.avatar
+			? this.cdn.getUserAvatar
+			: this.cdn.getDefaultUserAvatar;
 	}
 	setPresence(presence: GatewayPresenceUpdateData) {
 		this.websocket.send(
@@ -29,7 +28,7 @@ export class Client extends Base {
 				d: {
 					...presence,
 				},
-			})
+			}),
 		);
 	}
 	checkMemberPermission({
@@ -53,7 +52,7 @@ export class Client extends Base {
 		const res = await request(
 			`/guilds/${guildId}/members/${userId}`,
 			"GET",
-			this.options.token
+			this.options.token,
 		);
 		return await res.json();
 	}
@@ -65,7 +64,7 @@ export class Client extends Base {
 				this.options.token,
 				{
 					...command.toJSON(),
-				}
+				},
 			);
 		}
 	}
@@ -81,7 +80,7 @@ export class Client extends Base {
 				`/applications/${this.options.clientId}/guilds/${guildId}/commands`,
 				"POST",
 				this.options.token,
-				{ ...command.toJSON() }
+				{ ...command.toJSON() },
 			);
 		}
 	}
@@ -89,7 +88,7 @@ export class Client extends Base {
 		const r = await request(
 			`/guilds/${guildId}/audit-logs`,
 			"GET",
-			this.options.token
+			this.options.token,
 		);
 		return camelize(await r.json()) as Camelize<APIAuditLog>;
 	}
