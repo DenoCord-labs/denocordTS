@@ -17,9 +17,10 @@ export class Client extends Base {
 	displayAvatarUrl;
 	constructor(protected options: ClientOptions) {
 		super(options);
-		this.displayAvatarUrl = super.user.avatar
-			? this.cdn.getUserAvatar
-			: this.cdn.getDefaultUserAvatar;
+		this.displayAvatarUrl =
+			super.user && super.user.avatar
+				? this.cdn.getUserAvatar
+				: this.cdn.getDefaultUserAvatar;
 	}
 	setPresence(presence: GatewayPresenceUpdateData) {
 		this.websocket.send(
