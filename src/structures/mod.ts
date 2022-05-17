@@ -11,3 +11,5 @@ export * from "./commands/mod.ts";
 export * from "./interaction/commands/applicationCommand.ts";
 export * from "./member/mod.ts";
 export * from "./User/mod.ts";
+export * from "./Guild/mod.ts";
+export * from './channel/mod.ts'
