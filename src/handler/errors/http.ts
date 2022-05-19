@@ -2,9 +2,9 @@
 import { DiscordApiError } from "../../errors/mod.ts";
 
 export class HttpError {
-	constructor(error: any) {
+	constructor(error: Record<string, string>) {
 		throw new DiscordApiError(
-			`[Http Error] StatusCode:${error.statusCode} ApiCode:${error.code} Message:${error.message}`,
+			`[Http Error] StatusCode:${error.statusCode} ApiCode:${error.code} Message:${error.message}`
 		);
 	}
 }
