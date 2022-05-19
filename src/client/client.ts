@@ -1,25 +1,34 @@
 import { Base } from "./base.ts";
 import { ClientOptions } from "../types/mod.ts";
 import {
-	APIAuditLog,
 	APIInteractionGuildMember,
 	GatewayOpcodes,
 	GatewayPresenceUpdateData,
 } from "../types/mod.ts";
 import type { SlashCommand } from "../structures/commands/slashCommands/builder.ts";
 import { PermissionBits } from "../types/permission.ts";
-import { ALLOWED_SIZES, CDN, FileTypes } from "../rest/cdn.ts";
-import { request as request } from "../rest/mod.ts";
-import { Camelize, camelize } from "../../deps.ts";
-import { BaseCdnUrl } from "../constants/mod.ts";
+import { CDN } from "../rest/cdn.ts";
+import {
+	registerGuildSlashCommands,
+	registerGlobalSlashCommands,
+} from "../http/endpoints.ts";
+declare global {
+	const token: string | undefined;
+	interface Window {
+		token: string | undefined;
+	}
+}
+
 export class Client extends Base {
 	public cdn = CDN;
 	displayAvatarUrl;
 	constructor(protected options: ClientOptions) {
 		super(options);
-		this.displayAvatarUrl = super.user && super.user.avatar
-			? this.cdn.getUserAvatar
-			: this.cdn.getDefaultUserAvatar;
+		this.displayAvatarUrl =
+			super.user && super.user.avatar
+				? this.cdn.getUserAvatar
+				: this.cdn.getDefaultUserAvatar;
+		window.token = this.options.token;
 	}
 	setPresence(presence: GatewayPresenceUpdateData) {
 		this.websocket.send(
@@ -28,7 +37,7 @@ export class Client extends Base {
 				d: {
 					...presence,
 				},
-			}),
+			})
 		);
 	}
 	checkMemberPermission({
@@ -42,31 +51,8 @@ export class Client extends Base {
 			? true
 			: false;
 	}
-	async fetchGuildMember({
-		guildId,
-		userId,
-	}: {
-		guildId: string;
-		userId: string;
-	}): Promise<APIInteractionGuildMember> {
-		const res = await request(
-			`/guilds/${guildId}/members/${userId}`,
-			"GET",
-			this.options.token,
-		);
-		return await res.json();
-	}
 	async registerGlobalSlashCommands(commands: SlashCommand[]) {
-		for (const command of commands) {
-			await request(
-				`/applications/${this.options.clientId}/commands`,
-				"POST",
-				this.options.token,
-				{
-					...command.toJSON(),
-				},
-			);
-		}
+		await registerGlobalSlashCommands(commands, this.options.clientId);
 	}
 	async registerGuildSlashCommands({
 		commands,
@@ -75,21 +61,10 @@ export class Client extends Base {
 		guildId: string;
 		commands: SlashCommand[];
 	}) {
-		for (const command of commands) {
-			await request(
-				`/applications/${this.options.clientId}/guilds/${guildId}/commands`,
-				"POST",
-				this.options.token,
-				{ ...command.toJSON() },
-			);
-		}
-	}
-	async fetchGuildAuditLog(guildId: string) {
-		const r = await request(
-			`/guilds/${guildId}/audit-logs`,
-			"GET",
-			this.options.token,
+		await registerGuildSlashCommands(
+			commands,
+			this.options.clientId,
+			guildId
 		);
-		return camelize(await r.json()) as Camelize<APIAuditLog>;
 	}
 }
