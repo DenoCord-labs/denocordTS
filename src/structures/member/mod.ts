@@ -1,11 +1,10 @@
 import { APIGuildMember, PermissionFlagsBits } from "../../types/mod.ts";
 import { Base } from "../../client/base.ts";
-import { request } from "../../rest/mod.ts";
-
+import { RestClient } from "../../http/rest.ts";
 export class GuildMember implements APIGuildMember {
+	private rest = new RestClient();
 	avatar: APIGuildMember["avatar"];
-	communication_disabled_until?:
-		APIGuildMember["communication_disabled_until"];
+	communication_disabled_until?: APIGuildMember["communication_disabled_until"];
 	deaf: APIGuildMember["deaf"];
 	joined_at: APIGuildMember["joined_at"];
 	mute: APIGuildMember["mute"];
@@ -19,7 +18,7 @@ export class GuildMember implements APIGuildMember {
 	constructor(
 		private d: any,
 		private client: Base,
-		public guildOwner?: boolean,
+		public guildOwner?: boolean
 	) {
 		this.avatar = d.member.avatar;
 		this.communication_disabled_until =
@@ -47,7 +46,7 @@ export class GuildMember implements APIGuildMember {
 				this.permission &
 					// @ts-ignore
 					(BigInt(PermissionFlagsBits[permission]) ===
-						BigInt(PermissionFlagsBits[permission])),
+						BigInt(PermissionFlagsBits[permission]))
 			);
 		};
 	}
@@ -57,12 +56,11 @@ export class GuildMember implements APIGuildMember {
 			headers = new Headers();
 			headers.append("X-Audit-Log-Reason", reason);
 		}
-		await request(
+		await this.rest.request(
 			`/guilds/${this.d.guild_id!}/members/${this.user?.id}`,
 			"DELETE",
-			this.client.token,
 			undefined,
-			headers,
+			headers
 		);
 	}
 	async ban(reason?: string) {
@@ -71,12 +69,11 @@ export class GuildMember implements APIGuildMember {
 			headers = new Headers();
 			headers.append("X-Audit-Log-Reason", reason);
 		}
-		await request(
+		await this.rest.request(
 			`/guilds/${this.d.guild_id!}/bans/${this.user?.id}`,
 			"PUT",
-			this.client.token,
 			undefined,
-			headers,
+			headers
 		);
 	}
 }

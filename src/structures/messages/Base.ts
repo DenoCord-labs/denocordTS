@@ -1,13 +1,25 @@
-import { APIGuildMember, APIMessage, Snowflake } from "../../types/mod.ts";
+import { APIMessage, Snowflake } from "../../types/mod.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Messages } from "../../errors/messages.ts";
-import { request } from "../../rest/mod.ts";
 import { ClientMessage } from "./mod.ts";
 import { parseEmoji } from "../../utils/mod.ts";
-import { Member } from "../../types/cache.ts";
-import { camelize } from "../../../deps.ts";
 import { Base } from "../../client/base.ts";
 import { Guild, GuildMember, User } from "../mod.ts";
+import {
+	createMessage,
+	createNewThread,
+	deleteAllReactions,
+	deleteAllReactionsForEmoji,
+	deleteMessage,
+	getReactions,
+	pinMessage,
+	removeClientReaction,
+	removeUserReaction,
+	sendTyping,
+	startThreadFromMessage,
+	unpinMessage,
+	addReaction,
+} from "../../http/endpoints.ts";
 export class BaseMessage {
 	/**
 	 * Id of the Message
@@ -189,16 +201,12 @@ export class BaseMessage {
 	 */
 	stickerItems?: APIMessage["sticker_items"];
 
-	guild: Guild;
-	constructor(
-		public d: APIMessage,
-		private readonly token: string,
-		private client: Base,
-	) {
+	guild?: Guild;
+	constructor(public d: APIMessage, private client: Base) {
 		this.id = d.id;
 		this.channelId = d.channel_id;
 		this.guildId = d.guild_id;
-		this.author = new User(d.author, client);
+		this.author = new User(d.author);
 		this.content = d.content;
 		this.timestamp = d.timestamp;
 		this.editedTimestamp = d.edited_timestamp;
@@ -226,14 +234,16 @@ export class BaseMessage {
 		this.mentionEveryone = d.mention_everyone;
 		const isServerOwner =
 			this.client.cache.guilds.get(this.d.guild_id || "")?.ownerId ===
-				this.author.id;
+			this.author.id;
 		this.member = d.member
 			? new GuildMember(d, this.client, isServerOwner)
 			: undefined;
-		this.guild = new Guild(
-			this.client.cache.guilds.get(this.guildId!),
-			this.client,
-		);
+		this.guild = this.guildId
+			? new Guild(
+					this.client.cache.guilds.get(this.guildId)!,
+					this.client
+			  )
+			: undefined;
 	}
 	async reply(payload: ReplyPayload & { ping?: boolean; inline?: boolean }) {
 		this.checks(payload);
@@ -244,164 +254,99 @@ export class BaseMessage {
 				guild_id: this.d.guild_id!,
 				message_id: this.d.id,
 			},
-			embeds: payload.embeds ? payload.embeds : [],
-			components: payload.components ? payload.components : [],
 			allowed_mentions: payload.inline ? { parse: [] } : undefined,
 		};
-		const res = await request(
-			`/channels/${this.d.channel_id}/messages`,
-			"POST",
-			this.token,
-			body,
-		);
+		const res = await createMessage(this.d.channel_id, body);
 		const msg = new ClientMessage(
 			await res.json(),
-			this.token,
-			this.client,
+			window.token!,
+			this.client
 		);
 		return msg;
 	}
 	async delete(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}`,
-			"DELETE",
-			this.token,
-			{},
-			headers,
-		);
+		await deleteMessage(this.d.channel_id, this.d.id, headers);
 	}
 	async addReaction(emoji: string) {
-		await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}/@me`,
-			"PUT",
-			this.token,
-			{},
-		);
-		return null;
+		return void (await addReaction(
+			this.d.channel_id,
+			this.d.id,
+			parseEmoji(emoji)
+		));
 	}
 	async removeClientReaction(emoji: string) {
-		await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}/@me`,
-			"DELETE",
-			this.token,
-			{},
+		await removeClientReaction(
+			this.d.channel_id,
+			this.d.id,
+			parseEmoji(emoji)
 		);
-		return null;
 	}
 	async removeUserReaction(emoji: string, userId: Snowflake) {
-		await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}/${userId}`,
-			"DELETE",
-			this.token,
-			{},
+		await removeUserReaction(
+			parseEmoji(emoji),
+			userId,
+			this.d.channel_id,
+			this.d.id
 		);
-		return null;
 	}
 	async getReactions(emoji: string) {
-		const res = await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}`,
-			"GET",
-			this.token,
-			{},
+		const res = await getReactions(
+			parseEmoji(emoji),
+			this.d.channel_id,
+			this.d.id
 		);
 		return res.json();
 	}
 	async deleteAllReactions() {
-		await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions`,
-			"DELETE",
-			this.token,
-			{},
-		);
-		return null;
+		await deleteAllReactions(this.d.channel_id, this.d.id);
 	}
 	async deleteAllReactionsByEmoji(emoji: string) {
-		await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/reactions/${
-				parseEmoji(emoji)
-			}`,
-			"DELETE",
-			this.token,
-			{},
+		await deleteAllReactionsForEmoji(
+			this.d.channel_id,
+			this.d.id,
+			parseEmoji(emoji)
 		);
-		return null;
 	}
 	async sendTyping() {
-		await request(
-			`/channels/${this.d.channel_id}/typing`,
-			"POST",
-			this.token,
-			{},
-		);
-		return null;
+		await sendTyping(this.d.channel_id);
 	}
 	async pinMessage(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		await request(
-			`/channels/${this.d.channel_id}/pins/${this.d.id}`,
-			"PUT",
-			this.token,
-			{},
-			headers,
-		);
-		return null;
+		await pinMessage(this.d.channel_id, this.d.id, headers);
 	}
 	async unpinMessage(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		await request(
-			`/channels/${this.d.channel_id}/pins/${this.d.id}`,
-			"DELETE",
-			this.token,
-			{},
-			headers,
-		);
-		return null;
+		await unpinMessage(this.d.channel_id, this.d.id, headers);
 	}
 	async startThreadFromMessage(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		const res = await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}/threads`,
-			"PUT",
-			this.token,
-			{},
-			headers,
+		const res = await startThreadFromMessage(
+			this.d.channel_id,
+			this.d.id,
+			headers
 		);
 		return res.json();
 	}
 	async createNewThread(reason?: string) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		const res = await request(
-			`/channels/${this.d.channel_id}/threads`,
-			"POST",
-			this.token,
-			{},
-			headers,
-		);
+		const res = await createNewThread(this.d.channel_id, headers);
 		return res.json();
 	}
 	private checks(payload: ReplyPayload) {
 		if (payload.components && payload.components.length > 5) {
 			throw new Error(
-				Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length),
+				Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length)
 			);
 		}
 		if (payload.embeds && payload.embeds.length > 10) {
 			throw new Error(
-				Messages.EMBEDS_LENGTH_EXCEEDED(payload.embeds.length),
+				Messages.EMBEDS_LENGTH_EXCEEDED(payload.embeds.length)
 			);
 		}
 	}

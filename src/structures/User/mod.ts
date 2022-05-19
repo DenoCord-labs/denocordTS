@@ -1,7 +1,7 @@
 import { CDN } from "../../rest/cdn.ts";
-import { request } from "../../rest/request.ts";
-import { APIUser, UserFlags, UserPremiumType } from "../../types/mod.ts";
-import { Base } from "../../client/base.ts";
+import { RestClient } from "../../http/mod.ts";
+import { UserFlags, UserPremiumType } from "../../types/mod.ts";
+import { endpoints } from "../../constants/endpoints/mod.ts";
 export class User {
 	id: string;
 	username: string;
@@ -39,7 +39,9 @@ export class User {
 	isHttpBot?: boolean;
 	hasNitro?: boolean;
 	nitroType?: string;
-	constructor(d: any, private client: Base) {
+
+	private restClient = new RestClient();
+	constructor(d: any) {
 		this.id = d.id;
 		this.username = d.username;
 		this.discriminator = d.discriminator;
@@ -59,10 +61,10 @@ export class User {
 		// urls
 		this.avatarUrl = this.avatar
 			? CDN.getUserAvatar({
-				id: this.id,
-				hash: this.avatar,
-				animated: true,
-			})
+					id: this.id,
+					hash: this.avatar,
+					animated: true,
+			  })
 			: CDN.getDefaultUserAvatar({ discriminator: this.discriminator });
 		this.bannerUrl = CDN.getUserBanner({
 			id: this.id,
@@ -77,30 +79,32 @@ export class User {
 			(d.public_flags & UserFlags.Hypesquad) === UserFlags.Hypesquad;
 		this.isBravelyMember =
 			(d.public_flags & UserFlags.HypeSquadOnlineHouse1) ===
-				UserFlags.HypeSquadOnlineHouse1;
+			UserFlags.HypeSquadOnlineHouse1;
 		this.isBrillianceMember =
 			(d.public_flags & UserFlags.HypeSquadOnlineHouse2) ===
-				UserFlags.HypeSquadOnlineHouse2;
+			UserFlags.HypeSquadOnlineHouse2;
 		this.isBalanceMember =
 			(d.public_flags & UserFlags.HypeSquadOnlineHouse3) ===
-				UserFlags.HypeSquadOnlineHouse3;
+			UserFlags.HypeSquadOnlineHouse3;
 		this.isEarlyNitroSupporter =
 			(d.public_flags & UserFlags.PremiumEarlySupporter) ===
-				UserFlags.PremiumEarlySupporter;
-		this.isTeam = (d.public_flags & UserFlags.TeamPseudoUser) ===
+			UserFlags.PremiumEarlySupporter;
+		this.isTeam =
+			(d.public_flags & UserFlags.TeamPseudoUser) ===
 			UserFlags.TeamPseudoUser;
 		this.isBugHunterLevel2 =
 			(d.public_flags & UserFlags.BugHunterLevel2) ===
-				UserFlags.BugHunterLevel2;
+			UserFlags.BugHunterLevel2;
 		this.isVerifiedBot =
 			(d.public_flags & UserFlags.VerifiedBot) === UserFlags.VerifiedBot;
 		this.isVerifiedDeveloper =
 			(d.public_flags & UserFlags.VerifiedDeveloper) ===
-				UserFlags.VerifiedDeveloper;
+			UserFlags.VerifiedDeveloper;
 		this.isCertifiedMod =
 			(d.public_flags & UserFlags.CertifiedModerator) ===
-				UserFlags.CertifiedModerator;
-		this.isHttpBot = (d.public_flags & UserFlags.BotHTTPInteractions) ===
+			UserFlags.CertifiedModerator;
+		this.isHttpBot =
+			(d.public_flags & UserFlags.BotHTTPInteractions) ===
 			UserFlags.BotHTTPInteractions;
 		this.hasNitro = this.premiumType !== 0;
 		if (this.hasNitro) {
@@ -109,10 +113,13 @@ export class User {
 	}
 	async createDM() {
 		return await (
-			await request(
-				`/users/${this.id}/channels`,
+			await this.restClient.request(
+				endpoints.createDM(),
 				"POST",
-				this.client.token,
+				window.token!,
+				{
+					recipient_id: this.id,
+				}
 			)
 		).json();
 	}

@@ -1,4 +1,3 @@
-import { request } from "../../rest/mod.ts";
 import {
 	APIInteraction,
 	APIInteractionResponseCallbackData,
@@ -11,7 +10,7 @@ import { Messages } from "../../errors/messages.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 import { GuildMember, User } from "../mod.ts";
 import { Base } from "../../client/base.ts";
-
+import { RestClient } from "../../http/rest.ts";
 export class Interaction {
 	protected deferred = false;
 	protected replied = false;
@@ -19,10 +18,11 @@ export class Interaction {
 	isAutoComplete = false;
 	isCommand = false;
 	isModalSubmit = false;
+	protected rest = new RestClient();
 	constructor(
 		protected interaction: APIInteraction & { locale: string },
 		protected token: string,
-		protected client: Base,
+		protected client: Base
 	) {
 		switch (this.interaction.type) {
 			case 2: {
@@ -57,7 +57,7 @@ export class Interaction {
 				? new GuildMember(this.interaction, this.client, isGuildOwner)
 				: undefined,
 			user: this.interaction.user
-				? new User(this.interaction.user, this.client)
+				? new User(this.interaction.user)
 				: undefined,
 			message: this.interaction.message,
 			deferReply: this.deferReply.bind(this),
@@ -89,16 +89,16 @@ export class Interaction {
 		if (suppress_embeds) flags |= MessageFlags.SuppressEmbeds;
 
 		const payload = { ...payloadData, flags };
-		await request(
+		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-			this.token,
+
 			{
 				type: InteractionResponseType.ChannelMessageWithSource,
 				data: {
 					...payload,
 				},
-			},
+			}
 		);
 	}
 	async deferReply(payload = { ephemeral: false }) {
@@ -108,14 +108,14 @@ export class Interaction {
 		if (this.replied) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
 		this.deferred = true;
 		const { ephemeral } = payload;
-		await request(
+		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-			this.token,
+
 			{
 				type: InteractionResponseType.DeferredChannelMessageWithSource,
 				ephemeral,
-			},
+			}
 		);
 	}
 	async editReply(payload: ReplyPayload) {
@@ -123,80 +123,73 @@ export class Interaction {
 			throw new Error(Messages.INTERACTION_NOT_REPLIED);
 		}
 
-		const r = await request(
+		const r = await this.rest.request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
 			"PATCH",
-			this.token,
+
 			{
 				...payload,
-			},
+			}
 		);
 		return camelize(await r.json()) as Camelize<APIMessage>;
 	}
 
 	async deleteReply() {
-		await request(
+		await this.rest.request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
-			"DELETE",
-			this.token,
+			"DELETE"
 		);
 	}
 
 	async followUp(payload: APIInteractionResponseCallbackData) {
-		const res = await request(
+		const res = await this.rest.request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}`,
 			"GET",
-			this.token,
-			{ ...payload },
+
+			{ ...payload }
 		);
 		return await res.json();
 	}
 
 	async fetchFollowUp() {
-		const res = await request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-				.interaction.message?.id}`,
-			"GET",
-			this.token,
+		const res = await this.rest.request(
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+			"GET"
 		);
 		return await res.json();
 	}
 
 	async editFollowUp(payload: ReplyPayload) {
-		await request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-				.interaction.message?.id}`,
+		await this.rest.request(
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
 			"PATCH",
-			this.token,
+
 			{
 				...payload,
-			},
+			}
 		);
 	}
 
 	async deleteFollowUp() {
-		await request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
-				.interaction.message?.id}`,
-			"DELETE",
-			this.token,
+		await this.rest.request(
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+			"DELETE"
 		);
 	}
 
 	async fetchResponse() {
-		await request(
+		await this.rest.request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
-			"GET",
-			this.token,
+			"GET"
 		);
 	}
 
 	async deferUpdate() {
-		await request(
+		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-			this.token,
-			{ type: InteractionResponseType.DeferredMessageUpdate },
+
+			{ type: InteractionResponseType.DeferredMessageUpdate }
 		);
 	}
 

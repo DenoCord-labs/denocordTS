@@ -1,37 +1,25 @@
 import { BaseMessage } from "./Base.ts";
 import { APIMessage } from "../../types/mod.ts";
-import { request } from "../../rest/mod.ts";
+import { RestClient } from "../../http/rest.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Base } from "../../client/base.ts";
+import { endpoints } from "../../constants/endpoints/mod.ts";
 
 export class ClientMessage extends BaseMessage {
 	clientToken: string;
+	private rest = new RestClient();
 	constructor(d: APIMessage, token: string, client: Base) {
-		super(d, token, client);
+		super(d, client);
 		this.clientToken = token;
 	}
 	async edit(content: ReplyPayload) {
 		const body = {
 			...content,
-			embeds: content.embeds ? content.embeds.map((e) => e.toJSON()) : [],
-			components: content.components
-				? content.components.map((c) => {
-					const components = c.components;
-					c.removeAllComponents();
-					c.addComponents(
-						components.map((component) =>
-							component.toJSON()
-						) as any,
-					);
-					return c;
-				})
-				: [],
 		};
-		const res = await request(
-			`/channels/${this.d.channel_id}/messages/${this.d.id}`,
+		const res = await this.rest.request(
+			endpoints.editMessage(this.d.channel_id, this.id),
 			"PATCH",
-			this.clientToken,
-			content,
+			content
 		);
 		return await res.json();
 	}

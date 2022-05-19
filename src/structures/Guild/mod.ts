@@ -7,10 +7,10 @@ import {
 	Snowflake,
 } from "../../types/mod.ts";
 import { Camelize, camelize } from "../../../deps.ts";
-import { request } from "../../rest/request.ts";
 import { Base } from "../../client/base.ts";
 import { GuildMember, TextChannel, ThreadChannel } from "../mod.ts";
 import { ColorResolvable, resolveColor } from "../../utils/mod.ts";
+import { RestClient } from "../../http/rest.ts";
 import { camelToSnakeCase } from "../../helpers/caseConversion.ts";
 interface GuildProperties extends Camelize<APIGuild> {
 	channnels: (TextChannel | ThreadChannel)[];
@@ -69,9 +69,12 @@ export class Guild {
 	splash: string | null;
 	unavailable: GuildProperties["unavailable"];
 	id: GuildProperties["id"];
-	constructor(data: any, private client: Base) {
+	private rest = new RestClient();
+	constructor(data: Camelize<APIGuild>, private client: Base) {
+		// deno-lint-ignore no-explicit-any
 		const d: Record<string, any> = {};
-		Object.keys(data || {})?.map((key) => {
+		Object.keys(data).map((key) => {
+			// @ts-expect-error
 			d[camelToSnakeCase(key)] = data[key];
 		});
 		this.afkChannelId = d.afk_channel_id;
@@ -126,20 +129,23 @@ export class Guild {
 		this.region = d.region;
 		this.preferredLocale = d.preferred_locale;
 		this.channels = [];
-		d.channels.map((channel: Record<string, any>) => {
+		d.channels.map((channel: Record<string, unknown>) => {
 			switch (channel.type) {
 				case 0: {
 					this.channels!.push(new TextChannel(channel, this.client));
+					break;
 				}
 				case 11: {
 					this.channels!.push(
-						new ThreadChannel(channel, this.client),
+						new ThreadChannel(channel, this.client)
 					);
+					break;
 				}
 				case 12: {
 					this.channels!.push(
-						new ThreadChannel(channel, this.client),
+						new ThreadChannel(channel, this.client)
 					);
+					break;
 				}
 			}
 		});
@@ -208,34 +214,40 @@ export class Guild {
 		if (reason) {
 			headers.append("X-Audit-Log-Reason", reason);
 		}
-		const body: Record<string, any> = {};
+		const body: Record<string, string | number | boolean> = {};
 		body["name"] = name;
 		body["parent_id"] = parentId;
 		body["topic"] = topic || "";
 		body["type"] = ChannelType[channelType];
-		body["rate_limit_per_user"] = slowMode;
-		body["position"] = position;
+		body["rate_limit_per_user"] = slowMode || 0;
+		if (position) {
+			body["position"] = position;
+		}
 		body["nsfw"] = Boolean(nsfw);
 		if (
 			body.type == ChannelType["GuildVoice"] ||
 			body.type == ChannelType["GuildStageVoice"]
 		) {
+			if (!bitrate)
+				throw new Error("Bitrate is required for voice channels");
+
 			body["bitrate"] = bitrate;
-			body["user_limit"] = userLimit;
+			if (userLimit) body["user_limit"] = userLimit;
 		}
 		if (
+			body.type == ChannelType["GuildPrivateThread"] ||
 			body.type == ChannelType["GuildNewsThread"] ||
-			body.type == ChannelType["GuildPublicThread"] ||
-			body.type == ChannelType["GuildPrivateThread"]
+			body.type == ChannelType["GuildPublicThread"]
 		) {
-			body["default_auto_arhive_duration"] = autoArchiveDuration;
+			if (autoArchiveDuration) {
+				body["default_auto_arhive_duration"] = autoArchiveDuration;
+			}
 		}
-		return await request(
+		return await this.rest.request(
 			`/guilds/${this.id}/channels`,
 			"POST",
-			this.client.token,
 			body,
-			headers,
+			headers
 		);
 	}
 	async changeChannelPosition({
@@ -258,28 +270,26 @@ export class Guild {
 		if (position) body["position"] = position;
 		body["lock_permissions"] = lockPermissions || true;
 		if (parentId) body["parent_id"] = parentId;
-		await request(
+		await this.rest.request(
 			`/guilds/${this.id}/channels`,
 			"PATCH",
-			this.client.token,
+
 			body,
-			reason ? headers : undefined,
+			reason ? headers : undefined
 		);
 	}
 	async fetchGuildMember(userId: Snowflake) {
 		const res = await (
-			await request(
+			await this.rest.request(
 				`/guilds/${this.id}/members/${userId}`,
-				"GET",
-				this.client.token,
+				"GET"
 			)
 		).json();
 
 		return new GuildMember(
 			res,
 			this.client,
-			this.client.cache.guilds.get(`${this.id}`)?.ownerId ===
-				res.user?.id,
+			this.client.cache.guilds.get(`${this.id}`)?.ownerId === res.user?.id
 		) as Partial<GuildMember>;
 	}
 	async changeClientNickname({
@@ -291,12 +301,12 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		return void (await request(
+		return void (await this.rest.request(
 			`/guilds/${this.id}/members/@me`,
 			"PATCH",
-			this.client.token,
+
 			{ nick: nickname },
-			reason ? headers : undefined,
+			reason ? headers : undefined
 		));
 	}
 	async addRoleToGuildMember({
@@ -310,12 +320,12 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		return void (await request(
+		return void (await this.rest.request(
 			`/guilds/${this.id}/members/${userId}/roles/${roleId}`,
 			"PUT",
-			this.client.token,
+
 			undefined,
-			reason ? headers : undefined,
+			reason ? headers : undefined
 		));
 	}
 	async removeRoleFromGuildMember({
@@ -329,12 +339,12 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		return void (await request(
+		return void (await this.rest.request(
 			`/guilds/${this.id}/members/${userId}/roles/${roleId}`,
 			"DELETE",
-			this.client.token,
+
 			undefined,
-			reason ? headers : undefined,
+			reason ? headers : undefined
 		));
 	}
 	async removeGuildMember({
@@ -346,12 +356,12 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		return void (await request(
+		return void (await this.rest.request(
 			`/guilds/${this.id}/members/${userId}`,
 			"DELETE",
-			this.client.token,
+
 			undefined,
-			reason ? headers : undefined,
+			reason ? headers : undefined
 		));
 	}
 	/**
@@ -362,24 +372,19 @@ export class Guild {
 		body["limit"] = limit || 10;
 		return camelize(
 			await (
-				await request(
-					`/guilds/${this.id}/bans`,
-					"GET",
-					this.client.token,
-				)
-			).json(),
+				await this.rest.request(`/guilds/${this.id}/bans`, "GET")
+			).json()
 		) as Camelize<APIBan>[];
 	}
 
 	async fetchGuildBan({ userId }: { userId: Snowflake }) {
 		return camelize(
 			await await (
-				await request(
+				await this.rest.request(
 					`/guilds/${this.id}/bans/${userId}`,
-					"GET",
-					this.client.token,
+					"GET"
 				)
-			).json(),
+			).json()
 		) as Camelize<APIBan>;
 	}
 
@@ -392,12 +397,12 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		return void (await request(
+		return void (await this.rest.request(
 			`/guilds/${this.id}/bans/${userId}`,
 			"PUT",
-			this.client.token,
+
 			undefined,
-			reason ? headers : undefined,
+			reason ? headers : undefined
 		));
 	}
 	async removeGuildBan({
@@ -409,23 +414,19 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		return void (await request(
+		return void (await this.rest.request(
 			`/guilds/${this.id}/bans/${userId}`,
 			"DELETE",
-			this.client.token,
+
 			undefined,
-			headers,
+			headers
 		));
 	}
 	async fetchRoles() {
 		return camelize(
 			await (
-				await request(
-					`/guilds/${this.id}/roles`,
-					"GET",
-					this.client.token,
-				)
-			).json(),
+				await this.rest.request(`/guilds/${this.id}/roles`, "GET")
+			).json()
 		) as Camelize<APIRole>[];
 	}
 
@@ -446,9 +447,9 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		const body: Record<string, any> = {};
+		const body: Record<string, string | number | boolean> = {};
 		body["name"] = name;
-		let permissions: bigint = 0n;
+		let permissions = 0n;
 		for await (const perm of permission) {
 			permissions |= PermissionFlagsBits[perm];
 		}
@@ -458,14 +459,14 @@ export class Guild {
 		body["mentionable"] = mentionable || false;
 		return camelize(
 			await (
-				await request(
+				await this.rest.request(
 					`/guilds/${this.id}/roles`,
 					"POST",
-					this.client.token,
+
 					body,
-					headers,
+					headers
 				)
-			).json(),
+			).json()
 		) as Camelize<APIRole>;
 	}
 	async modifyRole({
@@ -487,9 +488,9 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		const body: Record<string, any> = {};
+		const body: Record<string, number | string | boolean> = {};
 		body["name"] = name;
-		let permissions: bigint = 0n;
+		let permissions = 0n;
 		for await (const perm of permission) {
 			permissions |= PermissionFlagsBits[perm];
 		}
@@ -499,14 +500,14 @@ export class Guild {
 		body["mentionable"] = mentionable || false;
 		return camelize(
 			await (
-				await request(
+				await this.rest.request(
 					`/guilds/${this.id}/roles/${roleId}`,
 					"PATCH",
-					this.client.token,
+
 					body,
-					headers,
+					headers
 				)
-			).json(),
+			).json()
 		) as Camelize<APIRole>;
 	}
 	async deleteRole({
@@ -518,12 +519,12 @@ export class Guild {
 	}) {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
-		return void (await request(
+		return void (await this.rest.request(
 			`/guilds/${this.id}/roles/${roleId}`,
 			"DELETE",
-			this.client.token,
+
 			undefined,
-			headers,
+			headers
 		));
 	}
 }

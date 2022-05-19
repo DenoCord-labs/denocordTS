@@ -1,19 +1,17 @@
 import { APIInvite, Snowflake } from "../../types/mod.ts";
 import { Base } from "../../client/base.ts";
-import { request } from "../../rest/request.ts";
 import { BaseChannel } from "./base.ts";
 import { Camelize, camelize } from "../../../deps.ts";
-
+import { ThreadChannel } from "./mod.ts";
+import { endpoints } from "../../constants/endpoints/mod.ts";
 enum ThreadTypes {
 	PublicThread = 11,
 	PrivateThread,
 }
 
 export class TextChannel extends BaseChannel {
-	clientInstance: Base;
-	constructor(d: any, client: Base) {
+	constructor(d: any, protected client: Base) {
 		super(d, client);
-		this.clientInstance = client;
 	}
 	async createInvite({
 		maxAge,
@@ -35,11 +33,10 @@ export class TextChannel extends BaseChannel {
 		body["temporary"] = temporary;
 		body["unique"] = unique;
 
-		const res = await request(
+		const res = await super.restClient.request(
 			`/channels/${this.id}/invites`,
 			"POST",
-			this.clientInstance.token,
-			body,
+			body
 		);
 		return camelize(await res.json()) as Camelize<APIInvite>;
 	}
@@ -75,12 +72,12 @@ export class TextChannel extends BaseChannel {
 		body["type"] = type;
 		body["auto_archive_duration"] = autoArchiveDuration;
 		body["rate_limit_per_user"] = slowMode;
-		const res = await request(
+		const res = await super.restClient.request(
 			`/channels/${this.id}/messages`,
 			"POST",
-			this.clientInstance.token,
-			body,
+			body
 		);
+		return new ThreadChannel(await res.json(), this.client);
 	}
 	async createThreadFromMessage({
 		messageId,
@@ -100,11 +97,11 @@ export class TextChannel extends BaseChannel {
 		body["name"] = name;
 		body["auto_archive_duration"] = autoArchiveDuration;
 		body["rate_limit_per_user"] = slowMode;
-		const res = await request(
+		const res = await super.restClient.request(
 			`/channels/${this.id}/messages/${messageId}/thread`,
 			"POST",
-			this.clientInstance.token,
-			body,
+			body
 		);
+		return new ThreadChannel(await res.json(), this.client);
 	}
 }

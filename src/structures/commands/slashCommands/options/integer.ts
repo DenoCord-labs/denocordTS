@@ -1,7 +1,6 @@
 import {
 	APIApplicationCommandIntegerOption,
 	APIApplicationCommandOptionChoice,
-	APIApplicationCommandStringOption,
 	ApplicationCommandOptionType,
 } from "../../../../types/mod.ts";
 import { BaseCommandOption } from "./base.ts";
