@@ -1,6 +1,5 @@
 import { cacheFields } from "../types/mod.ts";
-import { Channel, Emoji, Guild, Member, Role, User } from "../types/cache.ts";
-import { toCamelCase } from "../helpers/mod.ts";
+import { Channel, Emoji, Guild, Role, User } from "../types/cache.ts";
 import { camelize, Collection } from "../../deps.ts";
 export class Cache {
 	cache: cacheFields;
