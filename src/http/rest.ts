@@ -18,7 +18,7 @@ export class RestClient extends Collection<
 	) {
 		const url = href.includes("http") ? href : `${BaseRestApiUrl}${href}`;
 		const needsQueue = this.checks(url);
-		if (!window.token)
+		if (!(window as typeof window & { token: string }).token)
 			throw new Error("Token Not Provided to an api request!");
 		if (needsQueue.queue === true) {
 			return (await this.createQueue({
@@ -36,7 +36,9 @@ export class RestClient extends Collection<
 					strignifyBody ? "" : ";charset=utf-8"
 				} `,
 				...headers,
-				Authorization: `Bot ${window.token!}`,
+				Authorization: `Bot ${
+					(window as typeof window & { token: string }).token
+				}`,
 			},
 			method,
 			body:
@@ -56,7 +58,7 @@ export class RestClient extends Collection<
 	 * Add url to collection with its ratelimit data
 	 */
 	private addUrlToCollection(url: string, headers: Headers) {
-		super.set(url, {
+		this.set(url, {
 			timestamp: Date.now(),
 			ratelimit: {
 				bucket: headers.get("x-ratelimit-bucket"),
@@ -68,7 +70,7 @@ export class RestClient extends Collection<
 		});
 	}
 	private checks(url: string) {
-		const data = super.get(url);
+		const data = this.get(url);
 		if (data === undefined) {
 			return {
 				queue: false,
