@@ -13,8 +13,7 @@ export class GuildMember implements APIGuildMember {
 	premium_since?: APIGuildMember["premium_since"];
 	roles: APIGuildMember["roles"];
 	user: APIGuildMember["user"];
-	permission: BigInt;
-	hasPermission: (permission: keyof typeof PermissionFlagsBits) => boolean;
+	permission: bigint;
 	constructor(
 		private d: any,
 		private client: Base,
@@ -39,16 +38,6 @@ export class GuildMember implements APIGuildMember {
 					this.permission | BigInt(cachedRole.permissions);
 			}
 		});
-		this.hasPermission = (permission: keyof typeof PermissionFlagsBits) => {
-			if (this.guildOwner) return true;
-			return Boolean(
-				// @ts-ignore
-				this.permission &
-					// @ts-ignore
-					(BigInt(PermissionFlagsBits[permission]) ===
-						BigInt(PermissionFlagsBits[permission]))
-			);
-		};
 	}
 	async kick(reason?: string) {
 		let headers: undefined | HeadersInit;
@@ -74,6 +63,14 @@ export class GuildMember implements APIGuildMember {
 			"PUT",
 			undefined,
 			headers
+		);
+	}
+
+	hasPermission(permission: keyof typeof PermissionFlagsBits) {
+		if (this.guildOwner) return true;
+		return (
+			(this.permission & PermissionFlagsBits[permission]) ===
+			PermissionFlagsBits[permission]
 		);
 	}
 }
