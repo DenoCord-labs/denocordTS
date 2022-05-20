@@ -14,8 +14,10 @@ export class WebSocketClient {
 	private ws: WebSocket;
 	private open = false;
 	private events = new EventEmitter<WebSocketEvents>();
+	error = false;
 
 	constructor(url: string) {
+		console.log("socket");
 		this.ws = new WebSocket(url);
 		this.ws.onmessage = (m) => {
 			let data;
@@ -29,6 +31,7 @@ export class WebSocketClient {
 		};
 		this.ws.onopen = () => {
 			this.events.emit("open");
+			this.open = true;
 		};
 		this.ws.onclose = (e) => {
 			this.events.emit("close", e);
@@ -41,13 +44,15 @@ export class WebSocketClient {
 
 	private waitToConnect() {
 		return new Promise<void>((resolve, reject) => {
-			if (this.open) return resolve();
+			if (this.open && !this.error) return resolve();
+
 			this.events.on("open", () => {
 				this.open = true;
 				resolve();
 			});
 			this.events.on("close", () => {
 				this.open = false;
+				this.error = true;
 				reject(new Error("Couldn't connect to WebSocket server"));
 			});
 		});
@@ -60,7 +65,7 @@ export class WebSocketClient {
 
 	on<T = Message>(
 		event: "message",
-		listener: WebSocketEvents<T>["message"],
+		listener: WebSocketEvents<T>["message"]
 	): void;
 	on(event: "close", listener: WebSocketEvents["close"]): void;
 	on(event: "open", listener: WebSocketEvents["open"]): void;
@@ -68,7 +73,7 @@ export class WebSocketClient {
 
 	on(
 		event: keyof WebSocketEvents,
-		listener: WebSocketEvents[keyof WebSocketEvents],
+		listener: WebSocketEvents[keyof WebSocketEvents]
 	): void {
 		this.events.on(event, listener);
 	}
