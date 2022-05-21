@@ -2,6 +2,8 @@ import { CDN } from "../../rest/cdn.ts";
 import { RestClient } from "../../http/mod.ts";
 import { UserFlags, UserPremiumType } from "../../types/mod.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
+import { DmChannel } from "../mod.ts";
+import { Base } from "../../client/base.ts";
 export class User {
 	id: string;
 	username: string;
@@ -41,7 +43,7 @@ export class User {
 	nitroType?: string;
 
 	private restClient = new RestClient();
-	constructor(d: any) {
+	constructor(d: any, protected client: Base) {
 		this.id = d.id;
 		this.username = d.username;
 		this.discriminator = d.discriminator;
@@ -112,15 +114,17 @@ export class User {
 		}
 	}
 	async createDM() {
-		return await (
-			await this.restClient.request(
-				endpoints.createDM(),
-				"POST",
-				window.token!,
-				{
-					recipient_id: this.id,
-				}
-			)
-		).json();
+		return new DmChannel(
+			await (
+				await this.restClient.request(
+					endpoints.createDM(),
+					"POST",
+					{
+						recipient_id: this.id,
+					}
+				)
+			).json(),
+			this.client
+		);
 	}
 }
