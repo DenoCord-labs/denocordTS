@@ -1,4 +1,4 @@
-![icon](https://cdn.discordapp.com/attachments/954083178665095178/977452959468240896/denocord.png)
+![icon](https://cdn.discordapp.com/attachments/952805125276184616/977520744344985650/denocord.png)
 
 # DenoCordTS
 
