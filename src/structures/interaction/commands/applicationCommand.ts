@@ -5,34 +5,34 @@ import {
 	APIInteraction,
 	APIRole,
 	InteractionResponseType,
+	APIApplicationCommandInteraction,
 } from "../../../types/mod.ts";
-import { camelize } from "../../../../deps.ts";
 import { Messages } from "../../../errors/messages.ts";
 import { Modal } from "../../components/modal.ts";
 import { Base } from "../../../client/base.ts";
+import { User, GuildMember } from '../../mod.ts';
 export class ApplicationCommandInteraction extends Interaction {
-	id = "";
-	applicationId: APIInteraction["application_id"] = "";
-	type = 2;
-	data?: APIInteraction["data"] = {} as APIInteraction["data"];
-	guildId?: APIInteraction["guild_id"] = "";
-	channelId?: APIInteraction["channel_id"] = "";
-	member?: APIInteraction["member"];
-	user?: APIInteraction["user"];
-	version = 1;
-	message?: APIInteraction["message"];
-	locale?: string;
-	guildLocale?: string;
+	channel
+	commandName
+	data
+	user
+	member
+	guildLocale
+	locale
 	constructor(
-		protected interaction: APIInteraction & { locale: string },
+		protected interaction: APIApplicationCommandInteraction,
 		protected token: string,
 		protected client: Base
 	) {
 		super(interaction, token, client);
-		for (const key in this.interaction) {
-			// @ts-ignore
-			this[camelize(key)] = this.interaction[key];
-		}
+		this.channel = this.client.cache.channels.get(interaction.guild_id ? interaction.channel_id : "")
+		this.commandName = interaction.data.name
+		this.data = interaction.data
+		this.guildLocale = interaction.guild_locale
+		this.user = "guild_id" in interaction ? undefined : new User(interaction.user, this.client)
+		this.member = "guild_id" in interaction ? new GuildMember(interaction, this.client, this.client.cache.guilds.get(interaction.guild_id || "")?.ownerId === interaction.member!.user.id) : undefined
+		this.locale = interaction.locale
+
 	}
 	async populateAutoCompleteChoices(
 		choices: { name: string; value: string }[]
@@ -95,7 +95,7 @@ export class ApplicationCommandInteraction extends Interaction {
 		});
 		return value;
 	}
-	getIntergerFromOption(option: string) {
+	getIntegerFromOption(option: string) {
 		let value: undefined | number;
 		if (!this.data) return;
 		(this.data as any).options.map((o: Record<string, string | number>) => {
