@@ -3,6 +3,7 @@ import { ClientMessage } from "../structures/messages/mod.ts";
 import { BaseMessage } from "../structures/messages/Base.ts";
 import { APIMessage } from "./mod.ts";
 import { CommandInteraction } from "./commandInteraction.ts";
+import { ApplicationCommandInteraction } from '../structures/mod.ts'
 import { Camelize } from "../../deps.ts";
 
 export type Message = Camelize<APIMessage>;
@@ -29,7 +30,7 @@ export type GatewayEvents = {
 	IntegrationCreate: (e: any) => any;
 	IntegrationDelete: (e: any) => any;
 	IntegrationUpdate: (e: any) => any;
-	InteractionCreate: (e: CommandInteraction) => any;
+	InteractionCreate: (e: ApplicationCommandInteraction) => any;
 	InviteCreate: (e: any) => any;
 	InviteDelete: (e: any) => any;
 	MessageCreate: (e: ClientMessage | BaseMessage) => any;
