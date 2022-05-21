@@ -17,7 +17,6 @@ export class WebSocketClient {
 	error = false;
 
 	constructor(url: string) {
-		console.log("socket");
 		this.ws = new WebSocket(url);
 		this.ws.onmessage = (m) => {
 			let data;
