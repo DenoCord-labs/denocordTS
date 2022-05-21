@@ -206,7 +206,7 @@ export class BaseMessage {
 		this.id = d.id;
 		this.channelId = d.channel_id;
 		this.guildId = d.guild_id;
-		this.author = new User(d.author);
+		this.author = new User(d.author, this.client);
 		this.content = d.content;
 		this.timestamp = d.timestamp;
 		this.editedTimestamp = d.edited_timestamp;
@@ -239,10 +239,7 @@ export class BaseMessage {
 			? new GuildMember(d, this.client, isServerOwner)
 			: undefined;
 		this.guild = this.guildId
-			? new Guild(
-					this.client.cache.guilds.get(this.guildId)!,
-					this.client
-			  )
+			? this.client.cache.guilds.get(this.guildId)!
 			: undefined;
 	}
 	async reply(payload: ReplyPayload & { ping?: boolean; inline?: boolean }) {
