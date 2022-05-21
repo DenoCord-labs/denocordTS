@@ -15,12 +15,13 @@ export class RestClient extends Collection<
 		body: unknown = {},
 		headers?: HeadersInit,
 		strignifyBody?: boolean,
-		formData: boolean = false
+		formData: boolean = false,
 	) {
 		const url = href.includes("http") ? href : `${BaseRestApiUrl}${href}`;
 		const needsQueue = this.checks(url);
-		if (!(window as typeof window & { token: string }).token)
+		if (!(window as typeof window & { token: string }).token) {
 			throw new Error("Token Not Provided to an api request!");
+		}
 		if (needsQueue.queue === true) {
 			return (await this.createQueue({
 				href,
@@ -29,24 +30,25 @@ export class RestClient extends Collection<
 				strignifyBody,
 				headers,
 				time: needsQueue.time || 5,
-				formData
+				formData,
 			})) as Response;
 		}
 		const res = await fetch(`${url}`, {
 			headers: {
-				"Content-Type": formData ? "multipart/form-data" : "application/json",
+				"Content-Type": formData
+					? "multipart/form-data"
+					: "application/json",
 				...headers,
-				Authorization: `Bot ${(window as typeof window & { token: string }).token
-					}`,
-				"User-Agent": "DiscordBot (https://github.com/denocord-labs/denocordts,1.0.0@dev-6)"
+				Authorization: `Bot ${
+					(window as typeof window & { token: string }).token
+				}`,
+				"User-Agent":
+					"DiscordBot (https://github.com/denocord-labs/denocordts,1.0.0@dev-6)",
 			},
 			method,
-			body:
-				method == "GET"
-					? undefined
-					: ((!strignifyBody
-						? JSON.stringify(body)
-						: body) as BodyInit),
+			body: method == "GET"
+				? undefined
+				: ((!strignifyBody ? JSON.stringify(body) : body) as BodyInit),
 		});
 		if (!res.ok) {
 			throw new HttpError(await res.json());
@@ -76,23 +78,28 @@ export class RestClient extends Collection<
 				queue: false,
 			};
 		}
-		if (parseInt((data.ratelimit as Record<string, string>).remaining) > 3)
+		if (
+			parseInt((data.ratelimit as Record<string, string>).remaining) > 3
+		) {
 			return { queue: false };
+		}
 		if (
 			Date.now() / 1000 >
-			parseFloat(
-				(data.ratelimit as Record<string, string | null>).reset ||
-				String((data.timestamp as number) + 5)
-			)
-		)
+				parseFloat(
+					(data.ratelimit as Record<string, string | null>).reset ||
+						String((data.timestamp as number) + 5),
+				)
+		) {
 			return {
 				queue: false,
 			};
+		}
 		if (
 			(Date.now() - (data.timestamp as number)) / 1000 >
-			parseInt(
-				(data.ratelimit as Record<string, string | null>).resetAfter!
-			)
+				parseInt(
+					(data.ratelimit as Record<string, string | null>)
+						.resetAfter!,
+				)
 		) {
 			return {
 				queue: false,
@@ -100,11 +107,10 @@ export class RestClient extends Collection<
 		}
 		return {
 			queue: true,
-			time:
-				parseInt(
-					(data.ratelimit as Record<string, string | null>)
-						.resetAfter || "5"
-				) || 3,
+			time: parseInt(
+				(data.ratelimit as Record<string, string | null>)
+					.resetAfter || "5",
+			) || 3,
 		};
 	}
 	private async createQueue({
@@ -114,7 +120,7 @@ export class RestClient extends Collection<
 		method,
 		headers,
 		strignifyBody,
-		formData = false
+		formData = false,
 	}: {
 		time?: number;
 		href: string;
@@ -131,7 +137,7 @@ export class RestClient extends Collection<
 					method,
 					body,
 					headers,
-					strignifyBody
+					strignifyBody,
 				);
 				resolve(res);
 			}, time * 1000);

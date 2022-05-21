@@ -1,8 +1,15 @@
-import { cacheFields, APIChannel, APIEmoji, APIGuild, APIRole, APIUser } from "../types/mod.ts";
+import {
+	APIChannel,
+	APIEmoji,
+	APIGuild,
+	APIRole,
+	APIUser,
+	cacheFields,
+} from "../types/mod.ts";
 import { Channel, Emoji, Role } from "../types/cache.ts";
 import { Camelize, camelize, Collection } from "../../deps.ts";
-import { Base } from '../client/base.ts'
-import {Guild as GuildClass,User as UserClass} from '../structures/mod.ts'
+import { Base } from "../client/base.ts";
+import { Guild as GuildClass, User as UserClass } from "../structures/mod.ts";
 export class CacheObject {
 	cache: cacheFields;
 	constructor(protected client: Base) {
@@ -22,14 +29,17 @@ export class CacheObject {
 	addGuildToCache(guildId: string, guildPayload: Camelize<APIGuild>) {
 		this.cache.guilds.set(
 			guildId,
-			new GuildClass(camelize(guildPayload), this.client)
+			new GuildClass(camelize(guildPayload), this.client),
 		);
 	}
-	/**	
+	/**
 	 * Add a User to the cache.
 	 */
 	addUserToCache(userId: string, userPayload: Camelize<UserClass>) {
-		this.cache.users.set(userId, new UserClass(camelize(userPayload), this.client));
+		this.cache.users.set(
+			userId,
+			new UserClass(camelize(userPayload), this.client),
+		);
 	}
 	/**
 	 * Add a channel to the cache.
@@ -65,5 +75,3 @@ export class CacheObject {
 		return this.cache.roles.get(roleId);
 	}
 }
-
-

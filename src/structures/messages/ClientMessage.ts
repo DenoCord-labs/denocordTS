@@ -19,7 +19,7 @@ export class ClientMessage extends BaseMessage {
 		const res = await this.rest.request(
 			endpoints.editMessage(this.d.channel_id, this.id),
 			"PATCH",
-			content
+			content,
 		);
 		return await res.json();
 	}

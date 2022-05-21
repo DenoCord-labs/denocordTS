@@ -137,13 +137,13 @@ export class Guild {
 				}
 				case 11: {
 					this.channels!.push(
-						new ThreadChannel(channel, this.client)
+						new ThreadChannel(channel, this.client),
 					);
 					break;
 				}
 				case 12: {
 					this.channels!.push(
-						new ThreadChannel(channel, this.client)
+						new ThreadChannel(channel, this.client),
 					);
 					break;
 				}
@@ -228,8 +228,9 @@ export class Guild {
 			body.type == ChannelType["GuildVoice"] ||
 			body.type == ChannelType["GuildStageVoice"]
 		) {
-			if (!bitrate)
+			if (!bitrate) {
 				throw new Error("Bitrate is required for voice channels");
+			}
 
 			body["bitrate"] = bitrate;
 			if (userLimit) body["user_limit"] = userLimit;
@@ -247,7 +248,7 @@ export class Guild {
 			`/guilds/${this.id}/channels`,
 			"POST",
 			body,
-			headers
+			headers,
 		);
 	}
 	async changeChannelPosition({
@@ -273,23 +274,23 @@ export class Guild {
 		await this.rest.request(
 			`/guilds/${this.id}/channels`,
 			"PATCH",
-
 			body,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		);
 	}
 	async fetchGuildMember(userId: Snowflake) {
 		const res = await (
 			await this.rest.request(
 				`/guilds/${this.id}/members/${userId}`,
-				"GET"
+				"GET",
 			)
 		).json();
 
 		return new GuildMember(
 			res,
 			this.client,
-			this.client.cache.guilds.get(`${this.id}`)?.ownerId === res.user?.id
+			this.client.cache.guilds.get(`${this.id}`)?.ownerId ===
+				res.user?.id,
 		) as Partial<GuildMember>;
 	}
 	async changeClientNickname({
@@ -304,9 +305,8 @@ export class Guild {
 		return void (await this.rest.request(
 			`/guilds/${this.id}/members/@me`,
 			"PATCH",
-
 			{ nick: nickname },
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	async addRoleToGuildMember({
@@ -323,9 +323,8 @@ export class Guild {
 		return void (await this.rest.request(
 			`/guilds/${this.id}/members/${userId}/roles/${roleId}`,
 			"PUT",
-
 			undefined,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	async removeRoleFromGuildMember({
@@ -342,9 +341,8 @@ export class Guild {
 		return void (await this.rest.request(
 			`/guilds/${this.id}/members/${userId}/roles/${roleId}`,
 			"DELETE",
-
 			undefined,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	async removeGuildMember({
@@ -359,9 +357,8 @@ export class Guild {
 		return void (await this.rest.request(
 			`/guilds/${this.id}/members/${userId}`,
 			"DELETE",
-
 			undefined,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	/**
@@ -373,7 +370,7 @@ export class Guild {
 		return camelize(
 			await (
 				await this.rest.request(`/guilds/${this.id}/bans`, "GET")
-			).json()
+			).json(),
 		) as Camelize<APIBan>[];
 	}
 
@@ -382,9 +379,9 @@ export class Guild {
 			await await (
 				await this.rest.request(
 					`/guilds/${this.id}/bans/${userId}`,
-					"GET"
+					"GET",
 				)
-			).json()
+			).json(),
 		) as Camelize<APIBan>;
 	}
 
@@ -400,9 +397,8 @@ export class Guild {
 		return void (await this.rest.request(
 			`/guilds/${this.id}/bans/${userId}`,
 			"PUT",
-
 			undefined,
-			reason ? headers : undefined
+			reason ? headers : undefined,
 		));
 	}
 	async removeGuildBan({
@@ -417,16 +413,15 @@ export class Guild {
 		return void (await this.rest.request(
 			`/guilds/${this.id}/bans/${userId}`,
 			"DELETE",
-
 			undefined,
-			headers
+			headers,
 		));
 	}
 	async fetchRoles() {
 		return camelize(
 			await (
 				await this.rest.request(`/guilds/${this.id}/roles`, "GET")
-			).json()
+			).json(),
 		) as Camelize<APIRole>[];
 	}
 
@@ -463,9 +458,9 @@ export class Guild {
 					`/guilds/${this.id}/roles`,
 					"POST",
 					body,
-					headers
+					headers,
 				)
-			).json()
+			).json(),
 		) as Camelize<APIRole>;
 	}
 	async modifyRole({
@@ -507,9 +502,9 @@ export class Guild {
 					`/guilds/${this.id}/roles/${roleId}`,
 					"PATCH",
 					body,
-					headers
+					headers,
 				)
-			).json()
+			).json(),
 		) as Camelize<APIRole>;
 	}
 	async deleteRole({
@@ -525,7 +520,7 @@ export class Guild {
 			`/guilds/${this.id}/roles/${roleId}`,
 			"DELETE",
 			undefined,
-			headers
+			headers,
 		));
 	}
 }

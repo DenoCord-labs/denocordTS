@@ -6,101 +6,95 @@ export const endpoints = {
 		`/applications/${applicationId}/commands`,
 	getGlobalApplicationCommand: (
 		applicationId: Snowflake,
-		commandId: Snowflake
+		commandId: Snowflake,
 	) => `/applications/${applicationId}/commands/${commandId}`,
 	editGlobalApplicationCommand: (
 		applicationId: Snowflake,
-		commandId: Snowflake
+		commandId: Snowflake,
 	) => `/applications/${applicationId}/commands/${commandId}`,
 	deleteGlobalApplicationCommand: (
 		applicationId: SubtleCrypto,
-		commandId: Snowflake
+		commandId: Snowflake,
 	) => `/applications/${applicationId}/commands/${commandId}`,
 	bulkOverwriteGlobalApplicationCommands: (applicationId: Snowflake) =>
 		`/applications/${applicationId}/commands`,
 	getGuildApplicationCommands: (
 		applicationId: Snowflake,
-		guildId: Snowflake
+		guildId: Snowflake,
 	) => `/applications/${applicationId}/guilds/${guildId}/commands`,
 	createGuildApplicationCommand: (
 		applicationId: Snowflake,
-		guildId: Snowflake
+		guildId: Snowflake,
 	) => `/applications/${applicationId}/guilds/${guildId}/commands`,
 	getGuildApplicationCommand: (
 		applicationId: Snowflake,
 		guildId: Snowflake,
-		commandId: Snowflake
-	) =>
-		`/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`,
+		commandId: Snowflake,
+	) => `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`,
 	editGuildApplicationCommand: (
 		applicationId: Snowflake,
 		guildId: Snowflake,
-		commandId: Snowflake
-	) =>
-		`/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`,
+		commandId: Snowflake,
+	) => `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`,
 	deleteGuildApplicationCommand: (
 		applicationId: Snowflake,
 		guildId: Snowflake,
-		commandId: Snowflake
-	) =>
-		`/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`,
+		commandId: Snowflake,
+	) => `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`,
 
 	bulkOverWriteGuildApplicationCommands: (
 		guildId: Snowflake,
-		applicationId: Snowflake
+		applicationId: Snowflake,
 	) => `/applications/${applicationId}/guilds/${guildId}/commands`,
 	getGuildApplicationCommandsPermissions: (
 		applicationId: Snowflake,
-		guildId: Snowflake
-	) =>
-		`/applications/${applicationId}/guilds/${guildId}/commands/permissions`,
+		guildId: Snowflake,
+	) => `/applications/${applicationId}/guilds/${guildId}/commands/permissions`,
 	getApplicationCommandPermissions: (
 		applicationId: Snowflake,
 		guildId: Snowflake,
-		commandId: Snowflake
-	) =>
-		`/applications/${applicationId}/guilds/${guildId}/commands/${commandId}/permissions`,
+		commandId: Snowflake,
+	) => `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}/permissions`,
 
 	editApplicationCommandPermissions: (
 		applicationId: Snowflake,
 		guildId: Snowflake,
-		commandId: Snowflake
-	) =>
-		`/applications/${applicationId}/guilds/${guildId}/commands/${commandId}/permissions`,
+		commandId: Snowflake,
+	) => `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}/permissions`,
 	createInteractionResponse: (
 		interactionId: Snowflake,
-		interactionToken: string
+		interactionToken: string,
 	) => `/interactions/${interactionId}/${interactionToken}/callback`,
 	getOriginalInteractionResponse: (
 		applicationId: Snowflake,
-		interactionToken: string
+		interactionToken: string,
 	) => `/webhooks/${applicationId}/${interactionToken}/messages/@original`,
 	editOriginalInteractionResponse: (
 		applicationId: Snowflake,
-		interactionToken: string
+		interactionToken: string,
 	) => `/webhooks/${applicationId}/${interactionToken}/messages/@original`,
 	deleteOriginalInteractionResponse: (
 		applicationId: Snowflake,
-		interactionToken: string
+		interactionToken: string,
 	) => `/webhooks/${applicationId}/${interactionToken}/messages/@original`,
 	createFollowUpMessage: (
 		applicationId: Snowflake,
-		interactionToken: string
+		interactionToken: string,
 	) => `/webhooks/${applicationId}/${interactionToken}`,
 	getFollowUpMessage: (
 		applicationId: Snowflake,
 		interactionToken: string,
-		messageId: Snowflake
+		messageId: Snowflake,
 	) => `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`,
 	editFollowUpMessage: (
 		applicationId: Snowflake,
 		interactionToken: string,
-		messageId: Snowflake
+		messageId: Snowflake,
 	) => `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`,
 	deleteFollowUpMessage: (
 		applicationId: Snowflake,
 		interactionToken: string,
-		messageId: Snowflake
+		messageId: Snowflake,
 	) => `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`,
 	getGuildAuditLog: (guildId: Snowflake) => `/guilds/${guildId}/audit-logs`,
 	getChannel: (channelId: Snowflake) => `/channels/${channelId}`,
@@ -116,20 +110,19 @@ export const endpoints = {
 	createReaction: (
 		channelId: Snowflake,
 		messageId: Snowflake,
-		emoji: string
+		emoji: string,
 	) => `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`,
 	deleteOwnReaction: (
 		channelId: Snowflake,
 		messageId: Snowflake,
-		emoji: string
+		emoji: string,
 	) => `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`,
 	deleteUserReaction: (
 		channelId: Snowflake,
 		messageId: Snowflake,
 		emoji: string,
-		userId: Snowflake
-	) =>
-		`/channels/${channelId}/messages/${messageId}/reactions/${emoji}/${userId}`,
+		userId: Snowflake,
+	) => `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/${userId}`,
 	getReactions: (channelId: Snowflake, messageId: Snowflake, emoji: string) =>
 		`/channels/${channelId}/messages/${messageId}/reactions/${emoji}`,
 	deleteAllReactions: (
@@ -139,7 +132,7 @@ export const endpoints = {
 	deleteAllReactionsForEmoji: (
 		channelId: Snowflake,
 		messageId: Snowflake,
-		emoji: string
+		emoji: string,
 	) => `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`,
 	editMessage: (channelId: Snowflake, messageId: Snowflake) =>
 		`/channels/${channelId}/messages/${messageId}`,
@@ -229,12 +222,12 @@ export const endpoints = {
 	addGuildMemberRole: (
 		guildId: Snowflake,
 		userId: Snowflake,
-		roleId: Snowflake
+		roleId: Snowflake,
 	) => `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
 	removeGuildMemberRole: (
 		guildId: Snowflake,
 		userId: Snowflake,
-		roleId: Snowflake
+		roleId: Snowflake,
 	) => `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
 	removeGuildMember: (guildId: Snowflake, userId: Snowflake) =>
 		`/guilds/${guildId}/members/${userId}`,
@@ -282,15 +275,15 @@ export const endpoints = {
 		`/guilds/${guildId}/scheduled-events/${scheduledEventId}`,
 	modifyGuildScheduledEvent: (
 		guildId: Snowflake,
-		scheduledEventId: Snowflake
+		scheduledEventId: Snowflake,
 	) => `/guilds/${guildId}/scheduled-events/${scheduledEventId}`,
 	deleteGuildScheduledEvent: (
 		guildId: Snowflake,
-		scheduledEventId: Snowflake
+		scheduledEventId: Snowflake,
 	) => `/guilds/${guildId}/scheduled-events/${scheduledEventId}`,
 	getGuildScheduledEventUsers: (
 		guildId: Snowflake,
-		scheduledEventId: Snowflake
+		scheduledEventId: Snowflake,
 	) => `/guilds/${guildId}/scheduled-events/${scheduledEventId}/users`,
 	getGuildsTemplate: (templateCode: string) =>
 		`/guilds/templates/${templateCode}`,
@@ -350,25 +343,25 @@ export const endpoints = {
 		`/webhooks/${webhookId}/${webhookToken}`,
 	executeSlackCompatibleWebhook: (
 		webhookId: Snowflake,
-		webhookToken: string
+		webhookToken: string,
 	) => `/webhooks/${webhookId}/${webhookToken}/slack`,
 	executeGithubCompatibleWebhook: (
 		webhookId: Snowflake,
-		webhookToken: string
+		webhookToken: string,
 	) => `/webhooks/${webhookId}/${webhookToken}/github`,
 	getWebhookMessage: (
 		webhookId: Snowflake,
 		webhookToken: string,
-		messageId: Snowflake
+		messageId: Snowflake,
 	) => `/webhooks/${webhookId}/${webhookToken}/messages/${messageId}`,
 	editWebhookMessage: (
 		webhookId: Snowflake,
 		webhookToken: string,
-		messageId: Snowflake
+		messageId: Snowflake,
 	) => `/webhooks/${webhookId}/${webhookToken}/messages/${messageId}`,
 	deleteWebhookMessage: (
 		webhookId: Snowflake,
 		webhookToken: string,
-		messageId: Snowflake
+		messageId: Snowflake,
 	) => `/webhooks/${webhookId}/${webhookToken}/messages/${messageId}`,
 };

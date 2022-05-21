@@ -8,12 +8,12 @@ import {
 	Camelize,
 } from "./mod.ts";
 import {
-	Guild,
-	User,
 	DmChannel,
+	Guild,
+	GuildMember as Member,
 	TextChannel,
 	ThreadChannel,
-	GuildMember as Member,
+	User,
 } from "../structures/mod.ts";
 import { Collection } from "../../deps.ts";
 export type Channel = DmChannel | TextChannel | ThreadChannel;

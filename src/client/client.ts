@@ -9,8 +9,8 @@ import type { SlashCommand } from "../structures/commands/slashCommands/builder.
 import { PermissionBits } from "../types/permission.ts";
 import { CDN } from "../rest/cdn.ts";
 import {
-	registerGuildSlashCommands,
 	registerGlobalSlashCommands,
+	registerGuildSlashCommands,
 } from "../http/endpoints.ts";
 declare global {
 	const token: string | undefined;
@@ -24,10 +24,9 @@ export class Client extends Base {
 	displayAvatarUrl;
 	constructor(protected options: ClientOptions) {
 		super(options);
-		this.displayAvatarUrl =
-			super.user && super.user.avatar
-				? this.cdn.getUserAvatar
-				: this.cdn.getDefaultUserAvatar;
+		this.displayAvatarUrl = super.user && super.user.avatar
+			? this.cdn.getUserAvatar
+			: this.cdn.getDefaultUserAvatar;
 		window.token = this.options.token;
 	}
 	setPresence(presence: GatewayPresenceUpdateData) {
@@ -37,7 +36,7 @@ export class Client extends Base {
 				d: {
 					...presence,
 				},
-			})
+			}),
 		);
 	}
 	checkMemberPermission({
@@ -64,7 +63,7 @@ export class Client extends Base {
 		await registerGuildSlashCommands(
 			commands,
 			this.options.clientId,
-			guildId
+			guildId,
 		);
 	}
 }

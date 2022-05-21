@@ -3,7 +3,7 @@ import { ClientMessage } from "../structures/messages/mod.ts";
 import { BaseMessage } from "../structures/messages/Base.ts";
 import { APIMessage } from "./mod.ts";
 import { CommandInteraction } from "./commandInteraction.ts";
-import { ApplicationCommandInteraction } from '../structures/mod.ts'
+import { ApplicationCommandInteraction } from "../structures/mod.ts";
 import { Camelize } from "../../deps.ts";
 
 export type Message = Camelize<APIMessage>;

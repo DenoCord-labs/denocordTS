@@ -1,14 +1,14 @@
 import {
 	APIRole,
 	APIRoleTags,
-	Snowflake,
 	PermissionFlagsBits,
+	Snowflake,
 } from "../../types/mod.ts";
 import { ColorResolvable, resolveColor } from "../../utils/mod.ts";
 import { Guild } from "../mod.ts";
-import { RestClient } from '../../http/rest.ts'
-import { endpoints } from '../../constants/endpoints/mod.ts'
-import { DiscordSnowflake } from '../../../deps.ts'
+import { RestClient } from "../../http/rest.ts";
+import { endpoints } from "../../constants/endpoints/mod.ts";
+import { DiscordSnowflake } from "../../../deps.ts";
 
 export class Role {
 	id: Snowflake;
@@ -21,9 +21,9 @@ export class Role {
 	permissions: string;
 	managed: boolean;
 	tags?: APIRoleTags;
-	createdAt: number
-	mentionable: boolean
-	protected restClient = new RestClient()
+	createdAt: number;
+	mentionable: boolean;
+	protected restClient = new RestClient();
 	constructor(d: APIRole, protected guild: Guild) {
 		this.id = d.id;
 		this.name = d.name;
@@ -35,8 +35,8 @@ export class Role {
 		this.permissions = d.permissions;
 		this.managed = d.managed;
 		this.tags = d.tags;
-		this.createdAt = DiscordSnowflake.timestampFrom(d.id)
-		this.mentionable = d.mentionable
+		this.createdAt = DiscordSnowflake.timestampFrom(d.id);
+		this.mentionable = d.mentionable;
 	}
 	async setName(name: string, reason?: string) {
 		await this.guild.modifyRole({
@@ -59,7 +59,7 @@ export class Role {
 	}
 	async setPermissions(
 		permissions: (keyof typeof PermissionFlagsBits)[],
-		reason?: string
+		reason?: string,
 	) {
 		await this.guild.modifyRole({
 			permission: permissions,
@@ -70,15 +70,19 @@ export class Role {
 		this.permissions = String(
 			permissions
 				.map((p) => PermissionFlagsBits[p])
-				.reduce((a, b) => a | b)
+				.reduce((a, b) => a | b),
 		);
 		return undefined;
 	}
 	async setPosition(position: number, reason?: string) {
-		await this.restClient.request(endpoints.modifyGuildRolePositions(this.guild.id), "PATCH", {
-			id: this.id,
-			position
-		})
+		await this.restClient.request(
+			endpoints.modifyGuildRolePositions(this.guild.id),
+			"PATCH",
+			{
+				id: this.id,
+				position,
+			},
+		);
 		this.position = position;
 		return undefined;
 	}
@@ -86,7 +90,8 @@ export class Role {
 		await this.guild.modifyRole({
 			displaySeparatelyInSidebar: hoist,
 			reason,
-			roleId: this.id, name: this.name,
+			roleId: this.id,
+			name: this.name,
 		});
 		this.hoist = hoist;
 		return undefined;

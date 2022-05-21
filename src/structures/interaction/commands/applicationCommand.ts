@@ -1,45 +1,55 @@
 import { Interaction } from "../interaction.ts";
 import {
+	APIApplicationCommandInteraction,
 	APIAttachment,
 	APIChannel,
 	APIInteraction,
 	APIRole,
 	InteractionResponseType,
-	APIApplicationCommandInteraction,
 } from "../../../types/mod.ts";
 import { Messages } from "../../../errors/messages.ts";
 import { Modal } from "../../components/modal.ts";
 import { Base } from "../../../client/base.ts";
-import { User, GuildMember } from '../../mod.ts';
+import { GuildMember, User } from "../../mod.ts";
 export class ApplicationCommandInteraction extends Interaction {
-	channel
-	commandName
-	data
-	user
-	member
-	guildLocale
-	locale
+	channel;
+	commandName;
+	data;
+	user;
+	member;
+	guildLocale;
+	locale;
 	constructor(
 		protected interaction: APIApplicationCommandInteraction,
 		protected token: string,
-		protected client: Base
+		protected client: Base,
 	) {
 		super(interaction, token, client);
-		this.channel = this.client.cache.channels.get(interaction.guild_id ? interaction.channel_id : "")
-		this.commandName = interaction.data.name
-		this.data = interaction.data
-		this.guildLocale = interaction.guild_locale
-		this.user = "guild_id" in interaction ? undefined : new User(interaction.user, this.client)
-		this.member = "guild_id" in interaction ? new GuildMember(interaction, this.client, this.client.cache.guilds.get(interaction.guild_id || "")?.ownerId === interaction.member!.user.id) : undefined
-		this.locale = interaction.locale
-
+		this.channel = this.client.cache.channels.get(
+			interaction.guild_id ? interaction.channel_id : "",
+		);
+		this.commandName = interaction.data.name;
+		this.data = interaction.data;
+		this.guildLocale = interaction.guild_locale;
+		this.user = "guild_id" in interaction
+			? undefined
+			: new User(interaction.user, this.client);
+		this.member = "guild_id" in interaction
+			? new GuildMember(
+				interaction,
+				this.client,
+				this.client.cache.guilds.get(interaction.guild_id || "")
+					?.ownerId === interaction.member!.user.id,
+			)
+			: undefined;
+		this.locale = interaction.locale;
 	}
 	async populateAutoCompleteChoices(
-		choices: { name: string; value: string }[]
+		choices: { name: string; value: string }[],
 	) {
 		if (choices.length > 25) {
 			throw new Error(
-				Messages.TOO_MANY_AUTOCOMPLETE_OPTIONS(choices.length)
+				Messages.TOO_MANY_AUTOCOMPLETE_OPTIONS(choices.length),
 			);
 		}
 		if (!this.isAutoComplete) {
@@ -49,11 +59,11 @@ export class ApplicationCommandInteraction extends Interaction {
 		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-
 			{
-				type: InteractionResponseType.ApplicationCommandAutocompleteResult,
+				type: InteractionResponseType
+					.ApplicationCommandAutocompleteResult,
 				data: { choices },
-			}
+			},
 		);
 	}
 	async showModal(modal: Modal) {
@@ -66,11 +76,10 @@ export class ApplicationCommandInteraction extends Interaction {
 		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-
 			{
 				type: InteractionResponseType.Modal,
 				data: { ...modal.toJSON() },
-			}
+			},
 		);
 		this.replied = true;
 	}
@@ -81,10 +90,9 @@ export class ApplicationCommandInteraction extends Interaction {
 		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-
 			{
 				type: InteractionResponseType.DeferredMessageUpdate,
-			}
+			},
 		);
 	}
 	getStringFromOption(option: string) {
@@ -111,7 +119,7 @@ export class ApplicationCommandInteraction extends Interaction {
 				if (o.name === option && o.type === 5) {
 					value = o.value as boolean;
 				}
-			}
+			},
 		);
 		return value;
 	}
@@ -123,7 +131,7 @@ export class ApplicationCommandInteraction extends Interaction {
 				if (o.name === option && o.type === 6) {
 					value = o.value as unknown as APIInteraction["user"];
 				}
-			}
+			},
 		);
 		return value;
 	}
@@ -135,7 +143,7 @@ export class ApplicationCommandInteraction extends Interaction {
 				if (o.name === option && o.type === 7) {
 					value = o.value as unknown as APIChannel;
 				}
-			}
+			},
 		);
 		return value;
 	}
@@ -147,7 +155,7 @@ export class ApplicationCommandInteraction extends Interaction {
 				if (o.name === option && o.type === 8) {
 					value = o.value as unknown as APIRole;
 				}
-			}
+			},
 		);
 		return value;
 	}
@@ -161,7 +169,7 @@ export class ApplicationCommandInteraction extends Interaction {
 						| APIRole
 						| APIInteraction["user"];
 				}
-			}
+			},
 		);
 		return value;
 	}
@@ -173,7 +181,7 @@ export class ApplicationCommandInteraction extends Interaction {
 				if (o.name === option && o.type === 10) {
 					value = o.value as number;
 				}
-			}
+			},
 		);
 		return value;
 	}
@@ -185,7 +193,7 @@ export class ApplicationCommandInteraction extends Interaction {
 				if (o.name === option && o.type === 11) {
 					value = o.value as unknown as APIAttachment;
 				}
-			}
+			},
 		);
 		return value;
 	}

@@ -6,28 +6,28 @@ const rest = new RestClient();
 
 export async function registerGlobalSlashCommands(
 	commands: SlashCommand[],
-	clientId: Snowflake
+	clientId: Snowflake,
 ) {
 	await rest.request(
 		endpoints.createGlobalApplicationCommands(clientId),
 		"PUT",
 		commands.map((cmd) => cmd.toJSON()),
 		undefined,
-		false
+		false,
 	);
 }
 
 export async function registerGuildSlashCommands(
 	commands: SlashCommand[],
 	clientId: Snowflake,
-	guildId: Snowflake
+	guildId: Snowflake,
 ) {
 	await rest.request(
 		endpoints.createGuildApplicationCommand(clientId, guildId),
 		"PUT",
 		commands.map((cmd) => cmd.toJSON()),
 		undefined,
-		false
+		false,
 	);
 }
 
@@ -38,129 +38,129 @@ export async function createMessage(channelId: Snowflake, body: unknown) {
 export async function deleteMessage(
 	channelId: Snowflake,
 	messageId: Snowflake,
-	headers?: HeadersInit
+	headers?: HeadersInit,
 ) {
 	return void (await rest.request(
 		endpoints.deleteMessage(channelId, messageId),
 		"DELETE",
 		undefined,
-		headers
+		headers,
 	));
 }
 
 export async function addReaction(
 	channelId: string,
 	messageId: string,
-	emoji: string
+	emoji: string,
 ) {
 	return void (await rest.request(
 		endpoints.createReaction(channelId, messageId, emoji),
-		"PUT"
+		"PUT",
 	));
 }
 
 export async function removeClientReaction(
 	channelId: string,
 	messageId: string,
-	emoji: string
+	emoji: string,
 ) {
 	return void (await rest.request(
 		endpoints.deleteOwnReaction(channelId, messageId, emoji),
-		"DELETE"
+		"DELETE",
 	));
 }
 export async function removeUserReaction(
 	emoji: string,
 	userId: Snowflake,
 	channelId: Snowflake,
-	messageId: Snowflake
+	messageId: Snowflake,
 ) {
 	return void (await rest.request(
 		endpoints.deleteUserReaction(channelId, messageId, emoji, userId),
-		"DELETE"
+		"DELETE",
 	));
 }
 export async function getReactions(
 	emoji: string,
 	channelId: Snowflake,
-	messageId: Snowflake
+	messageId: Snowflake,
 ) {
 	return await rest.request(
 		endpoints.getReactions(channelId, messageId, emoji),
-		"GET"
+		"GET",
 	);
 }
 export async function deleteAllReactions(
 	channelId: Snowflake,
-	messageId: Snowflake
+	messageId: Snowflake,
 ) {
 	return void (await rest.request(
 		endpoints.deleteAllReactions(channelId, messageId),
-		"DELETE"
+		"DELETE",
 	));
 }
 
 export async function deleteAllReactionsForEmoji(
 	channelId: Snowflake,
 	messageId: Snowflake,
-	emoji: string
+	emoji: string,
 ) {
 	return void (await rest.request(
 		endpoints.deleteAllReactionsForEmoji(channelId, messageId, emoji),
-		"DELETE"
+		"DELETE",
 	));
 }
 export async function sendTyping(channelId: Snowflake) {
 	return void (await rest.request(
 		endpoints.triggerTypingIndicator(channelId),
-		"POST"
+		"POST",
 	));
 }
 export async function pinMessage(
 	channelId: Snowflake,
 	messageId: Snowflake,
-	headers?: HeadersInit
+	headers?: HeadersInit,
 ) {
 	return void (await rest.request(
 		endpoints.pinMessage(channelId, messageId),
 		"PUT",
 		undefined,
-		headers
+		headers,
 	));
 }
 export async function unpinMessage(
 	channelId: Snowflake,
 	messageId: Snowflake,
-	headers?: HeadersInit
+	headers?: HeadersInit,
 ) {
 	return void (await rest.request(
 		endpoints.unpinMessage(channelId, messageId),
 		"DELETE",
 		undefined,
-		headers
+		headers,
 	));
 }
 export async function startThreadFromMessage(
 	channelId: Snowflake,
 	messageId: Snowflake,
-	headers?: HeadersInit
+	headers?: HeadersInit,
 ) {
 	return await rest.request(
 		endpoints.startThreadFromMessage(channelId, messageId),
 		"POST",
 		undefined,
-		headers
+		headers,
 	);
 }
 
 export async function createNewThread(
 	channelId: Snowflake,
-	headers?: HeadersInit
+	headers?: HeadersInit,
 ) {
 	return await rest.request(
 		endpoints.startThreadWithoutMessage(channelId),
 		"POST",
 		undefined,
-		headers
+		headers,
 	);
 }

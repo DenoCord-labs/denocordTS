@@ -8,7 +8,7 @@ export class CloseEventHandler extends Error {
 			}
 			case 4001: {
 				throw super(
-					"Unknown opcode: An Invalid Gateway OP code was sent"
+					"Unknown opcode: An Invalid Gateway OP code was sent",
 				);
 			}
 			case 4002: {
@@ -16,7 +16,7 @@ export class CloseEventHandler extends Error {
 			}
 			case 4003: {
 				throw super(
-					"Not authenticated: Gateway Payload was sent before Identification Payload"
+					"Not authenticated: Gateway Payload was sent before Identification Payload",
 				);
 			}
 			case 4004: {
@@ -24,42 +24,42 @@ export class CloseEventHandler extends Error {
 			}
 			case 4005: {
 				throw super(
-					"Already authenticated: Identification Payload was sent more than once"
+					"Already authenticated: Identification Payload was sent more than once",
 				);
 			}
 			case 4007: {
 				throw super(
-					"Invalid sequence: A Gateway Payload was sent out of sequence"
+					"Invalid sequence: A Gateway Payload was sent out of sequence",
 				);
 			}
 			case 4008: {
 				throw super(
-					"Rate limited: The client has sent too many requests in a short amount of time"
+					"Rate limited: The client has sent too many requests in a short amount of time",
 				);
 			}
 			case 4009: {
 				throw super(
-					"Session timeout: The client has not sent a heartbeat in a while"
+					"Session timeout: The client has not sent a heartbeat in a while",
 				);
 			}
 			case 4010: {
 				throw super(
-					"Invalid shard: The client is trying to use an invalid shard"
+					"Invalid shard: The client is trying to use an invalid shard",
 				);
 			}
 			case 4011: {
 				throw super(
-					"Sharding required: Session handled too many guilds, sharding required"
+					"Sharding required: Session handled too many guilds, sharding required",
 				);
 			}
 			case 4012: {
 				throw super(
-					"Invalid API version: The client is trying to use an invalid API version"
+					"Invalid API version: The client is trying to use an invalid API version",
 				);
 			}
 			case 4013: {
 				throw super(
-					"Invalid Intents: The client is trying to use an invalid Intents"
+					"Invalid Intents: The client is trying to use an invalid Intents",
 				);
 			}
 			case 4014: {

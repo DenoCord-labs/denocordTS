@@ -6,6 +6,7 @@ import { parseEmoji } from "../../utils/mod.ts";
 import { Base } from "../../client/base.ts";
 import { Guild, GuildMember, User } from "../mod.ts";
 import {
+	addReaction,
 	createMessage,
 	createNewThread,
 	deleteAllReactions,
@@ -18,7 +19,6 @@ import {
 	sendTyping,
 	startThreadFromMessage,
 	unpinMessage,
-	addReaction,
 } from "../../http/endpoints.ts";
 export class BaseMessage {
 	/**
@@ -234,7 +234,7 @@ export class BaseMessage {
 		this.mentionEveryone = d.mention_everyone;
 		const isServerOwner =
 			this.client.cache.guilds.get(this.d.guild_id || "")?.ownerId ===
-			this.author.id;
+				this.author.id;
 		this.member = d.member
 			? new GuildMember(d, this.client, isServerOwner)
 			: undefined;
@@ -257,7 +257,7 @@ export class BaseMessage {
 		const msg = new ClientMessage(
 			await res.json(),
 			window.token!,
-			this.client
+			this.client,
 		);
 		return msg;
 	}
@@ -270,14 +270,14 @@ export class BaseMessage {
 		return void (await addReaction(
 			this.d.channel_id,
 			this.d.id,
-			parseEmoji(emoji)
+			parseEmoji(emoji),
 		));
 	}
 	async removeClientReaction(emoji: string) {
 		await removeClientReaction(
 			this.d.channel_id,
 			this.d.id,
-			parseEmoji(emoji)
+			parseEmoji(emoji),
 		);
 	}
 	async removeUserReaction(emoji: string, userId: Snowflake) {
@@ -285,14 +285,14 @@ export class BaseMessage {
 			parseEmoji(emoji),
 			userId,
 			this.d.channel_id,
-			this.d.id
+			this.d.id,
 		);
 	}
 	async getReactions(emoji: string) {
 		const res = await getReactions(
 			parseEmoji(emoji),
 			this.d.channel_id,
-			this.d.id
+			this.d.id,
 		);
 		return res.json();
 	}
@@ -303,7 +303,7 @@ export class BaseMessage {
 		await deleteAllReactionsForEmoji(
 			this.d.channel_id,
 			this.d.id,
-			parseEmoji(emoji)
+			parseEmoji(emoji),
 		);
 	}
 	async sendTyping() {
@@ -325,7 +325,7 @@ export class BaseMessage {
 		const res = await startThreadFromMessage(
 			this.d.channel_id,
 			this.d.id,
-			headers
+			headers,
 		);
 		return res.json();
 	}
@@ -338,12 +338,12 @@ export class BaseMessage {
 	private checks(payload: ReplyPayload) {
 		if (payload.components && payload.components.length > 5) {
 			throw new Error(
-				Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length)
+				Messages.COMPONENTS_LENGTH_EXCEEDED(payload.components.length),
 			);
 		}
 		if (payload.embeds && payload.embeds.length > 10) {
 			throw new Error(
-				Messages.EMBEDS_LENGTH_EXCEEDED(payload.embeds.length)
+				Messages.EMBEDS_LENGTH_EXCEEDED(payload.embeds.length),
 			);
 		}
 	}

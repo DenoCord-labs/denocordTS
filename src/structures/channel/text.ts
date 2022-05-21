@@ -36,7 +36,7 @@ export class TextChannel extends BaseChannel {
 		const res = await super.restClient.request(
 			`/channels/${this.id}/invites`,
 			"POST",
-			body
+			body,
 		);
 		return camelize(await res.json()) as Camelize<APIInvite>;
 	}
@@ -75,7 +75,7 @@ export class TextChannel extends BaseChannel {
 		const res = await super.restClient.request(
 			`/channels/${this.id}/messages`,
 			"POST",
-			body
+			body,
 		);
 		return new ThreadChannel(await res.json(), this.client);
 	}
@@ -100,7 +100,7 @@ export class TextChannel extends BaseChannel {
 		const res = await super.restClient.request(
 			`/channels/${this.id}/messages/${messageId}/thread`,
 			"POST",
-			body
+			body,
 		);
 		return new ThreadChannel(await res.json(), this.client);
 	}

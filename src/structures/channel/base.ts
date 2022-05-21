@@ -3,9 +3,9 @@ import { Base } from "../../client/base.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { ClientMessage, Message } from "../mod.ts";
 import {
-	unpinMessage,
-	pinMessage,
 	deleteMessage,
+	pinMessage,
+	unpinMessage,
 } from "../../http/endpoints.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
 import { RestClient } from "../../http/mod.ts";
@@ -30,7 +30,7 @@ export class BaseChannel implements APIPartialChannel {
 			endpoints.deleteOrCloseChannel(this.id),
 			"DELETE",
 			undefined,
-			headers
+			headers,
 		);
 		return null;
 	}
@@ -41,7 +41,7 @@ export class BaseChannel implements APIPartialChannel {
 			endpoints.createMessage(this.id),
 			"POST",
 			content,
-			headers
+			headers,
 		);
 		return new ClientMessage(await res.json(), window.token!, this.client);
 	}
@@ -71,13 +71,13 @@ export class BaseChannel implements APIPartialChannel {
 			"POST",
 			{
 				messages: messageIds,
-			}
+			},
 		));
 	}
 	async sendTyping() {
 		return void (await this.restClient.request(
 			endpoints.triggerTypingIndicator(this.id),
-			"POST"
+			"POST",
 		));
 	}
 	async getPinnedMessages(): Promise<(Message | ClientMessage)[]> {
@@ -86,8 +86,9 @@ export class BaseChannel implements APIPartialChannel {
 		).json();
 		return res.map((m: any) => {
 			if (m.webhook_id) return new Message(m, this.client);
-			if (m.author.id === this.client.user.id)
+			if (m.author.id === this.client.user.id) {
 				return new ClientMessage(m, window.token!, this.client);
+			}
 		});
 	}
 	async pinMessage({

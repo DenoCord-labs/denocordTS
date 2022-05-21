@@ -18,12 +18,13 @@ export class BaseComponent {
 	public readonly id!: APIMessageComponentButtonInteraction["id"];
 	public readonly guildId?: APIMessageComponentButtonInteraction["guild_id"];
 	public data!: {};
-	public readonly clientId!: APIMessageComponentButtonInteraction["application_id"];
+	public readonly clientId!:
+		APIMessageComponentButtonInteraction["application_id"];
 	protected restClient = new RestClient();
 	constructor(
 		protected client: Base,
 		protected channelId: string,
-		protected d: any
+		protected d: any,
 	) {
 		this.token = d.token;
 		this.message = this.d.message;
@@ -37,17 +38,16 @@ export class BaseComponent {
 		this.deferred = true;
 		const data = ephemeral
 			? {
-					flags: 1 << 6,
-			  }
+				flags: 1 << 6,
+			}
 			: {};
 		await this.restClient.request(
 			`/interactions/${this.d!.id}/${this.d!.token}/callback`,
 			"POST",
-
 			{
 				type: InteractionResponseType.DeferredChannelMessageWithSource,
 				data,
-			}
+			},
 		);
 	}
 	public async reply(payload: ReplyPayload) {
@@ -57,11 +57,10 @@ export class BaseComponent {
 		await this.restClient.request(
 			`/interactions/${this.d!.id}/${this.d!.token}/callback`,
 			"POST",
-
 			{
 				type: InteractionResponseType.ChannelMessageWithSource,
 				data: { ...payload },
-			}
+			},
 		);
 		this.replied = true;
 		return null;
@@ -75,10 +74,9 @@ export class BaseComponent {
 				this.d!.token
 			}/messages/@original`,
 			"PATCH",
-
 			{
 				...payload,
-			}
+			},
 		);
 		return null;
 	}
@@ -90,7 +88,7 @@ export class BaseComponent {
 			`/webhooks/${this.d!.application_id}/${
 				this.d!.token
 			}/messages/@original`,
-			"GET"
+			"GET",
 		);
 		return new ClientMessage(await res.json(), window.token!, this.client);
 	}
@@ -102,7 +100,7 @@ export class BaseComponent {
 			`/webhooks/${this.d!.application_id}/${
 				this.d!.token
 			}/messages/@original`,
-			"DELETE"
+			"DELETE",
 		);
 		return null;
 	}
@@ -111,8 +109,7 @@ export class BaseComponent {
 		await this.restClient.request(
 			`/interactions/${this.d!.id}/${this.d!.token}/callback`,
 			"POST",
-
-			{ type: InteractionResponseType.DeferredMessageUpdate }
+			{ type: InteractionResponseType.DeferredMessageUpdate },
 		);
 		this.deferred = true;
 		return null;

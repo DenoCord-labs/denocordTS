@@ -22,7 +22,7 @@ export class Interaction {
 	constructor(
 		protected interaction: APIInteraction & { locale: string },
 		protected token: string,
-		protected client: Base
+		protected client: Base,
 	) {
 		switch (this.interaction.type) {
 			case 2: {
@@ -92,13 +92,12 @@ export class Interaction {
 		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-
 			{
 				type: InteractionResponseType.ChannelMessageWithSource,
 				data: {
 					...payload,
 				},
-			}
+			},
 		);
 	}
 	async deferReply(payload = { ephemeral: false }) {
@@ -111,11 +110,10 @@ export class Interaction {
 		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-
 			{
 				type: InteractionResponseType.DeferredChannelMessageWithSource,
 				ephemeral,
-			}
+			},
 		);
 	}
 	async editReply(payload: ReplyPayload) {
@@ -126,10 +124,9 @@ export class Interaction {
 		const r = await this.rest.request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
 			"PATCH",
-
 			{
 				...payload,
-			}
+			},
 		);
 		return camelize(await r.json()) as Camelize<APIMessage>;
 	}
@@ -137,7 +134,7 @@ export class Interaction {
 	async deleteReply() {
 		await this.rest.request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
-			"DELETE"
+			"DELETE",
 		);
 	}
 
@@ -145,42 +142,43 @@ export class Interaction {
 		const res = await this.rest.request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}`,
 			"GET",
-
-			{ ...payload }
+			{ ...payload },
 		);
 		return await res.json();
 	}
 
 	async fetchFollowUp() {
 		const res = await this.rest.request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
-			"GET"
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+				.interaction.message?.id}`,
+			"GET",
 		);
 		return await res.json();
 	}
 
 	async editFollowUp(payload: ReplyPayload) {
 		await this.rest.request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+				.interaction.message?.id}`,
 			"PATCH",
-
 			{
 				...payload,
-			}
+			},
 		);
 	}
 
 	async deleteFollowUp() {
 		await this.rest.request(
-			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this.interaction.message?.id}`,
-			"DELETE"
+			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
+				.interaction.message?.id}`,
+			"DELETE",
 		);
 	}
 
 	async fetchResponse() {
 		await this.rest.request(
 			`/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
-			"GET"
+			"GET",
 		);
 	}
 
@@ -188,8 +186,7 @@ export class Interaction {
 		await this.rest.request(
 			`/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
 			"POST",
-
-			{ type: InteractionResponseType.DeferredMessageUpdate }
+			{ type: InteractionResponseType.DeferredMessageUpdate },
 		);
 	}
 
