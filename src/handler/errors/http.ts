@@ -1,9 +1,8 @@
 // Used to handle the Http Error Events
-import { DiscordApiError } from "../../errors/mod.ts";
 
-export class HttpError {
+export class HttpError extends Error {
 	constructor(error: Record<string, string>) {
-		throw new DiscordApiError(
+		throw super(
 			`[Http Error] StatusCode:${error.statusCode} ApiCode:${error.code} Message:${error.message}`
 		);
 	}
