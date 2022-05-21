@@ -57,7 +57,7 @@ export class Interaction {
 				? new GuildMember(this.interaction, this.client, isGuildOwner)
 				: undefined,
 			user: this.interaction.user
-				? new User(this.interaction.user)
+				? new User(this.interaction.user, this.client)
 				: undefined,
 			message: this.interaction.message,
 			deferReply: this.deferReply.bind(this),
