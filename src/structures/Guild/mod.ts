@@ -462,7 +462,6 @@ export class Guild {
 				await this.rest.request(
 					`/guilds/${this.id}/roles`,
 					"POST",
-
 					body,
 					headers
 				)
@@ -479,7 +478,7 @@ export class Guild {
 		roleId,
 	}: {
 		name: string;
-		permission: (keyof typeof PermissionFlagsBits)[];
+		permission?: (keyof typeof PermissionFlagsBits)[] | bigint;
 		color?: ColorResolvable;
 		displaySeparatelyInSidebar?: boolean;
 		mentionable?: boolean;
@@ -491,8 +490,12 @@ export class Guild {
 		const body: Record<string, number | string | boolean> = {};
 		body["name"] = name;
 		let permissions = 0n;
-		for await (const perm of permission) {
-			permissions |= PermissionFlagsBits[perm];
+		if (typeof permission === "bigint") {
+			permissions = permission;
+		} else {
+			for await (const perm of permission || []) {
+				permissions |= PermissionFlagsBits[perm];
+			}
 		}
 		body["permissions"] = String(permissions);
 		body["color"] = color ? (resolveColor(color) as number) : 0;
@@ -503,7 +506,6 @@ export class Guild {
 				await this.rest.request(
 					`/guilds/${this.id}/roles/${roleId}`,
 					"PATCH",
-
 					body,
 					headers
 				)
@@ -522,7 +524,6 @@ export class Guild {
 		return void (await this.rest.request(
 			`/guilds/${this.id}/roles/${roleId}`,
 			"DELETE",
-
 			undefined,
 			headers
 		));
