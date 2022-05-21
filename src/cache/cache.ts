@@ -1,9 +1,11 @@
-import { cacheFields } from "../types/mod.ts";
-import { Channel, Emoji, Guild, Role, User } from "../types/cache.ts";
-import { camelize, Collection } from "../../deps.ts";
-class CacheObject {
+import { cacheFields, APIChannel, APIEmoji, APIGuild, APIRole, APIUser } from "../types/mod.ts";
+import { Channel, Emoji, Role } from "../types/cache.ts";
+import { Camelize, camelize, Collection } from "../../deps.ts";
+import { Base } from '../client/base.ts'
+import {Guild as GuildClass,User as UserClass} from '../structures/mod.ts'
+export class CacheObject {
 	cache: cacheFields;
-	constructor() {
+	constructor(protected client: Base) {
 		this.cache = {
 			channels: new Collection(),
 			emojis: new Collection(),
@@ -17,20 +19,23 @@ class CacheObject {
 	/**
 	 * Add a guild to the cache.
 	 */
-	addGuildToCache(guildId: string, guildPayload: Guild) {
-		this.cache.guilds.set(guildId, camelize(guildPayload));
+	addGuildToCache(guildId: string, guildPayload: Camelize<APIGuild>) {
+		this.cache.guilds.set(
+			guildId,
+			new GuildClass(camelize(guildPayload), this.client)
+		);
 	}
-	/**
+	/**	
 	 * Add a User to the cache.
 	 */
-	addUserToCache(userId: string, userPayload: User) {
-		this.cache.users.set(userId, camelize(userPayload));
+	addUserToCache(userId: string, userPayload: Camelize<UserClass>) {
+		this.cache.users.set(userId, new UserClass(camelize(userPayload), this.client));
 	}
 	/**
 	 * Add a channel to the cache.
 	 */
 	addChannelToCache(channelId: string, channel: Channel) {
-		this.cache.channels.set(channelId, camelize(channel));
+		// this.cache.channels.set(channelId, camelize(channel));
 	}
 	/**
 	 * Add an emoji to the cache.
@@ -61,4 +66,4 @@ class CacheObject {
 	}
 }
 
-export const Cache = new CacheObject();
+
