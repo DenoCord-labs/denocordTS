@@ -14,7 +14,8 @@ export class RestClient extends Collection<
 		method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT",
 		body: unknown = {},
 		headers?: HeadersInit,
-		strignifyBody?: boolean
+		strignifyBody?: boolean,
+		formData: boolean = false
 	) {
 		const url = href.includes("http") ? href : `${BaseRestApiUrl}${href}`;
 		const needsQueue = this.checks(url);
@@ -28,28 +29,27 @@ export class RestClient extends Collection<
 				strignifyBody,
 				headers,
 				time: needsQueue.time || 5,
+				formData
 			})) as Response;
 		}
 		const res = await fetch(`${url}`, {
 			headers: {
-				"Content-Type": `application/json${
-					strignifyBody ? "" : ";charset=utf-8"
-				} `,
+				"Content-Type": formData ? "multipart/form-data" : "application/json",
 				...headers,
-				Authorization: `Bot ${
-					(window as typeof window & { token: string }).token
-				}`,
+				Authorization: `Bot ${(window as typeof window & { token: string }).token
+					}`,
+				"User-Agent": "DiscordBot (https://github.com/denocord-labs/denocordts,1.0.0@dev-6)"
 			},
 			method,
 			body:
 				method == "GET"
 					? undefined
 					: ((!strignifyBody
-							? JSON.stringify(body)
-							: body) as BodyInit),
+						? JSON.stringify(body)
+						: body) as BodyInit),
 		});
 		if (!res.ok) {
-			new HttpError(await res.json());
+			throw new HttpError(await res.json());
 		}
 		this.addUrlToCollection(url, res.headers);
 		return res;
@@ -82,7 +82,7 @@ export class RestClient extends Collection<
 			Date.now() / 1000 >
 			parseFloat(
 				(data.ratelimit as Record<string, string | null>).reset ||
-					String((data.timestamp as number) + 5)
+				String((data.timestamp as number) + 5)
 			)
 		)
 			return {
@@ -107,13 +107,14 @@ export class RestClient extends Collection<
 				) || 3,
 		};
 	}
-	private createQueue({
+	private async createQueue({
 		time = 5,
 		body = {},
 		href,
 		method,
 		headers,
 		strignifyBody,
+		formData = false
 	}: {
 		time?: number;
 		href: string;
@@ -121,8 +122,9 @@ export class RestClient extends Collection<
 		body: any;
 		headers?: HeadersInit;
 		strignifyBody?: boolean;
+		formData: boolean;
 	}) {
-		return new Promise((resolve) => {
+		return await new Promise((resolve) => {
 			setTimeout(async () => {
 				const res = await this.request(
 					href,
