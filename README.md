@@ -1,3 +1,5 @@
+![icon](https://cdn.discordapp.com/attachments/954083178665095178/977452959468240896/denocord.png)
+
 # DenoCordTS
 
 An Object Oriented Discord Api Wrapper for Deno.
