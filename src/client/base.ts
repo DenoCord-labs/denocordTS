@@ -1,4 +1,4 @@
-import { Cache } from "../cache/mod.ts";
+import { CacheObject } from "../cache/mod.ts";
 import {
 	APIChannel,
 	APIEmoji,
@@ -20,23 +20,25 @@ import {
 import { GatewayUrl } from "../constants/mod.ts";
 import { ApplicationCommandInteraction, Message } from "../structures/mod.ts";
 import { CloseEventHandler } from "../handler/mod.ts";
-import { WebSocketClient } from "../websocket.ts";
+import { channelCreateEventHandler, MessageCreateGatewayEventHandler,GatewayReadyEventHandler } from '../events/mod.ts'
+
 export class Base extends EventEmitter<GatewayEvents> {
 	public cache;
 	private heartbeatInterval = 41250;
-	protected websocket: WebSocketClient;
+	protected websocket: WebSocket;
 	public user = {} as ClientUser;
 	token = "";
 	public readonly uptime = new Date().getTime();
 	protected start: number = Date.now();
 	protected options;
+	protected cachedInstance = new CacheObject(this)
 	ping = -1;
 	constructor(options: ClientOptions) {
 		super();
 		this.options = options;
 		this.token = options.token;
-		this.websocket = new WebSocketClient(GatewayUrl);
-		this.cache = Cache.cache;
+		this.websocket = new WebSocket(GatewayUrl);
+		this.cache = this.cachedInstance.cache;
 		const payload: GatewayIdentifyData = {
 			token: options.token,
 			intents: options.intents.reduce(
@@ -49,21 +51,20 @@ export class Base extends EventEmitter<GatewayEvents> {
 				$os: Deno.build.os,
 			},
 		};
-		this.websocket.on("open", async () => {
-			await this.websocket.send({
+		this.websocket.onopen = async () => {
+			await this.websocket.send(JSON.stringify({
 				op: GatewayOpcodes.Identify,
 				d: {
 					...payload,
 				},
-			});
-		});
-		this.websocket.on("error", async (e) => {
+			}))
+		}
+		this.websocket.onerror = async (e) => {
 			await this.emit("Error", e);
-		});
-		this.websocket.on<{ op: OPCodes; d: any; t: GatewayDispatchEvents }>(
-			"message",
-			(e) => {
-				const { d, op, t } = e.data;
+		}
+		this.websocket.onmessage =
+			async (e) => {
+				const { d, op, t } = JSON.parse(e.data);
 
 				switch (op) {
 					case OPCodes.HELLO: {
@@ -78,24 +79,15 @@ export class Base extends EventEmitter<GatewayEvents> {
 				}
 				switch (t) {
 					case GatewayDispatchEvents.MessageCreate: {
-						if (d.author.id !== this.user.id) {
-							this.emit("MessageCreate", new Message(d, this));
-						}
-
+						MessageCreateGatewayEventHandler(d, this);
 						break;
 					}
 					case GatewayDispatchEvents.Ready: {
-						this.user = {
-							...d.user,
-							guilds: d.guilds.map(
-								(g: { id: string; unavailable: boolean }) =>
-									g.id
-							),
-						};
+						GatewayReadyEventHandler(d, this);
 						break;
 					}
 					case GatewayDispatchEvents.GuildCreate: {
-						Cache.addGuildToCache(d.id, d);
+						this.cachedInstance.addGuildToCache(d.id, d);
 						this.addChannelsToCache(d.channels);
 						this.addRolesToCache(d.roles);
 						this.addEmojisToCache(d.emojis);
@@ -121,7 +113,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					}
 					case GatewayDispatchEvents.GuildRoleCreate: {
 						if (d.role) {
-							Cache.cache.roles.set(
+							this.cache.roles.set(
 								d.role.id,
 								camelize(d.role) as any
 							);
@@ -129,13 +121,13 @@ export class Base extends EventEmitter<GatewayEvents> {
 						break;
 					}
 					case GatewayDispatchEvents.GuildRoleDelete: {
-						Cache.cache.roles.delete(d.role_id);
+						this.cache.roles.delete(d.role_id);
 						break;
 					}
 					case GatewayDispatchEvents.GuildRoleUpdate: {
 						d.role &&
 							d.role &&
-							Cache.cache.roles.set(
+							this.cache.roles.set(
 								d.role.id,
 								camelize(d.role) as any
 							);
@@ -146,48 +138,53 @@ export class Base extends EventEmitter<GatewayEvents> {
 							"MessageDelete",
 							camelize(d) as Camelize<APIMessage>
 						);
+						break
+					}
+					case GatewayDispatchEvents.ChannelCreate: {
+						channelCreateEventHandler(d, this)
+						break
 					}
 				}
 			}
-		);
-		this.websocket.on("close", (e) => {
+			;
+		this.websocket.onclose = (e) => {
 			new CloseEventHandler(e.code);
-		});
+		};
 	}
 	private sendHeartBeat() {
 		setInterval(() => {
 			this.start = Date.now();
-			this.websocket.send({
+			this.websocket.send(JSON.stringify({
 				op: OPCodes.HEARTBEAT,
 				d: null,
-			});
+			}));
 		}, this.heartbeatInterval);
 	}
 	private addChannelsToCache(channels: APIChannel[]) {
 		Promise.all(
 			channels.map((channel) => {
-				Cache.addChannelToCache(channel.id, channel as any);
+				this.cachedInstance.addChannelToCache(channel.id, channel as any);
 			})
 		);
 	}
 	private addRolesToCache(roles: APIRole[]) {
 		Promise.all(
 			roles.map((role) => {
-				Cache.addRoleToCache(role.id, role as any);
+				this.cachedInstance.addRoleToCache(role.id, role as any);
 			})
 		);
 	}
 	private addEmojisToCache(emojis: APIEmoji[]) {
 		Promise.all(
 			emojis.map((emoji) => {
-				Cache.addEmojiToCache(emoji.id!, emoji as any);
+				this.cachedInstance.addEmojiToCache(emoji.id!, emoji as any);
 			})
 		);
 	}
 	private addUsersToCache(users: APIUser[]) {
 		Promise.all(
 			users.map((user) => {
-				Cache.addUserToCache(user.id, user as any);
+				this.cachedInstance.addUserToCache(user.id, user as any);
 			})
 		);
 	}
