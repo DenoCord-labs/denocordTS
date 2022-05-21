@@ -217,7 +217,7 @@ export const endpoints = {
 		`/guilds/${guildId}/members/search`,
 	addGuildMember: (guildId: Snowflake, userId: Snowflake) =>
 		`/guilds/${guildId}/members/${userId}`,
-	modifyGuilMember: (guildId: Snowflake, userId: Snowflake) =>
+	modifyGuildMember: (guildId: Snowflake, userId: Snowflake) =>
 		`/guilds/${guildId}/members/${userId}`,
 	modifyCurrentMember: (guildId: Snowflake) =>
 		`/guilds/${guildId}/members/@me`,
