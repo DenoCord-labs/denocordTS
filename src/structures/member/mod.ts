@@ -17,7 +17,7 @@ export class GuildMember {
 	roles: APIGuildMember["roles"];
 	user?: User;
 	permission: bigint;
-	createdAt: number;
+	createdAt: string;
 	constructor(
 		private d: any,
 		private client: Base,
@@ -41,7 +41,7 @@ export class GuildMember {
 					BigInt(cachedRole.permissions);
 			}
 		});
-		this.createdAt = DiscordSnowflake.timestampFrom(d.user.id!);
+		this.createdAt = new Date(DiscordSnowflake.timestampFrom(this.d.member.user?.id)).toISOString()
 	}
 	async kick(reason?: string) {
 		let headers: undefined | HeadersInit;
@@ -74,7 +74,7 @@ export class GuildMember {
 		if (this.guildOwner) return true;
 		return (
 			(this.permission & PermissionFlagsBits[permission]) ===
-				PermissionFlagsBits[permission]
+			PermissionFlagsBits[permission]
 		);
 	}
 	async updateNickname(nickname: string, reason?: string) {
