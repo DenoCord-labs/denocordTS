@@ -1,6 +1,6 @@
 import { jsonStringify, parse } from "https://esm.sh/json-big";
 JSON.parse = parse;
-JSON.stringify = jsonStringify as typeof JSON.stringify;
+// JSON.stringify = jsonStringify as typeof JSON.stringify;
 export * from "./src/client/client.ts";
 export {
 	ActivityType,
@@ -11,7 +11,6 @@ export type { APIMessageComponentSelectMenuInteraction } from "./src/types/mod.t
 export {
 	ActionRow,
 	Button,
-	ComponentCollector,
 	Embed,
 	Modal,
 	SelectMenu,
@@ -19,10 +18,8 @@ export {
 	TextInput,
 } from "./src/structures/mod.ts";
 export type {
-	ButtonInteraction,
 	Guild,
 	GuildMember,
-	SelectMenuInteraction,
 	TextChannel,
 	ThreadChannel,
 	User,
