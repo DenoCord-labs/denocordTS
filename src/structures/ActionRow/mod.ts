@@ -1,9 +1,9 @@
 import { Button, SelectMenu } from "../../../mod.ts";
 export class ActionRow {
 	components: (SelectMenu | Button)[] = [];
-	constructor() {}
+	constructor() { }
 	addComponents(...components: (SelectMenu | Button)[]) {
-		components.forEach((component) => {
+		components.map((component) => {
 			this.components.push(component);
 		});
 		return this;
