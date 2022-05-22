@@ -1,15 +1,12 @@
 import {
-	APIChannel,
-	APIEmoji,
 	APIGuild,
-	APIRole,
-	APIUser,
 	cacheFields,
 } from "../types/mod.ts";
 import { Channel, Emoji, Role } from "../types/cache.ts";
-import { Camelize, camelize, Collection } from "../../deps.ts";
+import { Camelize, camelize, Collection, ChannelType } from "../../deps.ts";
 import { Base } from "../client/base.ts";
-import { Guild as GuildClass, User as UserClass } from "../structures/mod.ts";
+import { Guild as GuildClass, User as UserClass, DmChannel, TextChannel, ThreadChannel } from "../structures/mod.ts";
+import { channelCreateEventHandler } from '../events/mod.ts';
 export class CacheObject {
 	cache: cacheFields;
 	constructor(protected client: Base) {
@@ -26,8 +23,8 @@ export class CacheObject {
 	/**
 	 * Add a guild to the cache.
 	 */
-	addGuildToCache(guildId: string, guildPayload: Camelize<APIGuild>) {
-		this.cache.guilds.set(
+	async addGuildToCache(guildId: string, guildPayload: Camelize<APIGuild>) {
+		await this.cache.guilds.set(
 			guildId,
 			new GuildClass(camelize(guildPayload), this.client),
 		);
@@ -44,8 +41,37 @@ export class CacheObject {
 	/**
 	 * Add a channel to the cache.
 	 */
-	addChannelToCache(channelId: string, channel: Channel) {
-		// this.cache.channels.set(channelId, camelize(channel));
+	addChannelToCache(channel: Channel) {
+		switch (channel.type) {
+			case ChannelType.DM: {
+				this.client.cache.channels.set(
+					channel.id as string,
+					new DmChannel(channel, this.client),
+				);
+				break;
+			}
+			case ChannelType.GuildText: {
+				this.client.cache.channels.set(
+					channel.id as string,
+					new TextChannel(channel, this.client),
+				);
+				break;
+			}
+			case ChannelType.GuildPrivateThread: {
+				this.client.cache.channels.set(
+					channel.id as string,
+					new ThreadChannel(channel, this.client),
+				);
+				break;
+			}
+			case ChannelType.GuildPublicThread: {
+				this.client.cache.channels.set(
+					channel.id as string,
+					new ThreadChannel(channel, this.client),
+				);
+				break;
+			}
+		}
 	}
 	/**
 	 * Add an emoji to the cache.
