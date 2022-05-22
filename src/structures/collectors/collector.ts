@@ -1,37 +1,30 @@
-import { Client } from "../../client/client.ts";
-import { ButtonInteraction } from "./classes/Button.ts";
-import { SelectMenuInteraction } from "./classes/SelectMenu.ts";
-import { events } from "../../../deps.ts";
+import { Base } from '../../client/base.ts'
+import { ButtonInteraction, SelectMenuInteraction } from './classes/mod.ts'
+import {
+	EventEmitter, ComponentType,
+	InteractionType, APIMessageComponentSelectMenuInteraction, APIMessageComponentButtonInteraction
+} from '../../../deps.ts'
+
 type CollectorEvents = {
-	buttonInteraction: [interaction: ButtonInteraction];
-	selectMenuInteraction: [interaction: SelectMenuInteraction];
-};
-export class ComponentCollector extends events.EventEmitter<CollectorEvents> {
-	constructor(
-		private client: Client,
-		private channelId: string,
-	) {
-		super();
-		this.client.on("InteractionCreate", async (e: any) => {
-			if (
-				e.type == 3 &&
-				e.channelId == this.channelId &&
-				e.data.component_type == 2
-			) {
-				super.emit(
-					"buttonInteraction",
-					new ButtonInteraction(this.client, this.channelId, e),
-				);
-			} else if (
-				e.type == 3 &&
-				e.channelId == this.channelId &&
-				e.data.component_type == 3
-			) {
-				super.emit(
-					"selectMenuInteraction",
-					new SelectMenuInteraction(this.client, this.channelId, e),
-				);
+	buttonInteraction: (interaction: ButtonInteraction) => unknown
+	selectMenuInteraction: (interaction: SelectMenuInteraction) => unknown
+}
+
+export class ComponentCollector extends EventEmitter<CollectorEvents> {
+	constructor(client: Base, channelId: string) {
+		super()
+		client.on("InteractionCreate", async (e: APIMessageComponentButtonInteraction | APIMessageComponentSelectMenuInteraction) => {
+
+			const { data: { component_type }, channel_id, type } = e
+
+			if (type === InteractionType.MessageComponent && channel_id === channelId, component_type === ComponentType.Button) {
+				const interaction = new ButtonInteraction(client, channelId, e as APIMessageComponentButtonInteraction)
+				this.emit('buttonInteraction', interaction)
 			}
-		});
+			else if (type === InteractionType.MessageComponent && channel_id === channelId, component_type === ComponentType.SelectMenu) {
+				const interaction = new SelectMenuInteraction(client, channelId, e as APIMessageComponentSelectMenuInteraction)
+				this.emit('selectMenuInteraction', interaction)
+			}
+		})
 	}
 }
