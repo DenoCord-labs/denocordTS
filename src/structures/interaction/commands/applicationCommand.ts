@@ -19,15 +19,19 @@ export class ApplicationCommandInteraction extends Interaction {
 	member;
 	guildLocale;
 	locale;
+	channelId
+	type
 	constructor(
 		protected interaction: APIApplicationCommandInteraction,
 		protected token: string,
 		protected client: Base,
 	) {
 		super(interaction, token, client);
+		this.channelId = interaction.channel_id;
 		this.channel = this.client.cache.channels.get(
-			interaction.guild_id ? interaction.channel_id : "",
+			interaction.channel_id ,
 		);
+		this.type = interaction.type
 		this.commandName = interaction.data.name;
 		this.data = interaction.data;
 		this.guildLocale = interaction.guild_locale;
