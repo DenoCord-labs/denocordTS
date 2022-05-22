@@ -8,20 +8,21 @@ import {
 	GatewayIdentifyData,
 	GatewayIntentBits,
 	GatewayOpcodes,
+	ChannelType
 } from "../types/mod.ts";
-import { Camelize, camelize, EventEmitter } from "../../deps.ts";
+import { Camelize, camelize, EventEmitter, parse, stringify } from "../../deps.ts";
 import {
 	APIMessage,
 	ClientOptions,
 	ClientUser,
 	GatewayEvents,
 	OPCodes,
+	APIGuildMember
 } from "../types/mod.ts";
 import { GatewayUrl } from "../constants/mod.ts";
-import { ApplicationCommandInteraction, Message } from "../structures/mod.ts";
+import { ApplicationCommandInteraction, TextChannel, DmChannel, ThreadChannel } from "../structures/mod.ts";
 import { CloseEventHandler } from "../handler/mod.ts";
 import {
-	channelCreateEventHandler,
 	GatewayReadyEventHandler,
 	MessageCreateGatewayEventHandler,
 } from "../events/mod.ts";
@@ -90,26 +91,38 @@ export class Base extends EventEmitter<GatewayEvents> {
 					break;
 				}
 				case GatewayDispatchEvents.GuildCreate: {
-					this.cachedInstance.addGuildToCache(d.id, d);
-					this.addChannelsToCache(d.channels);
-					this.addRolesToCache(d.roles);
-					this.addEmojisToCache(d.emojis);
-					if (this.cache.guilds.size == this.user.guilds.length) {
-						this.emit("Ready", undefined);
+					await this.cachedInstance.addGuildToCache(d.id, d);
+					await this.addRolesToCache(d.roles);
+					await this.addEmojisToCache(d.emojis)
+					await this.addChannelsToCache(d.channels)
+					await this.addUsersToCache(d.members.map((member: APIGuildMember) => member.user));
+					const length = this.cache.guilds.array().length;
+					const guildsLength = parse(stringify(this.user)).guilds.length;
+					if (length === guildsLength) {
+						return this.emit("Ready", undefined);
+					}
+					if (length > guildsLength) {
+						this.emit("GuildCreate", this.cache.guilds.get(d.id)!);
 					}
 					break;
 				}
 				case GatewayDispatchEvents.InteractionCreate: {
-					this.emit(
-						"InteractionCreate",
-						new ApplicationCommandInteraction(
-							d,
-							this.options.token,
-							this,
-						) as any,
-					);
+					console.log(d.type)
+					switch (d.type) {
+						case 3: {
+							this.emit(
+								"InteractionCreate",
+								d
+							);
+							break
+						}
+						case 1: break
+						default: {
+							this.emit("CommandInteraction", new ApplicationCommandInteraction(d, this.options.token, this));
 
-					break;
+							break;
+						}
+					}
 				}
 				case GatewayDispatchEvents.GuildMemberUpdate: {
 					break;
@@ -144,7 +157,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 					break;
 				}
 				case GatewayDispatchEvents.ChannelCreate: {
-					channelCreateEventHandler(d, this);
+					this.addChannelsToCache([d])
 					break;
 				}
 			}
@@ -162,35 +175,63 @@ export class Base extends EventEmitter<GatewayEvents> {
 			}));
 		}, this.heartbeatInterval);
 	}
-	private addChannelsToCache(channels: APIChannel[]) {
-		Promise.all(
-			channels.map((channel) => {
-				this.cachedInstance.addChannelToCache(
-					channel.id,
-					channel as any,
-				);
-			}),
-		);
-	}
-	private addRolesToCache(roles: APIRole[]) {
-		Promise.all(
-			roles.map((role) => {
+
+	private async addRolesToCache(roles: APIRole[]) {
+		await Promise.all(
+			roles.map(async (role) => {
 				this.cachedInstance.addRoleToCache(role.id, role as any);
 			}),
 		);
 	}
-	private addEmojisToCache(emojis: APIEmoji[]) {
-		Promise.all(
+	private async addEmojisToCache(emojis: APIEmoji[]) {
+		await Promise.all(
 			emojis.map((emoji) => {
 				this.cachedInstance.addEmojiToCache(emoji.id!, emoji as any);
 			}),
 		);
 	}
-	private addUsersToCache(users: APIUser[]) {
-		Promise.all(
+	private async addUsersToCache(users: APIUser[]) {
+		await Promise.all(
 			users.map((user) => {
 				this.cachedInstance.addUserToCache(user.id, user as any);
 			}),
 		);
+	}
+	private async addChannelsToCache(channels: APIChannel[]) {
+		Deno.writeTextFileSync("channelsGateway.json", JSON.stringify(channels));
+		for (let index = channels.length - 1; index >= 0; index--) {
+			const channelPayload = channels[index]
+			switch (channelPayload.type) {
+				case ChannelType.DM: {
+					await this.cache.channels.set(
+						channelPayload.id as string,
+						new DmChannel(channelPayload, this),
+					);
+					break;
+				}
+				case ChannelType.GuildText: {
+					await this.cache.channels.set(
+						channelPayload.id as string,
+						new TextChannel(channelPayload, this),
+					);
+					break;
+				}
+				case ChannelType.GuildPrivateThread: {
+					await this.cache.channels.set(
+						channelPayload.id as string,
+						new ThreadChannel(channelPayload, this),
+					);
+					break;
+				}
+				case ChannelType.GuildPublicThread: {
+					await this.cache.channels.set(
+						channelPayload.id as string,
+						new ThreadChannel(channelPayload, this),
+					);
+					break;
+				}
+			}
+
+		}
 	}
 }
