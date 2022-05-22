@@ -1,10 +1,10 @@
 import { BaseComponent } from "./base.ts";
-import { Client } from "../../../client/client.ts";
+import { Base } from "../../../client/base.ts";
 import { APIMessageComponentSelectMenuInteraction } from "../../../types/mod.ts";
 export class SelectMenuInteraction extends BaseComponent {
 	values: string[] = [];
 	constructor(
-		public client: Client,
+		public client: Base,
 		public channelId: string,
 		d: APIMessageComponentSelectMenuInteraction,
 	) {
