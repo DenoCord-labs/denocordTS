@@ -9,6 +9,7 @@ import {
 } from "../../http/endpoints.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
 import { RestClient } from "../../http/mod.ts";
+import { ComponentCollector } from '../collectors/mod.ts'
 export class BaseChannel implements APIPartialChannel {
 	id: APIPartialChannel["id"];
 	type: APIPartialChannel["type"];
@@ -112,5 +113,8 @@ export class BaseChannel implements APIPartialChannel {
 		const headers = new Headers();
 		if (reason) headers.append("X-Audit-Log-Reason", reason);
 		await unpinMessage(this.id, messageId, headers);
+	}
+	createMessageComponentsCollector() {
+		return new ComponentCollector(this.client, this.id)
 	}
 }
