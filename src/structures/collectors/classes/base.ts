@@ -18,6 +18,7 @@ export class BaseComponent {
 	public readonly id!: APIMessageComponentButtonInteraction["id"];
 	public readonly guildId?: APIMessageComponentButtonInteraction["guild_id"];
 	public data!: {};
+	public customId: string
 	public readonly clientId!:
 		APIMessageComponentButtonInteraction["application_id"];
 	protected restClient = new RestClient();
@@ -33,6 +34,7 @@ export class BaseComponent {
 		this.guildId = this.d.guild_id;
 		this.data = this.d.data;
 		this.clientId = this.d.application_id;
+		this.customId = this.d.data.custom_id;
 	}
 	public async deferReply(ephemeral?: boolean) {
 		this.deferred = true;
@@ -70,8 +72,7 @@ export class BaseComponent {
 			throw new Error(Messages.INTERACTION_NOT_REPLIED);
 		}
 		await this.restClient.request(
-			`/webhooks/${this.d!.application_id}/${
-				this.d!.token
+			`/webhooks/${this.d!.application_id}/${this.d!.token
 			}/messages/@original`,
 			"PATCH",
 			{
@@ -85,8 +86,7 @@ export class BaseComponent {
 			throw new Error(Messages.INTERACTION_NOT_REPLIED);
 		}
 		const res = await this.restClient.request(
-			`/webhooks/${this.d!.application_id}/${
-				this.d!.token
+			`/webhooks/${this.d!.application_id}/${this.d!.token
 			}/messages/@original`,
 			"GET",
 		);
@@ -97,8 +97,7 @@ export class BaseComponent {
 			throw new Error(Messages.INTERACTION_NOT_REPLIED);
 		}
 		await this.restClient.request(
-			`/webhooks/${this.d!.application_id}/${
-				this.d!.token
+			`/webhooks/${this.d!.application_id}/${this.d!.token
 			}/messages/@original`,
 			"DELETE",
 		);
