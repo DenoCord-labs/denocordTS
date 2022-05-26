@@ -5,5 +5,8 @@
 	"editor.defaultFormatter": "denoland.vscode-deno",
 	"[typescript]": {
 		"editor.defaultFormatter": "vscode.typescript-language-features"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	}
 }

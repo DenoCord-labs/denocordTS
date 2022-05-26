@@ -27,4 +27,3 @@ export type {
 } from "./src/structures/mod.ts";
 export { parseEmojiForComponents } from "./src/utils/mod.ts";
 export * from "./src/helpers/mod.ts";
-export * as emojis from "https://deno.land/x/discord_emoji@v2.0.5/mod.ts";

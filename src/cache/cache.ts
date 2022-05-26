@@ -31,7 +31,7 @@ export class CacheObject {
   async addGuildToCache(guildId: string, guildPayload: Camelize<APIGuild>) {
     await this.cache.guilds.set(
       guildId,
-      new GuildClass(camelize(guildPayload), this.client),
+      new GuildClass(guildPayload, this.client),
     );
   }
   /**
@@ -40,7 +40,7 @@ export class CacheObject {
   addUserToCache(userId: string, userPayload: Camelize<UserClass>) {
     this.cache.users.set(
       userId,
-      new UserClass(camelize(userPayload), this.client),
+      new UserClass(userPayload, this.client),
     );
   }
   /**

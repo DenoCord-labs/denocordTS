@@ -37,8 +37,10 @@ import {
   TextChannel,
   ThreadChannel,
   User,
+  GuildNewsChannel,
+  GuildCategory
 } from "../structures/mod.ts";
-import { CloseEventHandler } from "../handler/mod.ts";
+import { handleCloseEventMessage } from "../handler/mod.ts";
 import {
   GatewayReadyEventHandler,
   MessageCreateGatewayEventHandler,
@@ -111,7 +113,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           await this.cachedInstance.addGuildToCache(d.id, d);
           await this.addRolesToCache(d.roles, this.cache.guilds.get(d.id)!);
           await this.addEmojisToCache(d.emojis, d.id);
-          this.addChannelsToCache(d.channels);
+          await this.addChannelsToCache(d.channels);
           await this.addUsersToCache(
             d.members.map((member: APIGuildMember) => member.user),
           );
@@ -123,6 +125,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           );
           const length = this.cache.guilds.array().length;
           const guildsLength = parse(stringify(this.user)).guilds.length;
+
           if (length === guildsLength) {
             return this.emit("Ready", undefined);
           }
@@ -132,7 +135,6 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.InteractionCreate: {
-          Deno.writeTextFileSync("interaction.json", JSON.stringify(d));
           console.log("interaction");
           switch (d.type) {
             case 3: {
@@ -149,14 +151,14 @@ export class Base extends EventEmitter<GatewayEvents> {
                 "CommandInteraction",
                 new ApplicationCommandInteraction(d, this.options.token, this),
               );
-              break;
             }
           }
+          break;
         }
         case GatewayDispatchEvents.GuildMemberUpdate: {
           const owner =
             this.cache.guilds.get(d.guild_id)?.ownerId === d.user.id;
-          const member = new GuildMember(d, this, owner);
+          const member = new GuildMember({ member: d }, this, owner);
           this.emit("GuildMemberUpdate", member);
           break;
         }
@@ -190,29 +192,35 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.ChannelCreate: {
-          const channel = this.addChannelsToCache([d]);
+          const channel = await this.addChannelsToCache([d]);
           this.emit("ChannelCreate", channel);
           break;
         }
         case GatewayDispatchEvents.ChannelUpdate: {
-          const channel = this.addChannelsToCache([d]);
+          const channel = await this.addChannelsToCache([d]);
           this.emit("ChannelUpdate", channel);
+          break
         }
         case GatewayDispatchEvents.ChannelDelete: {
           const channel = this.cache.channels.get(d.id);
           this.cache.channels.delete(d.id);
           this.emit("ChannelDelete", channel);
+          break
         }
         case GatewayDispatchEvents.ChannelPinsUpdate: {
           this.emit(
             "ChannelPinsUpdate",
             camelize(d) as Camelize<GatewayChannelPinsUpdateDispatchData>,
+
           );
+          break
+
         }
         case GatewayDispatchEvents.ThreadCreate: {
           const thread = new ThreadChannel(d, this);
           this.emit("ThreadCreate", thread);
         }
+          break
         case GatewayDispatchEvents.ThreadUpdate: {
           const thread = this.cache.channels.get(d.channel_id) as ThreadChannel;
           this.cache.channels.set(d.channel_id, thread);
@@ -221,7 +229,7 @@ export class Base extends EventEmitter<GatewayEvents> {
       }
     };
     this.websocket.onclose = (e) => {
-      new CloseEventHandler(e.code);
+      handleCloseEventMessage(e.code)
     };
   }
   private sendHeartBeat() {
@@ -236,7 +244,7 @@ export class Base extends EventEmitter<GatewayEvents> {
 
   private async addRolesToCache(roles: APIRole[], guild: Guild) {
     await Promise.all(
-      roles.map(async (role) => {
+      roles.map((role) => {
         this.cachedInstance.addRoleToCache(role.id, new Role(role, guild));
       }),
     );
@@ -259,39 +267,47 @@ export class Base extends EventEmitter<GatewayEvents> {
     );
   }
   private addChannelsToCache(channels: APIChannel[]) {
-    for (let index = channels.length - 1; index >= 0; index--) {
-      const channelPayload = channels[index];
+    let channelValue: DmChannel | TextChannel | ThreadChannel
+    channels.map(channelPayload => {
       switch (channelPayload.type) {
         case ChannelType.DM: {
+          const channel = new DmChannel(channelPayload, this)
           this.cache.channels.set(
             channelPayload.id as string,
-            new DmChannel(channelPayload, this),
+            channel
           );
+          channelValue = channel
           break;
         }
         case ChannelType.GuildText: {
+          const channel = new TextChannel(channelPayload, this)
           this.cache.channels.set(
             channelPayload.id as string,
-            new TextChannel(channelPayload, this),
+            channel
           );
+          channelValue = channel
           break;
         }
         case ChannelType.GuildPrivateThread: {
+          const channel = new ThreadChannel(channelPayload, this)
           this.cache.channels.set(
             channelPayload.id as string,
-            new ThreadChannel(channelPayload, this),
+            channel
           );
+          channelValue = channel
           break;
         }
         case ChannelType.GuildPublicThread: {
+          const channel = new ThreadChannel(channelPayload, this)
           this.cache.channels.set(
             channelPayload.id as string,
-            new ThreadChannel(channelPayload, this),
+            channel
           );
+          channelValue = channel
           break;
         }
       }
-      return this.cache.channels.get(channelPayload.id);
-    }
+    })
+    return channelValue!
   }
 }

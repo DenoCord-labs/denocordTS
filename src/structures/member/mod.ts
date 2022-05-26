@@ -1,7 +1,6 @@
 import { APIGuildMember, PermissionFlagsBits } from "../../types/mod.ts";
 import { Base } from "../../client/base.ts";
 import { RestClient } from "../../http/rest.ts";
-import { DiscordSnowflake } from "../../../deps.ts";
 import { User } from "../mod.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
 export class GuildMember {
