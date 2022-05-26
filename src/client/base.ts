@@ -31,14 +31,14 @@ import {
   ApplicationCommandInteraction,
   DmChannel,
   Guild,
+  GuildCategory,
   GuildEmoji,
   GuildMember,
+  GuildNewsChannel,
   Role,
   TextChannel,
   ThreadChannel,
   User,
-  GuildNewsChannel,
-  GuildCategory
 } from "../structures/mod.ts";
 import { handleCloseEventMessage } from "../handler/mod.ts";
 import {
@@ -199,28 +199,27 @@ export class Base extends EventEmitter<GatewayEvents> {
         case GatewayDispatchEvents.ChannelUpdate: {
           const channel = await this.addChannelsToCache([d]);
           this.emit("ChannelUpdate", channel);
-          break
+          break;
         }
         case GatewayDispatchEvents.ChannelDelete: {
           const channel = this.cache.channels.get(d.id);
           this.cache.channels.delete(d.id);
           this.emit("ChannelDelete", channel);
-          break
+          break;
         }
         case GatewayDispatchEvents.ChannelPinsUpdate: {
           this.emit(
             "ChannelPinsUpdate",
             camelize(d) as Camelize<GatewayChannelPinsUpdateDispatchData>,
-
           );
-          break
-
+          break;
         }
-        case GatewayDispatchEvents.ThreadCreate: {
-          const thread = new ThreadChannel(d, this);
-          this.emit("ThreadCreate", thread);
-        }
-          break
+        case GatewayDispatchEvents.ThreadCreate:
+          {
+            const thread = new ThreadChannel(d, this);
+            this.emit("ThreadCreate", thread);
+          }
+          break;
         case GatewayDispatchEvents.ThreadUpdate: {
           const thread = this.cache.channels.get(d.channel_id) as ThreadChannel;
           this.cache.channels.set(d.channel_id, thread);
@@ -229,7 +228,7 @@ export class Base extends EventEmitter<GatewayEvents> {
       }
     };
     this.websocket.onclose = (e) => {
-      handleCloseEventMessage(e.code)
+      handleCloseEventMessage(e.code);
     };
   }
   private sendHeartBeat() {
@@ -267,47 +266,47 @@ export class Base extends EventEmitter<GatewayEvents> {
     );
   }
   private addChannelsToCache(channels: APIChannel[]) {
-    let channelValue: DmChannel | TextChannel | ThreadChannel
-    channels.map(channelPayload => {
+    let channelValue: DmChannel | TextChannel | ThreadChannel;
+    channels.map((channelPayload) => {
       switch (channelPayload.type) {
         case ChannelType.DM: {
-          const channel = new DmChannel(channelPayload, this)
+          const channel = new DmChannel(channelPayload, this);
           this.cache.channels.set(
             channelPayload.id as string,
-            channel
+            channel,
           );
-          channelValue = channel
+          channelValue = channel;
           break;
         }
         case ChannelType.GuildText: {
-          const channel = new TextChannel(channelPayload, this)
+          const channel = new TextChannel(channelPayload, this);
           this.cache.channels.set(
             channelPayload.id as string,
-            channel
+            channel,
           );
-          channelValue = channel
+          channelValue = channel;
           break;
         }
         case ChannelType.GuildPrivateThread: {
-          const channel = new ThreadChannel(channelPayload, this)
+          const channel = new ThreadChannel(channelPayload, this);
           this.cache.channels.set(
             channelPayload.id as string,
-            channel
+            channel,
           );
-          channelValue = channel
+          channelValue = channel;
           break;
         }
         case ChannelType.GuildPublicThread: {
-          const channel = new ThreadChannel(channelPayload, this)
+          const channel = new ThreadChannel(channelPayload, this);
           this.cache.channels.set(
             channelPayload.id as string,
-            channel
+            channel,
           );
-          channelValue = channel
+          channelValue = channel;
           break;
         }
       }
-    })
-    return channelValue!
+    });
+    return channelValue!;
   }
 }

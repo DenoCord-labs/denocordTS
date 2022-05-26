@@ -1,8 +1,8 @@
 import {
   APIButtonComponent,
   APIButtonComponentWithCustomId,
-  APIMessageComponentEmoji,
   APIButtonComponentWithURL,
+  APIMessageComponentEmoji,
   ButtonStyle,
 } from "../../types/mod.ts";
 import { BaseComponent } from "./base.ts";
@@ -33,7 +33,7 @@ export class Button extends BaseComponent {
   }
   setUrl(url: string) {
     if (!url.startsWith("http://") || !url.startsWith("https://")) {
-      (this.button as APIButtonComponentWithURL).url = url
+      (this.button as APIButtonComponentWithURL).url = url;
     }
   }
   toJSON() {
