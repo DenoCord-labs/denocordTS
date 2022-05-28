@@ -5,6 +5,7 @@ import { ClientMessage } from "./mod.ts";
 import { parseEmoji } from "../../utils/mod.ts";
 import { Base } from "../../client/base.ts";
 import { Guild, GuildMember, User } from "../mod.ts";
+import { DiscordSnowflake } from '../../../deps.ts'
 import {
   addReaction,
   createMessage,
@@ -200,8 +201,14 @@ export class BaseMessage {
    * See https://discord.com/developers/docs/resources/sticker#sticker-item-object
    */
   stickerItems?: APIMessage["sticker_items"];
-
+  /**
+   * The Guild Where Message is created.
+   */
   guild?: Guild;
+  /**
+   * Time in Milliseconds at which this message was created.
+   */
+  createdAt:number
   constructor(public d: APIMessage, private client: Base) {
     this.id = d.id;
     this.channelId = d.channel_id;
@@ -234,13 +241,14 @@ export class BaseMessage {
     this.mentionEveryone = d.mention_everyone;
     const isServerOwner =
       this.client.cache.guilds.get(this.d.guild_id || "")?.ownerId ===
-        this.author.id;
+      this.author.id;
     this.member = d.member
       ? new GuildMember(d, this.client, isServerOwner)
       : undefined;
     this.guild = this.guildId
       ? this.client.cache.guilds.get(this.guildId)!
       : undefined;
+    this.createdAt = DiscordSnowflake.timestampFrom(this.id)
   }
   async reply(payload: ReplyPayload & { ping?: boolean; inline?: boolean }) {
     this.checks(payload);
