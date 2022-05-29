@@ -4,32 +4,32 @@ import { Camelize, camelize, ChannelType, Collection } from "../../deps.ts";
 import { Base } from "../client/base.ts";
 import {
   DmChannel,
+  Guild,
   Guild as GuildClass,
   GuildEmoji,
+  GuildMember,
   Role,
   TextChannel,
   ThreadChannel,
+  User,
   User as UserClass,
 } from "../structures/mod.ts";
 import { channelCreateEventHandler } from "../events/mod.ts";
-export class CacheObject {
-  cache: cacheFields;
+export class Cache {
+  channels = new Collection<string, Channel>()
+  emojis = new Collection<string, Emoji>()
+  guilds = new Collection<string, Guild>()
+  users = new Collection<string, User>()
+  roles = new Collection<string, Role>()
+  members = new Collection<string, GuildMember>()
   constructor(protected client: Base) {
-    this.cache = {
-      channels: new Collection(),
-      emojis: new Collection(),
-      guilds: new Collection(),
-      users: new Collection(),
-      roles: new Collection(),
-      members: new Collection(),
-    };
   }
 
   /**
    * Add a guild to the cache.
    */
-  async addGuildToCache(guildId: string, guildPayload: Camelize<APIGuild>) {
-    await this.cache.guilds.set(
+  addGuildToCache(guildId: string, guildPayload: Camelize<APIGuild>) {
+    this.guilds.set(
       guildId,
       new GuildClass(guildPayload, this.client),
     );
@@ -38,7 +38,7 @@ export class CacheObject {
    * Add a User to the cache.
    */
   addUserToCache(userId: string, userPayload: Camelize<UserClass>) {
-    this.cache.users.set(
+    this.users.set(
       userId,
       new UserClass(userPayload, this.client),
     );
@@ -82,27 +82,27 @@ export class CacheObject {
    * Add an emoji to the cache.
    */
   addEmojiToCache(emojiId: string, emoji: GuildEmoji) {
-    this.cache.emojis.set(emojiId, emoji);
+    this.emojis.set(emojiId, emoji);
   }
   /**
    * Add a role to the cache.
    */
   addRoleToCache(roleId: string, role: Role) {
-    this.cache.roles.set(roleId, role);
+    this.roles.set(roleId, role);
   }
   public getGuild(guildId: string) {
-    return this.cache.guilds.get(guildId);
+    return this.guilds.get(guildId);
   }
   public getChannel(channelId: string) {
-    return this.cache.channels.get(channelId);
+    return this.channels.get(channelId);
   }
   public getUser(userId: string) {
-    return this.cache.users.get(userId);
+    return this.users.get(userId);
   }
   public getEmoji(emojiId: string) {
-    return this.cache.emojis.get(emojiId);
+    return this.emojis.get(emojiId);
   }
   public getRole(roleId: string) {
-    return this.cache.roles.get(roleId);
+    return this.roles.get(roleId);
   }
 }

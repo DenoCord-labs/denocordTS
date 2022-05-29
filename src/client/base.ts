@@ -1,9 +1,10 @@
-import { CacheObject } from "../cache/mod.ts";
+import { Cache } from "../cache/mod.ts";
 import {
   APIChannel,
   APIEmoji,
   APIRole,
   APIUser,
+  Channel,
   ChannelType,
   GatewayChannelPinsUpdateDispatchData,
   GatewayDispatchEvents,
@@ -35,6 +36,7 @@ import {
   GuildEmoji,
   GuildMember,
   GuildNewsChannel,
+  Message,
   Role,
   TextChannel,
   ThreadChannel,
@@ -47,7 +49,6 @@ import {
 } from "../events/mod.ts";
 
 export class Base extends EventEmitter<GatewayEvents> {
-  public cache;
   private heartbeatInterval = 41250;
   protected websocket: WebSocket;
   public user = {} as ClientUser;
@@ -55,14 +56,13 @@ export class Base extends EventEmitter<GatewayEvents> {
   public readonly uptime = new Date().getTime();
   protected start: number = Date.now();
   protected options;
-  protected cachedInstance = new CacheObject(this);
+  cache = new Cache(this);
   ping = -1;
   constructor(options: ClientOptions) {
     super();
     this.options = options;
     this.token = options.token;
     this.websocket = new WebSocket(GatewayUrl);
-    this.cache = this.cachedInstance.cache;
     const payload: GatewayIdentifyData = {
       token: options.token,
       intents: options.intents.reduce(
@@ -110,7 +110,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.GuildCreate: {
-          await this.cachedInstance.addGuildToCache(d.id, d);
+          await this.cache.addGuildToCache(d.id, d);
           await this.addRolesToCache(d.roles, this.cache.guilds.get(d.id)!);
           await this.addEmojisToCache(d.emojis, d.id);
           await this.addChannelsToCache(d.channels);
@@ -135,7 +135,6 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.InteractionCreate: {
-          console.log("interaction");
           switch (d.type) {
             case 3: {
               this.emit(
@@ -187,22 +186,27 @@ export class Base extends EventEmitter<GatewayEvents> {
         case GatewayDispatchEvents.MessageDelete: {
           this.emit(
             "MessageDelete",
-            camelize(d) as Camelize<APIMessage>,
+            new Message(d, this),
           );
           break;
         }
+        case GatewayDispatchEvents.MessageUpdate: {
+          this.emit("MessageUpdate", new Message(d, this));
+          break
+        }
         case GatewayDispatchEvents.ChannelCreate: {
-          const channel = await this.addChannelsToCache([d]);
+          const channel = this.addChannelsToCache([d]);
           this.emit("ChannelCreate", channel);
           break;
         }
         case GatewayDispatchEvents.ChannelUpdate: {
-          const channel = await this.addChannelsToCache([d]);
-          this.emit("ChannelUpdate", channel);
+          const oldChannel = this.cache.getChannel(d.id);
+          const newChannel = this.addChannelsToCache([d]);
+          this.emit("ChannelUpdate", { oldChannel, newChannel });
           break;
         }
         case GatewayDispatchEvents.ChannelDelete: {
-          const channel = this.cache.channels.get(d.id);
+          const channel = this.cache.channels.get(d.id) ?? this.addChannelsToCache([d]);
           this.cache.channels.delete(d.id);
           this.emit("ChannelDelete", channel);
           break;
@@ -221,9 +225,16 @@ export class Base extends EventEmitter<GatewayEvents> {
           }
           break;
         case GatewayDispatchEvents.ThreadUpdate: {
-          const thread = this.cache.channels.get(d.channel_id) as ThreadChannel;
-          this.cache.channels.set(d.channel_id, thread);
-          this.emit("ThreadUpdate", thread);
+          const oldThread = this.cache.channels.get(d.channel_id) as ThreadChannel;
+          const newThread = this.addChannelsToCache([d]);
+          this.emit("ThreadUpdate", { oldThread, newThread });
+          break;
+        }
+        case GatewayDispatchEvents.ThreadDelete: {
+          const thread = this.cache.channels.get(d.id) ?? this.addChannelsToCache([d]);
+          this.cache.channels.delete(d.id);
+          this.emit("ChannelDelete", thread);
+          break;
         }
       }
     };
@@ -244,14 +255,14 @@ export class Base extends EventEmitter<GatewayEvents> {
   private async addRolesToCache(roles: APIRole[], guild: Guild) {
     await Promise.all(
       roles.map((role) => {
-        this.cachedInstance.addRoleToCache(role.id, new Role(role, guild));
+        this.cache.addRoleToCache(role.id, new Role(role, guild));
       }),
     );
   }
   private async addEmojisToCache(emojis: APIEmoji[], guildId: string) {
     await Promise.all(
       emojis.map((emoji) => {
-        this.cachedInstance.addEmojiToCache(
+        this.cache.addEmojiToCache(
           emoji.id!,
           new GuildEmoji(emoji as any, this, guildId),
         );
@@ -261,7 +272,7 @@ export class Base extends EventEmitter<GatewayEvents> {
   private async addUsersToCache(users: APIUser[]) {
     await Promise.all(
       users.map((user) => {
-        this.cachedInstance.addUserToCache(user.id, new User(user, this));
+        this.cache.addUserToCache(user.id, new User(user, this));
       }),
     );
   }

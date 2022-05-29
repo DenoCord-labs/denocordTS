@@ -4,6 +4,7 @@ import {
   APIMessage,
   APIMessageComponentButtonInteraction,
   APIMessageComponentSelectMenuInteraction,
+  Channel,
   GatewayChannelPinsUpdateDispatchData,
   GatewayGuildDeleteDispatchData,
 } from "./mod.ts";
@@ -12,6 +13,7 @@ import {
   DmChannel,
   Guild,
   GuildMember,
+  Message,
   Role,
   TextChannel,
   ThreadChannel,
@@ -19,19 +21,18 @@ import {
 
 import { Camelize } from "../../deps.ts";
 
-export type Message = Camelize<APIMessage>;
 export type GatewayEvents = {
   ChannelCreate: (
-    e: DmChannel | TextChannel | ThreadChannel | undefined,
+    e: Channel,
   ) => unknown;
   ChannelDelete: (
-    e: DmChannel | TextChannel | ThreadChannel | undefined,
+    e: Channel,
   ) => unknown;
   ChannelPinsUpdate: (
     e: Camelize<GatewayChannelPinsUpdateDispatchData>,
   ) => unknown;
   ChannelUpdate: (
-    e: DmChannel | TextChannel | ThreadChannel | undefined,
+    e: { oldChannel: Channel | undefined, newChannel: Channel },
   ) => unknown;
   GuildBanAdd: (e: unknown) => unknown;
   GuildBanRemove: (e: unknown) => unknown;
@@ -58,7 +59,7 @@ export type GatewayEvents = {
   ) => unknown;
   GuildRoleUpdate: (e: Role) => unknown;
   GuildStickersUpdate: (e: unknown) => unknown;
-  GuildUpdate: (e: unknown) => unknown;
+  GuildUpdate: (e: { newGuild: Guild, oldGuild: Guild }) => unknown;
   IntegrationCreate: (e: unknown) => unknown;
   IntegrationDelete: (e: unknown) => unknown;
   IntegrationUpdate: (e: unknown) => unknown;
@@ -87,7 +88,7 @@ export type GatewayEvents = {
   ThreadListSync: (e: unknown) => unknown;
   ThreadMembersUpdate: (e: unknown) => unknown;
   ThreadMemberUpdate: (e: unknown) => unknown;
-  ThreadUpdate: (e: ThreadChannel) => unknown;
+  ThreadUpdate: (e: { oldThread: ThreadChannel, newThread: ThreadChannel }) => unknown;
   TypingStart: (e: unknown) => unknown;
   UserUpdate: (e: unknown) => unknown;
   VoiceServerUpdate: (e: unknown) => unknown;
