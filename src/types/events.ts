@@ -72,7 +72,20 @@ export type GatewayEvents = {
   InviteDelete: (e: unknown) => unknown;
   MessageCreate: (e: ClientMessage | BaseMessage) => unknown;
   MessageDelete: (e: Message) => unknown;
-  MessageDeleteBulk: (e: unknown) => unknown;
+  MessageDeleteBulk: (e: {
+    /**
+     * The Guild Id where Messages we're deleted
+     */
+    guildId: string
+    /**
+     * The Channel Id where Messages we're deleted
+     */
+    channelId: string
+    /**
+     * An Array of Message Id's
+     */
+    ids: string[],
+  }) => unknown;
   MessageReactionAdd: (e: unknown) => unknown;
   MessageReactionRemove: (e: unknown) => unknown;
   MessageReactionRemoveAll: (e: unknown) => unknown;

@@ -236,6 +236,14 @@ export class Base extends EventEmitter<GatewayEvents> {
           this.emit("ChannelDelete", thread);
           break;
         }
+        case GatewayDispatchEvents.MessageDeleteBulk: {
+          this.emit("MessageDeleteBulk", {
+            channelId: d.channel_id,
+            guildId: d.guild_id,
+            ids: d.ids
+          })
+          break;
+        }
       }
     };
     this.websocket.onclose = (e) => {
