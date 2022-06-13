@@ -208,12 +208,12 @@ export class BaseMessage {
   /**
    * Time in Milliseconds at which this message was created.
    */
-  createdAt:number
+  createdAt: number
   constructor(public d: APIMessage, private client: Base) {
     this.id = d.id;
     this.channelId = d.channel_id;
     this.guildId = d.guild_id;
-    this.author = new User(d.author, this.client);
+    this.author = d.author && new User(d.author, this.client);
     this.content = d.content;
     this.timestamp = d.timestamp;
     this.editedTimestamp = d.edited_timestamp;
