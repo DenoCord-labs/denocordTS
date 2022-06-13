@@ -4,13 +4,17 @@ import {
   APIEmoji,
   APIRole,
   APIUser,
-  Channel,
   ChannelType,
   GatewayChannelPinsUpdateDispatchData,
   GatewayDispatchEvents,
   GatewayIdentifyData,
   GatewayIntentBits,
   GatewayOpcodes,
+  APIGuildMember,
+  ClientOptions,
+  ClientUser,
+  GatewayEvents,
+  OPCodes,
 } from "../types/mod.ts";
 import {
   Camelize,
@@ -19,23 +23,13 @@ import {
   parse,
   stringify,
 } from "../../deps.ts";
-import {
-  APIGuildMember,
-  APIMessage,
-  ClientOptions,
-  ClientUser,
-  GatewayEvents,
-  OPCodes,
-} from "../types/mod.ts";
 import { GatewayUrl } from "../constants/mod.ts";
 import {
   ApplicationCommandInteraction,
   DmChannel,
   Guild,
-  GuildCategory,
   GuildEmoji,
   GuildMember,
-  GuildNewsChannel,
   Message,
   Role,
   TextChannel,
@@ -186,7 +180,11 @@ export class Base extends EventEmitter<GatewayEvents> {
         case GatewayDispatchEvents.MessageDelete: {
           this.emit(
             "MessageDelete",
-            new Message(d, this),
+            {
+              id: d.id,
+              channelId: d.channelId,
+              guildId: d.guildId
+            }
           );
           break;
         }
@@ -272,7 +270,7 @@ export class Base extends EventEmitter<GatewayEvents> {
       emojis.map((emoji) => {
         this.cache.addEmojiToCache(
           emoji.id!,
-          new GuildEmoji(emoji as any, this, guildId),
+          new GuildEmoji(emoji, this, guildId),
         );
       }),
     );

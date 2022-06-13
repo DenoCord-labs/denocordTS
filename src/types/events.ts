@@ -1,7 +1,6 @@
 import { ClientMessage } from "../structures/messages/mod.ts";
 import { BaseMessage } from "../structures/messages/Base.ts";
 import {
-  APIMessage,
   APIMessageComponentButtonInteraction,
   APIMessageComponentSelectMenuInteraction,
   Channel,
@@ -10,12 +9,9 @@ import {
 } from "./mod.ts";
 import {
   ApplicationCommandInteraction,
-  DmChannel,
   Guild,
   GuildMember,
-  Message,
   Role,
-  TextChannel,
   ThreadChannel,
 } from "../structures/mod.ts";
 
@@ -71,7 +67,20 @@ export type GatewayEvents = {
   InviteCreate: (e: unknown) => unknown;
   InviteDelete: (e: unknown) => unknown;
   MessageCreate: (e: ClientMessage | BaseMessage) => unknown;
-  MessageDelete: (e: Message) => unknown;
+  MessageDelete: (e: {
+    /**
+     * The Guild Id where Messages we're deleted
+     */
+    guildId?: string
+    /**
+     * The Channel Id where Messages we're deleted
+     */
+    channelId: string
+    /**
+     * An Array of Message Id's
+     */
+    id: string,
+  }) => unknown;
   MessageDeleteBulk: (e: {
     /**
      * The Guild Id where Messages we're deleted
