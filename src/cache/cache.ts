@@ -16,12 +16,12 @@ import {
 } from "../structures/mod.ts";
 import { channelCreateEventHandler } from "../events/mod.ts";
 export class Cache {
-  channels = new Collection<string, Channel>()
-  emojis = new Collection<string, Emoji>()
-  guilds = new Collection<string, Guild>()
-  users = new Collection<string, User>()
-  roles = new Collection<string, Role>()
-  members = new Collection<string, GuildMember>()
+  channels = new Collection<string, Channel>();
+  emojis = new Collection<string, Emoji>();
+  guilds = new Collection<string, Guild>();
+  users = new Collection<string, User>();
+  roles = new Collection<string, Role>();
+  members = new Collection<string, GuildMember>();
   constructor(protected client: Base) {
   }
 

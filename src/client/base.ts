@@ -2,18 +2,24 @@ import { Cache } from "../cache/mod.ts";
 import {
   APIChannel,
   APIEmoji,
+  APIGuildMember,
   APIRole,
   APIUser,
   ChannelType,
-  GatewayChannelPinsUpdateDispatchData,
-  GatewayDispatchEvents,
-  GatewayIdentifyData,
-  GatewayIntentBits,
-  GatewayOpcodes,
-  APIGuildMember,
   ClientOptions,
   ClientUser,
+  GatewayChannelPinsUpdateDispatchData,
+  GatewayDispatchEvents,
   GatewayEvents,
+  GatewayGuildBanAddDispatchData,
+  GatewayGuildBanRemoveDispatchData,
+  GatewayIdentifyData,
+  GatewayIntentBits,
+  GatewayInviteCreateDispatchData,
+  GatewayInviteDeleteDispatchData,
+  GatewayOpcodes,
+  GatewayPresenceUpdateDispatchData,
+  GatewayTypingStartDispatchData,
   OPCodes,
 } from "../types/mod.ts";
 import {
@@ -183,14 +189,14 @@ export class Base extends EventEmitter<GatewayEvents> {
             {
               id: d.id,
               channelId: d.channelId,
-              guildId: d.guildId
-            }
+              guildId: d.guildId,
+            },
           );
           break;
         }
         case GatewayDispatchEvents.MessageUpdate: {
           this.emit("MessageUpdate", new Message(d, this));
-          break
+          break;
         }
         case GatewayDispatchEvents.ChannelCreate: {
           const channel = this.addChannelsToCache([d]);
@@ -204,7 +210,8 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.ChannelDelete: {
-          const channel = this.cache.channels.get(d.id) ?? this.addChannelsToCache([d]);
+          const channel = this.cache.channels.get(d.id) ??
+            this.addChannelsToCache([d]);
           this.cache.channels.delete(d.id);
           this.emit("ChannelDelete", channel);
           break;
@@ -223,13 +230,16 @@ export class Base extends EventEmitter<GatewayEvents> {
           }
           break;
         case GatewayDispatchEvents.ThreadUpdate: {
-          const oldThread = this.cache.channels.get(d.channel_id) as ThreadChannel;
+          const oldThread = this.cache.channels.get(
+            d.channel_id,
+          ) as ThreadChannel;
           const newThread = this.addChannelsToCache([d]);
           this.emit("ThreadUpdate", { oldThread, newThread });
           break;
         }
         case GatewayDispatchEvents.ThreadDelete: {
-          const thread = this.cache.channels.get(d.id) ?? this.addChannelsToCache([d]);
+          const thread = this.cache.channels.get(d.id) ??
+            this.addChannelsToCache([d]);
           this.cache.channels.delete(d.id);
           this.emit("ChannelDelete", thread);
           break;
@@ -238,9 +248,50 @@ export class Base extends EventEmitter<GatewayEvents> {
           this.emit("MessageDeleteBulk", {
             channelId: d.channel_id,
             guildId: d.guild_id,
-            ids: d.ids
-          })
+            ids: d.ids,
+          });
           break;
+        }
+        case GatewayDispatchEvents.PresenceUpdate: {
+          this.emit(
+            "PresenceUpdate",
+            camelize(d) as Camelize<GatewayPresenceUpdateDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.InviteCreate: {
+          this.emit(
+            "InviteCreate",
+            camelize(d) as Camelize<GatewayInviteCreateDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.InviteDelete: {
+          this.emit(
+            "InviteDelete",
+            camelize(d) as Camelize<GatewayInviteDeleteDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.TypingStart: {
+          this.emit(
+            "TypingStart",
+            camelize(d) as Camelize<GatewayTypingStartDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.GuildBanAdd: {
+          this.emit(
+            "GuildBanAdd",
+            camelize(d) as Camelize<GatewayGuildBanAddDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.GuildBanRemove: {
+          this.emit(
+            "GuildBanRemove",
+            camelize(d) as Camelize<GatewayGuildBanRemoveDispatchData>,
+          );
         }
       }
     };
