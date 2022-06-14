@@ -12,7 +12,7 @@ export class BaseCommandOption {
     name: string;
     description: string;
     autocomplete?: boolean;
-    choices?: Array<any>;
+    choices?: Array<unknown>;
   }) {
     if (
       !new RegExp(

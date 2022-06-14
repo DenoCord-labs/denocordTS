@@ -33,6 +33,7 @@ export class StringOption extends BaseCommandOption {
   }
   addChoice({ name, value }: { name: string; value: string }) {
     this.choices.push({ name, value, name_localizations: undefined });
+    return this;
   }
   override toJSON() {
     super.validate({

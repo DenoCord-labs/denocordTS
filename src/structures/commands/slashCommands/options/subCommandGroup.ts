@@ -1,5 +1,4 @@
 import { SubCommand } from "./subCommand.ts";
-import { BaseApplicationCommand } from "../base.ts";
 import {
   APIApplicationCommandSubcommandGroupOption,
   APIApplicationCommandSubcommandOption,

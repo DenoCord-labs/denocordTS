@@ -34,6 +34,7 @@ export class IntegerOption extends BaseCommandOption {
   }
   addChoice({ name, value }: { name: string; value: number }) {
     this.choices.push({ name, value, name_localizations: undefined });
+    return this;
   }
   override toJSON() {
     super.validate({
