@@ -21,3 +21,5 @@ client.on("MessageCreate", async (m) => {
   if (m.content == "!ping") await m.reply({ content: "Pong" });
 });
 ```
+
+Read Docs [Here](https://denocord-docs.vercel.app)
