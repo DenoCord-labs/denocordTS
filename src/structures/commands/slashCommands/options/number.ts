@@ -48,7 +48,6 @@ export class NumberOptions extends BaseCommandOption {
       value,
     });
     return this;
-
   }
   override toJSON() {
     super.validate({

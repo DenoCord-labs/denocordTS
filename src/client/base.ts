@@ -13,13 +13,17 @@ import {
   GatewayEvents,
   GatewayGuildBanAddDispatchData,
   GatewayGuildBanRemoveDispatchData,
+  GatewayGuildMemberRemoveDispatchData,
   GatewayIdentifyData,
   GatewayIntentBits,
   GatewayInviteCreateDispatchData,
   GatewayInviteDeleteDispatchData,
   GatewayOpcodes,
   GatewayPresenceUpdateDispatchData,
+  GatewayThreadMembersUpdateDispatchData,
+  GatewayThreadMemberUpdateDispatchData,
   GatewayTypingStartDispatchData,
+  GatewayWebhooksUpdateDispatchData,
   OPCodes,
 } from "../types/mod.ts";
 import {
@@ -281,6 +285,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.GuildBanAdd: {
+          this.cache.members.delete(d.user.id);
           this.emit(
             "GuildBanAdd",
             camelize(d) as Camelize<GatewayGuildBanAddDispatchData>,
@@ -292,6 +297,53 @@ export class Base extends EventEmitter<GatewayEvents> {
             "GuildBanRemove",
             camelize(d) as Camelize<GatewayGuildBanRemoveDispatchData>,
           );
+          break;
+        }
+        case GatewayDispatchEvents.ThreadMemberUpdate: {
+          this.emit(
+            "ThreadMemberUpdate",
+            camelize(d) as Camelize<GatewayThreadMemberUpdateDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.ThreadMembersUpdate: {
+          this.emit(
+            "ThreadMembersUpdate",
+            camelize(d) as Camelize<GatewayThreadMembersUpdateDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.GuildMemberAdd: {
+          const isOwner =
+            this.cache.guilds.get(d.guild_id)!.ownerId === d.member.user.id;
+          const member = new GuildMember(d, this, isOwner);
+          this.cache.members.set(d.member.user.id, member);
+          this.emit("GuildMemberAdd", {
+            member,
+            guildId: d.guildId,
+          });
+          break;
+        }
+        case GatewayDispatchEvents.GuildMemberRemove: {
+          this.cache.members.delete(d.user.id);
+          this.emit(
+            "GuildMemberRemove",
+            camelize(d) as Camelize<GatewayGuildMemberRemoveDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.WebhooksUpdate: {
+          this.emit(
+            "WebhooksUpdate",
+            camelize(d) as Camelize<GatewayWebhooksUpdateDispatchData>,
+          );
+          break;
+        }
+        case GatewayDispatchEvents.UserUpdate: {
+          const user = new User(d, this);
+          this.cache.users.set(user.id, user);
+          this.emit("UserUpdate", user);
+          break;
         }
       }
     };

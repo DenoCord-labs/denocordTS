@@ -7,10 +7,14 @@ import {
   GatewayChannelPinsUpdateDispatchData,
   GatewayGuildBanAddDispatchData,
   GatewayGuildDeleteDispatchData,
+  GatewayGuildMemberRemoveDispatchData,
   GatewayInviteCreateDispatchData,
   GatewayInviteDeleteDispatchData,
   GatewayPresenceUpdateDispatchData,
+  GatewayThreadMembersUpdateDispatchData,
+  GatewayThreadMemberUpdateDispatchData,
   GatewayTypingStartDispatchData,
+  GatewayWebhooksUpdateDispatchData,
 } from "./mod.ts";
 import {
   ApplicationCommandInteraction,
@@ -18,6 +22,7 @@ import {
   GuildMember,
   Role,
   ThreadChannel,
+  User,
 } from "../structures/mod.ts";
 
 import { Camelize } from "../../deps.ts";
@@ -41,8 +46,13 @@ export type GatewayEvents = {
   GuildDelete: (e: Camelize<GatewayGuildDeleteDispatchData>) => unknown;
   GuildEmojisUpdate: (e: unknown) => unknown;
   GuildIntegrationsUpdate: (e: unknown) => unknown;
-  GuildMemberAdd: (e: unknown) => unknown;
-  GuildMemberRemove: (e: unknown) => unknown;
+  GuildMemberAdd: (e: {
+    guildId: string;
+    member: GuildMember;
+  }) => unknown;
+  GuildMemberRemove: (
+    e: Camelize<GatewayGuildMemberRemoveDispatchData>,
+  ) => unknown;
   GuildMembersChunk: (e: unknown) => unknown;
   GuildMemberUpdate: (e: GuildMember) => unknown;
   GuildRoleCreate: (e: Role) => unknown;
@@ -115,16 +125,20 @@ export type GatewayEvents = {
   ThreadCreate: (e: ThreadChannel) => unknown;
   ThreadDelete: (e: unknown) => unknown;
   ThreadListSync: (e: unknown) => unknown;
-  ThreadMembersUpdate: (e: unknown) => unknown;
-  ThreadMemberUpdate: (e: unknown) => unknown;
+  ThreadMembersUpdate: (
+    e: Camelize<GatewayThreadMembersUpdateDispatchData>,
+  ) => unknown;
+  ThreadMemberUpdate: (
+    e: Camelize<GatewayThreadMemberUpdateDispatchData>,
+  ) => unknown;
   ThreadUpdate: (
     e: { oldThread: ThreadChannel; newThread: ThreadChannel },
   ) => unknown;
   TypingStart: (e: Camelize<GatewayTypingStartDispatchData>) => unknown;
-  UserUpdate: (e: unknown) => unknown;
+  UserUpdate: (e: User) => unknown;
   VoiceServerUpdate: (e: unknown) => unknown;
   VoiceStateUpdate: (e: unknown) => unknown;
-  WebhooksUpdate: (e: unknown) => unknown;
+  WebhooksUpdate: (e: Camelize<GatewayWebhooksUpdateDispatchData>) => unknown;
   GuildScheduledEventCreate: (e: unknown) => unknown;
   GuildScheduledEventUpdate: (e: unknown) => unknown;
   GuildScheduledEventDelete: (e: unknown) => unknown;

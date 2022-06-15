@@ -4,9 +4,9 @@ import {
   APIAttachment,
   APIChannel,
   APIInteraction,
+  APIModalSubmitInteraction,
   APIRole,
   InteractionResponseType,
-  APIModalSubmitInteraction
 } from "../../../types/mod.ts";
 import { Messages } from "../../../errors/messages.ts";
 import { Modal } from "../../components/modal.ts";
@@ -206,19 +206,19 @@ export class ApplicationCommandInteraction extends Interaction {
     return value;
   }
   getModalValues() {
-    const value: { type: number, customId: string, value: string }[] = []
-    const interaction = this as unknown as APIModalSubmitInteraction
+    const value: { type: number; customId: string; value: string }[] = [];
+    const interaction = this as unknown as APIModalSubmitInteraction;
     if (interaction.data.components) {
       for (const component of interaction.data.components) {
         for (const comp of component.components) {
           value.push({
             customId: comp.custom_id,
             type: comp.type,
-            value: comp.value
-          })
+            value: comp.value,
+          });
         }
       }
     }
-    return value
+    return value;
   }
 }
