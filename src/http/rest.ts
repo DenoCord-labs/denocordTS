@@ -1,6 +1,13 @@
 import { Collection } from "../../deps.ts";
 import { BaseRestApiUrl } from "../constants/mod.ts";
-import { HttpError } from "../handler/errors/http.ts";
+
+
+class HttpError extends Error {
+  constructor(msg: string) {
+    super(msg)
+    this.name = "Http Error"
+  }
+}
 
 export class RestClient extends Collection<
   string,
@@ -37,9 +44,8 @@ export class RestClient extends Collection<
       headers: {
         "Content-Type": formData ? "multipart/form-data" : "application/json",
         ...headers,
-        Authorization: `Bot ${
-          (window as typeof window & { token: string }).token
-        }`,
+        Authorization: `Bot ${(window as typeof window & { token: string }).token
+          }`,
         "User-Agent":
           "DiscordBot (https://github.com/denocord-labs/denocordts)",
       },
@@ -49,7 +55,8 @@ export class RestClient extends Collection<
         : ((!strignifyBody ? JSON.stringify(body) : body) as BodyInit),
     });
     if (!res.ok) {
-      throw new HttpError(await res.json());
+      const data = await res.json()
+      throw new HttpError(`[Http Error] ${data.message}`)
     }
     this.addUrlToCollection(url, res.headers);
     return res;
@@ -83,10 +90,10 @@ export class RestClient extends Collection<
     }
     if (
       Date.now() / 1000 >
-        parseFloat(
-          (data.ratelimit as Record<string, string | null>).reset ||
-            String((data.timestamp as number) + 5),
-        )
+      parseFloat(
+        (data.ratelimit as Record<string, string | null>).reset ||
+        String((data.timestamp as number) + 5),
+      )
     ) {
       return {
         queue: false,
@@ -94,10 +101,10 @@ export class RestClient extends Collection<
     }
     if (
       (Date.now() - (data.timestamp as number)) / 1000 >
-        parseInt(
-          (data.ratelimit as Record<string, string | null>)
-            .resetAfter!,
-        )
+      parseInt(
+        (data.ratelimit as Record<string, string | null>)
+          .resetAfter!,
+      )
     ) {
       return {
         queue: false,

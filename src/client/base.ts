@@ -348,6 +348,7 @@ export class Base extends EventEmitter<GatewayEvents> {
       }
     };
     this.websocket.onclose = (e) => {
+      console.log(e)
       handleCloseEventMessage(e.code);
     };
   }

@@ -4,7 +4,7 @@ export function handleCloseEventMessage(errorCode: number): string {
     case 4000: {
       throw new Error("Unknown Error: Unknown Error");
     }
-    case 40: {
+    case 4001: {
       throw new Error("Unknown opcode: An Invalid Gateway OP code was sent");
     }
     case 4002: {
