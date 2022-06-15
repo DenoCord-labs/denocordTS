@@ -1,9 +1,9 @@
 // Used to handle the Http Error Events
 
-export class HttpError extends Error {
+export class HttpError {
   constructor(error: Record<string, string>) {
-    throw super(
-      `[Http Error] StatusCode:${error.statusCode} ApiCode:${error.code} Message:${error.message}`,
+    throw new Error(
+      `[Http Error]  Message:${error.message}`,
     );
   }
 }

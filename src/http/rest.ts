@@ -41,7 +41,7 @@ export class RestClient extends Collection<
           (window as typeof window & { token: string }).token
         }`,
         "User-Agent":
-          "DiscordBot (https://github.com/denocord-labs/denocordts,1.0.0@dev-6)",
+          "DiscordBot (https://github.com/denocord-labs/denocordts)",
       },
       method,
       body: method == "GET"
