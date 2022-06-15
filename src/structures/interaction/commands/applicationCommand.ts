@@ -1,17 +1,22 @@
 import { Interaction } from "../interaction.ts";
 import {
   APIApplicationCommandInteraction,
-  APIAttachment,
-  APIChannel,
-  APIInteraction,
   APIModalSubmitInteraction,
-  APIRole,
   InteractionResponseType,
 } from "../../../types/mod.ts";
 import { Messages } from "../../../errors/messages.ts";
 import { Modal } from "../../components/modal.ts";
 import { Base } from "../../../client/base.ts";
-import { GuildMember, User } from "../../mod.ts";
+import {
+  DmChannel,
+  GuildCategory,
+  GuildMember,
+  GuildNewsChannel,
+  Role,
+  TextChannel,
+  ThreadChannel,
+  User,
+} from "../../mod.ts";
 export class ApplicationCommandInteraction extends Interaction {
   channel;
   commandName;
@@ -132,50 +137,55 @@ export class ApplicationCommandInteraction extends Interaction {
     return value;
   }
   getUserFromOption(option: string) {
-    let value: undefined | APIInteraction["user"];
+    let value: undefined | User;
     if (!this.data) return;
     (this.data as any).options.map(
       (o: Record<string, string | number | boolean>) => {
         if (o.name === option && o.type === 6) {
-          value = o.value as unknown as APIInteraction["user"];
+          value = this.client.cache.users.get(o.value as string);
         }
       },
     );
     return value;
   }
   getChannelFromOption(option: string) {
-    let value: undefined | APIChannel;
+    let value:
+      | undefined
+      | DmChannel
+      | TextChannel
+      | ThreadChannel
+      | GuildNewsChannel
+      | GuildCategory;
     if (!this.data) return;
     (this.data as any).options.map(
       (o: Record<string, string | number | boolean>) => {
         if (o.name === option && o.type === 7) {
-          value = o.value as unknown as APIChannel;
+          value = this.client.cache.channels.get(o.value as string);
         }
       },
     );
     return value;
   }
   getRoleFromOption(option: string) {
-    let value: undefined | APIRole;
+    let value: undefined | Role;
     if (!this.data) return;
     (this.data as any).options.map(
       (o: Record<string, string | number | boolean>) => {
         if (o.name === option && o.type === 8) {
-          value = o.value as unknown as APIRole;
+          value = this.client.cache.roles.get(o.value as string);
         }
       },
     );
     return value;
   }
   getMentionableFromOption(option: string) {
-    let value: undefined | APIRole | APIInteraction["user"];
+    let value: undefined | User | Role;
     if (!this.data) return;
     (this.data as any).options.map(
       (o: Record<string, string | number | boolean>) => {
         if (o.name === option && o.type === 9) {
-          value = o.value as unknown as
-            | APIRole
-            | APIInteraction["user"];
+          value = this.client.cache.roles.get(o.value as string) ||
+            this.client.cache.users.get(o.value as string);
         }
       },
     );
@@ -188,18 +198,6 @@ export class ApplicationCommandInteraction extends Interaction {
       (o: Record<string, string | number | boolean>) => {
         if (o.name === option && o.type === 10) {
           value = o.value as number;
-        }
-      },
-    );
-    return value;
-  }
-  getAttachmentFromOption(option: string) {
-    let value: undefined | APIAttachment;
-    if (!this.data) return;
-    (this.data as any).options.map(
-      (o: Record<string, string | number | boolean>) => {
-        if (o.name === option && o.type === 11) {
-          value = o.value as unknown as APIAttachment;
         }
       },
     );
