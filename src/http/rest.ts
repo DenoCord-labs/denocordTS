@@ -22,7 +22,7 @@ export class RestClient extends Collection<
     body: unknown = {},
     headers?: HeadersInit,
     strignifyBody?: boolean,
-    formData: boolean = false,
+    formData = false,
   ) {
     const url = href.includes("http") ? href : `${BaseRestApiUrl}${href}`;
     const needsQueue = this.checks(url);
@@ -56,7 +56,9 @@ export class RestClient extends Collection<
     });
     if (!res.ok) {
       const data = await res.json()
-      throw new HttpError(`[Http Error] ${data.message}`)
+      throw new Error(`[Http Error] ${data.message}`, {
+        cause: new Error(`Caused Due to ${method} request on ${url}`)
+      })
     }
     this.addUrlToCollection(url, res.headers);
     return res;

@@ -1,4 +1,4 @@
-import { APIMessage, Snowflake } from "../../types/mod.ts";
+import { APIMessage, Snowflake, GatewayMessageCreateDispatchData } from "../../types/mod.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Messages } from "../../errors/messages.ts";
 import { ClientMessage } from "./mod.ts";
@@ -209,7 +209,7 @@ export class BaseMessage {
    * Time in Milliseconds at which this message was created.
    */
   createdAt: number;
-  constructor(public d: APIMessage, private client: Base) {
+  constructor(public d: GatewayMessageCreateDispatchData, private client: Base) {
     this.id = d.id;
     this.channelId = d.channel_id;
     this.guildId = d.guild_id;
@@ -241,7 +241,7 @@ export class BaseMessage {
     this.mentionEveryone = d.mention_everyone;
     const isServerOwner =
       this.client.cache.guilds.get(this.d.guild_id || "")?.ownerId ===
-        this.author.id;
+      this.author?.id;
     this.member = d.member
       ? new GuildMember(d, this.client, isServerOwner)
       : undefined;

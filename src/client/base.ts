@@ -25,6 +25,9 @@ import {
   GatewayTypingStartDispatchData,
   GatewayWebhooksUpdateDispatchData,
   OPCodes,
+  APIThreadChannel,
+  APIThreadMember,
+
 } from "../types/mod.ts";
 import {
   Camelize,
@@ -344,6 +347,28 @@ export class Base extends EventEmitter<GatewayEvents> {
           this.cache.users.set(user.id, user);
           this.emit("UserUpdate", user);
           break;
+        }
+        case GatewayDispatchEvents.ThreadListSync: {
+          const threads = (d.threads as APIThreadChannel[]).map(thread => new ThreadChannel(thread, this))
+          threads.map(thread => this.cache.channels.set(thread.id, thread))
+          this.emit("ThreadListSync", {
+            guildId: d.guild_id,
+            threads,
+            channelIds: d.channel_ids,
+            members: camelize(d.members) as Camelize<APIThreadMember>
+          })
+          break
+        }
+        case GatewayDispatchEvents.GuildEmojisUpdate: {
+          const emojis = (d.emojis as APIEmoji[]).map(emoji => new GuildEmoji(emoji, this, d.guild_id))
+          emojis.map(emoji => {
+            this.cache.emojis.set(emoji.id!, emoji)
+          })
+          this.emit("GuildEmojisUpdate", {
+            guildId: d.guild_id,
+            emojis
+          })
+          break
         }
       }
     };

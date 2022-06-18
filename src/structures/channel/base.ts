@@ -16,7 +16,6 @@ export class BaseChannel implements APIPartialChannel {
   name: APIPartialChannel["name"];
   protected restClient = new RestClient();
   constructor(data: any, protected client: Base) {
-    if (!window.token) throw new Error("No token found");
     this.id = data.id;
     this.type = data.type;
     this.name = data.name;

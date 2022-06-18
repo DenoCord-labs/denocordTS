@@ -1,6 +1,6 @@
-import { APIGuild, cacheFields } from "../types/mod.ts";
+import { APIGuild, } from "../types/mod.ts";
 import { Channel, Emoji } from "../types/cache.ts";
-import { Camelize, camelize, ChannelType, Collection } from "../../deps.ts";
+import { Camelize, ChannelType, Collection } from "../../deps.ts";
 import { Base } from "../client/base.ts";
 import {
   DmChannel,
@@ -14,7 +14,6 @@ import {
   User,
   User as UserClass,
 } from "../structures/mod.ts";
-import { channelCreateEventHandler } from "../events/mod.ts";
 export class Cache {
   channels = new Collection<string, Channel>();
   emojis = new Collection<string, Emoji>();
@@ -28,7 +27,7 @@ export class Cache {
   /**
    * Add a guild to the cache.
    */
-  addGuildToCache(guildId: string, guildPayload: Camelize<APIGuild>) {
+  addGuildToCache(guildId: string, guildPayload: APIGuild) {
     this.guilds.set(
       guildId,
       new GuildClass(guildPayload, this.client),

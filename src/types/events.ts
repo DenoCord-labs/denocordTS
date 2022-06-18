@@ -15,6 +15,7 @@ import {
   GatewayThreadMemberUpdateDispatchData,
   GatewayTypingStartDispatchData,
   GatewayWebhooksUpdateDispatchData,
+  APIThreadMember
 } from "./mod.ts";
 import {
   ApplicationCommandInteraction,
@@ -23,6 +24,7 @@ import {
   Role,
   ThreadChannel,
   User,
+  GuildEmoji
 } from "../structures/mod.ts";
 
 import { Camelize } from "../../deps.ts";
@@ -44,7 +46,16 @@ export type GatewayEvents = {
   GuildBanRemove: (e: unknown) => unknown;
   GuildCreate: (e: Guild) => unknown;
   GuildDelete: (e: Camelize<GatewayGuildDeleteDispatchData>) => unknown;
-  GuildEmojisUpdate: (e: unknown) => unknown;
+  GuildEmojisUpdate: (e: {
+    /**
+     * The Id of the guild
+     */
+    guildId: string
+    /**
+     * Updated Emojis
+     */
+    emojis: GuildEmoji[]
+  }) => unknown;
   GuildIntegrationsUpdate: (e: unknown) => unknown;
   GuildMemberAdd: (e: {
     guildId: string;
@@ -124,7 +135,24 @@ export type GatewayEvents = {
   Ready: (e: undefined) => unknown;
   ThreadCreate: (e: ThreadChannel) => unknown;
   ThreadDelete: (e: unknown) => unknown;
-  ThreadListSync: (e: unknown) => unknown;
+  ThreadListSync: (e: {
+    /**
+     * The Id of the Guild
+     */
+    guildId: string,
+    /**
+     * the parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data.
+     */
+    channelIds?: string[],
+    /**
+     * Threads
+     */
+    threads: ThreadChannel[],
+    /**
+     * all thread member objects from the synced threads for the current user, indicating which threads the current user has been added to
+     */
+    members: Camelize<APIThreadMember>
+  }) => unknown;
   ThreadMembersUpdate: (
     e: Camelize<GatewayThreadMembersUpdateDispatchData>,
   ) => unknown;

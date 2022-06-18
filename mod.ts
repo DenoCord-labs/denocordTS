@@ -17,6 +17,7 @@ export {
   SelectMenu,
   SlashCommand,
   TextInput,
+  ApplicationCommandInteraction
 } from "./src/structures/mod.ts";
 export type {
   Guild,

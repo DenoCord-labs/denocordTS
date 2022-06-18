@@ -1,5 +1,5 @@
 import { Colors } from "../constants/mod.ts";
-
+import { Messages } from "../errors/messages.ts"
 export type HexColorString = `#${string}`;
 export type ColorResolvable =
   | keyof typeof Colors
@@ -39,8 +39,8 @@ export function resolveColor(color: ColorResolvable) {
     color = (color[0] << 16) + (color[1] << 8) + color[2];
   }
 
-  if (color < 0 || color > 0xffffff) throw new RangeError("COLOR_RANGE");
-  else if (Number.isNaN(color)) throw new TypeError("COLOR_CONVERT");
+  if (color < 0 || color > 0xffffff) throw new RangeError(Messages.COLOR_RANGE);
+  else if (Number.isNaN(color)) throw new TypeError(Messages.COLOR_CONVERT);
 
   return color;
 }

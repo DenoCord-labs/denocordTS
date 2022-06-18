@@ -16,12 +16,6 @@ import {
   registerGlobalSlashCommands,
   registerGuildSlashCommands,
 } from "../http/endpoints.ts";
-declare global {
-  const token: string | undefined;
-  interface Window {
-    token: string | undefined;
-  }
-}
 
 export class Client extends Base {
   public cdn = CDN;
@@ -31,7 +25,7 @@ export class Client extends Base {
     this.displayAvatarUrl = super.user && super.user.avatar
       ? this.cdn.getUserAvatar({ id: this.user.id, hash: this.user.avatar })
       : this.cdn.getDefaultUserAvatar({ discriminator: this.user.discriminator });
-    window.token = this.options.token;
+    this.token = this.options.token
   }
   /**
    * 

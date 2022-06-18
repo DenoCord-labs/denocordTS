@@ -5,16 +5,18 @@ import {
   ChannelType,
   PermissionFlagsBits,
   Snowflake,
+  GuildFeature,
+  APISticker
 } from "../../types/mod.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 import { Base } from "../../client/base.ts";
-import { GuildMember, TextChannel, ThreadChannel } from "../mod.ts";
+import { GuildMember, TextChannel, ThreadChannel, GuildNewsChannel, GuildSticker } from "../mod.ts";
 import { ColorResolvable, resolveColor } from "../../utils/mod.ts";
 import { RestClient } from "../../http/rest.ts";
-import { camelToSnakeCase } from "../../helpers/caseConversion.ts";
-interface GuildProperties extends Camelize<APIGuild> {
-  channnels: (TextChannel | ThreadChannel)[];
-}
+
+type GuildProperties = Camelize<APIGuild> & {
+  channnels: (TextChannel | ThreadChannel)[]
+};
 
 export class Guild {
   iconHash: GuildProperties["iconHash"];
@@ -32,19 +34,12 @@ export class Guild {
   explicitContentFilter: GuildProperties["explicitContentFilter"];
   roles: GuildProperties["roles"];
   emojis: GuildProperties["emojis"];
-  features: GuildProperties["features"];
+  features: GuildFeature[];
   mfaLevel: GuildProperties["mfaLevel"];
   systemChannelId: GuildProperties["systemChannelId"];
   systemChannelFlags: GuildProperties["systemChannelFlags"];
   rulesChannelId: GuildProperties["rulesChannelId"];
-  joinedAt: GuildProperties["joinedAt"];
-  large: GuildProperties["large"];
-  memberCount: GuildProperties["memberCount"];
-  voiceStates: GuildProperties["voiceStates"];
-  members: GuildProperties["members"];
-  channels: (TextChannel | ThreadChannel)[];
-  threads: GuildProperties["threads"];
-  presences: GuildProperties["presences"];
+  channels?: (TextChannel | ThreadChannel | GuildNewsChannel)[];
   maxPresences: GuildProperties["maxPresences"];
   maxMembers: GuildProperties["maxMembers"];
   vanityUrlCode: GuildProperties["vanityUrlCode"];
@@ -59,96 +54,64 @@ export class Guild {
   approximatePresenceCount: GuildProperties["approximatePresenceCount"];
   welcomeScreen: GuildProperties["welcomeScreen"];
   nsfwLevel: GuildProperties["nsfwLevel"];
-  stageInstances: GuildProperties["stageInstances"];
-  stickers: GuildProperties["stickers"];
+  stickers: GuildSticker[];
   premiumProgressBarEnabled: GuildProperties["premiumProgressBarEnabled"];
-  guildScheduledEvents: GuildProperties["guildScheduledEvents"];
   hubType: GuildProperties["hubType"];
   name: string;
   icon: string | null;
   splash: string | null;
   unavailable: GuildProperties["unavailable"];
   id: GuildProperties["id"];
+
   private rest = new RestClient();
-  constructor(data: Camelize<APIGuild>, private client: Base) {
-    // deno-lint-ignore no-explicit-any
-    const d: Record<string, any> = {};
-    Object.keys(data).map((key) => {
-      // @ts-expect-error
-      d[camelToSnakeCase(key)] = data[key];
-    });
-    this.afkChannelId = d.afk_channel_id;
-    this.afkTimeout = d.afk_timeout;
-    this.approximateMemberCount = d.approximate_member_count;
-    this.approximatePresenceCount = d.approximate_presence_count;
-    this.banner = d.banner;
-    this.defaultMessageNotifications = d.default_message_notifications;
-    this.description = d.description;
-    this.discoverySplash = d.discovery_splash;
-    this.emojis = d.emojis;
-    this.explicitContentFilter = d.explicit_content_filter;
-    this.features = d.features;
-    this.iconHash = d.icon_hash;
-    this.id = d.id;
-    this.joinedAt = d.joined_at;
-    this.large = d.large;
-    this.maxMembers = d.max_members;
-    this.maxPresences = d.max_presences;
-    this.maxVideoChannelUsers = d.max_video_channel_users;
-    this.members = d.members;
-    this.mfaLevel = d.mfa_level;
-    this.name = d.name;
-    this.owner = d.owner;
-    this.ownerId = d.owner_id;
-    this.premiumSubscriptionCount = d.premium_subscription_count;
-    this.premiumTier = d.premium_tier;
-    this.presences = d.presences;
-    this.publicUpdatesChannelId = d.public_updates_channel_id;
-    this.rulesChannelId = d.rules_channel_id;
-    this.roles = d.roles;
-    this.rulesChannelId = d.rules_channel_id;
-    this.systemChannelId = d.system_channel_id;
-    this.systemChannelFlags = d.system_channel_flags;
-    this.systemChannelId = d.system_channel_id;
-    this.vanityUrlCode = d.vanity_url_code;
-    this.verificationLevel = d.verification_level;
-    this.voiceStates = d.voice_states;
-    this.widgetChannelId = d.widget_channel_id;
-    this.widgetEnabled = d.widget_enabled;
-    this.welcomeScreen = d.welcome_screen;
-    this.nsfwLevel = d.nsfw_level;
-    this.stageInstances = d.stage_instances;
-    this.stickers = d.stickers;
-    this.premiumProgressBarEnabled = d.premium_progress_bar_enabled;
-    this.guildScheduledEvents = d.guild_scheduled_events;
-    this.hubType = d.hub_type;
-    this.icon = d.icon;
-    this.splash = d.splash;
-    this.unavailable = d.unavailable;
-    this.verificationLevel = d.verification_level;
-    this.region = d.region;
-    this.preferredLocale = d.preferred_locale;
+  constructor(data: APIGuild, private client: Base) {
+
+    this.afkChannelId = data.afk_channel_id;
+    this.afkTimeout = data.afk_timeout;
+    this.approximateMemberCount = data.approximate_member_count;
+    this.approximatePresenceCount = data.approximate_presence_count;
+    this.banner = data.banner;
+    this.defaultMessageNotifications = data.default_message_notifications;
+    this.description = data.description;
+    this.discoverySplash = data.discovery_splash;
+    this.emojis = data.emojis;
+    this.explicitContentFilter = data.explicit_content_filter;
+    this.features = data.features;
+    this.iconHash = data.icon_hash;
+    this.id = data.id;
+    this.maxMembers = data.max_members;
+    this.maxPresences = data.max_presences;
+    this.maxVideoChannelUsers = data.max_video_channel_users;
+    this.mfaLevel = data.mfa_level;
+    this.name = data.name;
+    this.owner = data.owner;
+    this.ownerId = data.owner_id;
+    this.premiumSubscriptionCount = data.premium_subscription_count;
+    this.premiumTier = data.premium_tier;
+    this.publicUpdatesChannelId = data.public_updates_channel_id;
+    this.rulesChannelId = data.rules_channel_id;
+    this.roles = data.roles;
+    this.rulesChannelId = data.rules_channel_id;
+    this.systemChannelId = data.system_channel_id;
+    this.systemChannelFlags = data.system_channel_flags;
+    this.systemChannelId = data.system_channel_id;
+    this.vanityUrlCode = data.vanity_url_code;
+    this.verificationLevel = data.verification_level;
+    this.widgetChannelId = data.widget_channel_id;
+    this.widgetEnabled = data.widget_enabled;
+    this.welcomeScreen = data.welcome_screen;
+    this.nsfwLevel = data.nsfw_level;
+    this.stickers = data.stickers.map(sticker => new GuildSticker(sticker, this.client));
+    this.premiumProgressBarEnabled = data.premium_progress_bar_enabled;
+    this.hubType = data.hub_type;
+    this.icon = data.icon;
+    this.splash = data.splash;
+    this.unavailable = data.unavailable;
+    this.verificationLevel = data.verification_level;
+    this.region = data.region;
+    this.preferredLocale = data.preferred_locale;
     this.channels = [];
-    d.channels.map((channel: Record<string, unknown>) => {
-      switch (channel.type) {
-        case 0: {
-          this.channels!.push(new TextChannel(channel, this.client));
-          break;
-        }
-        case 11: {
-          this.channels!.push(
-            new ThreadChannel(channel, this.client),
-          );
-          break;
-        }
-        case 12: {
-          this.channels!.push(
-            new ThreadChannel(channel, this.client),
-          );
-          break;
-        }
-      }
-    });
+    this.channels = this.client.cache.guilds.get(this.id)?.channels?.map(channel => channel)
   }
   async createChannel({
     channelType,
@@ -290,7 +253,7 @@ export class Guild {
       res,
       this.client,
       this.client.cache.guilds.get(`${this.id}`)?.ownerId ===
-        res.user?.id,
+      res.user?.id,
     ) as Partial<GuildMember>;
   }
   async changeClientNickname({
@@ -523,4 +486,118 @@ export class Guild {
       headers,
     ));
   }
+  async listStickers() {
+    const data = await (await this.rest.request(`/guilds/${this.id}/stickers`, "GET")).json()
+    const stickers = (data as APISticker[]).map(sticker => new GuildSticker(sticker, this.client))
+    return stickers
+  }
+  // async getSticker(stickerId: string) {
+  //   const data = await (await this.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "GET")).json()
+  //   const sticker = new GuildSticker(data as APISticker, this.client)
+  //   return sticker
+  // }
+  // async createSticker({
+  //   description, filePath, name, tags, fileName
+  // }: {
+  //   /**
+  //    * The Name of the Sticker
+  //    */
+  //   name: string,
+  //   /**
+  //    * The Description of the Sticker
+  //    */
+  //   description: string
+  //   /**
+  //    * The AutoComplete Tags for the sticker
+  //    */
+  //   tags: string,
+  //   /**
+  //    * The Path of the file to upload
+  //    */
+  //   filePath: string
+  //   /**
+  //    * Name of the File
+  //    */
+  //   fileName: string
+  // }) {
+  //   if (name.length < 2) {
+  //     throw new Error(`Name of Sticker can't be less than 2 characters.`)
+  //   }
+  //   if (name.length > 30) {
+  //     throw new Error(`Name of Sticker must not exceed 30 characters.`)
+  //   }
+  //   if (description && description.length < 2) {
+  //     throw new Error("Description Can't be less than 2 characters.")
+  //   }
+  //   if (description && description.length > 100) {
+  //     throw new Error("Description can't exceed 100 charaters.")
+  //   }
+  //   if (tags.length > 200) {
+  //     throw new Error("Tags must not exceed 200 characters.")
+  //   }
+  //   const fileStats = await Deno.stat(filePath)
+  //   if (fileStats.size > 500000) // 500 kb
+  //   {
+  //     throw new Error("File Size exceed Max Size(500kb)")
+  //   }
+
+  //   const headers = new Headers()
+  //   headers.append("Content-Disposition", `form-data; filename=${fileName};name=${name}`)
+  //   const formData = new FormData()
+  //   formData.append("file", new Blob([Deno.readFileSync(filePath)], {
+  //     type: "image/png",
+  //   }))
+  //   formData.append("name", name)
+  //   formData.append("description", description)
+  //   formData.append("tags", tags)
+  //   console.log(formData)
+  //   const res = await (await this.rest.request(`/guilds/${this.id}/stickers`, "POST", formData, headers, true, true)).json()
+  //   const sticker = new GuildSticker(res, this.client)
+  //   return sticker
+  // }
+  async modifySticker({ description, name, tags, stickerId }: {
+    /**
+     * New Name of Sticker (2-30 characters)
+     */
+    name: string
+    /**
+     * New Description of Sticker (2-100 characters)
+     */
+    description: string
+    /**
+     * New Tags of Sticker(for Autocomplete)(max 200 characters)
+     */
+    tags: string
+    /**
+     * Id of Sticker
+     */
+    stickerId: string
+  }) {
+    if (name.length < 2) {
+      throw new Error(`Name of Sticker can't be less than 2 characters.`)
+    }
+    if (name.length > 30) {
+      throw new Error(`Name of Sticker must not exceed 30 characters.`)
+    }
+    if (description && description.length < 2) {
+      throw new Error("Description Can't be less than 2 characters.")
+    }
+    if (description && description.length > 100) {
+      throw new Error("Description can't exceed 100 charaters.")
+    }
+    if (tags.length > 200) {
+      throw new Error("Tags must not exceed 200 characters.")
+    }
+    const data = await (await this.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "PATCH", {
+      name, tags, description
+    })).json()
+    return new GuildSticker(data, this.client)
+  }
+  async deleteSticker(stickerId: string): Promise<void> {
+    return void (await this.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "DELETE"))
+  }
+
+  // async listAutoModerationRules() {
+  //   return await (await this.rest.request(`/guilds/${this.id}/auto-moderation/rules`, "GET")).json()
+  // }
 }
