@@ -22,4 +22,4 @@ client.on("MessageCreate", async (m) => {
 });
 ```
 
-Read Docs [Here](https://denocord-docs.vercel.app)
+Read Docs [Here](https://denocord-labs.github.io/documentation)
