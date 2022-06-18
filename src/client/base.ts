@@ -27,7 +27,7 @@ import {
   OPCodes,
   APIThreadChannel,
   APIThreadMember,
-
+  APISticker
 } from "../types/mod.ts";
 import {
   Camelize,
@@ -48,6 +48,7 @@ import {
   TextChannel,
   ThreadChannel,
   User,
+  GuildSticker
 } from "../structures/mod.ts";
 import { handleCloseEventMessage } from "../handler/mod.ts";
 import {
@@ -367,6 +368,14 @@ export class Base extends EventEmitter<GatewayEvents> {
           this.emit("GuildEmojisUpdate", {
             guildId: d.guild_id,
             emojis
+          })
+          break
+        }
+        case GatewayDispatchEvents.GuildStickersUpdate: {
+          const stickers = (d.stickers as APISticker[]).map(sticker => new GuildSticker(sticker, this,))
+          this.emit("GuildStickersUpdate", {
+            stickers,
+            guildId: d.guild_id
           })
           break
         }

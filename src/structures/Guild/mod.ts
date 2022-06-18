@@ -6,13 +6,16 @@ import {
   PermissionFlagsBits,
   Snowflake,
   GuildFeature,
-  APISticker
+  APISticker,
+  APIGuildIntegration,
 } from "../../types/mod.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 import { Base } from "../../client/base.ts";
-import { GuildMember, TextChannel, ThreadChannel, GuildNewsChannel, GuildSticker } from "../mod.ts";
+import { GuildMember, TextChannel, ThreadChannel, GuildNewsChannel, GuildSticker, GuildIntegration } from "../mod.ts";
 import { ColorResolvable, resolveColor } from "../../utils/mod.ts";
-import { RestClient } from "../../http/rest.ts";
+import { RestClientInstance } from "../../http/rest.ts";
+import { endpoints } from "../../constants/endpoints/mod.ts"
+import { Messages } from "../../errors/messages.ts"
 
 type GuildProperties = Camelize<APIGuild> & {
   channnels: (TextChannel | ThreadChannel)[]
@@ -24,7 +27,6 @@ export class Guild {
   owner: GuildProperties["owner"];
   ownerId: GuildProperties["ownerId"];
   permissions: GuildProperties["permissions"];
-  region: GuildProperties["region"];
   afkChannelId: GuildProperties["afkChannelId"];
   afkTimeout: GuildProperties["afkTimeout"];
   widgetEnabled: GuildProperties["widgetEnabled"];
@@ -63,8 +65,8 @@ export class Guild {
   unavailable: GuildProperties["unavailable"];
   id: GuildProperties["id"];
 
-  private rest = new RestClient();
-  constructor(data: APIGuild, private client: Base) {
+  private rest = RestClientInstance
+  constructor(protected data: APIGuild, private client: Base) {
 
     this.afkChannelId = data.afk_channel_id;
     this.afkTimeout = data.afk_timeout;
@@ -108,10 +110,27 @@ export class Guild {
     this.splash = data.splash;
     this.unavailable = data.unavailable;
     this.verificationLevel = data.verification_level;
-    this.region = data.region;
+
     this.preferredLocale = data.preferred_locale;
     this.channels = [];
     this.channels = this.client.cache.guilds.get(this.id)?.channels?.map(channel => channel)
+  }
+  /**
+   * 
+   * @deprecated
+   */
+  get region() {
+    return this.data.region;
+  }
+  async fetchVanityUrl() {
+    if (!this.features.includes(GuildFeature.VanityURL)) {
+      throw new Error(Messages.VANITY_URL, {
+        cause: new Error("Trying to Fetch Vanity URL of a Guild.")
+      })
+    }
+    const data = await (await this.rest.request(endpoints.getGuildVanityUrl(this.id), "GET")).json()
+    this.vanityUrlCode = data.code
+    return data
   }
   async createChannel({
     channelType,
@@ -600,4 +619,18 @@ export class Guild {
   // async listAutoModerationRules() {
   //   return await (await this.rest.request(`/guilds/${this.id}/auto-moderation/rules`, "GET")).json()
   // }
+  /**
+   * Returns a List of Integrations for the Guild
+   */
+  async getGuildIntegrations(): Promise<GuildIntegration[]> {
+    const data = await (await this.rest.request(`/guilds/${this.id}/integrations`, "GET")).json() as APIGuildIntegration[]
+    const integration = data.map(integration => new GuildIntegration(integration, this.id))
+    return integration
+  }
+  /**
+   * Delete Integration
+   */
+  async deleteIntegration(integrationId: string): Promise<void> {
+    return void (await this.rest.request(`/guilds/${this.id}/integrations/${integrationId}`, "DELETE"))
+  }
 }

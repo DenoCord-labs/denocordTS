@@ -24,7 +24,8 @@ import {
   Role,
   ThreadChannel,
   User,
-  GuildEmoji
+  GuildEmoji,
+  GuildSticker
 } from "../structures/mod.ts";
 
 import { Camelize } from "../../deps.ts";
@@ -80,7 +81,16 @@ export type GatewayEvents = {
     >,
   ) => unknown;
   GuildRoleUpdate: (e: Role) => unknown;
-  GuildStickersUpdate: (e: unknown) => unknown;
+  GuildStickersUpdate: (e: {
+    /**
+     * Array of stickers
+     */
+    stickers: GuildSticker[],
+    /**
+     * Id of the Guild
+     */
+    guildId: string
+  }) => unknown;
   GuildUpdate: (e: { newGuild: Guild; oldGuild: Guild }) => unknown;
   IntegrationCreate: (e: unknown) => unknown;
   IntegrationDelete: (e: unknown) => unknown;

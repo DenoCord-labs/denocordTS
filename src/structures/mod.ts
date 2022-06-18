@@ -16,3 +16,4 @@ export * from "./channel/mod.ts";
 export * from "./emoji/mod.ts";
 export * from "./role/mod.ts";
 export * from "./sticker/mod.ts"
+export * from "./integration/mod.ts"

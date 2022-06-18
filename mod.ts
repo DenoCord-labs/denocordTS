@@ -17,14 +17,18 @@ export {
   SelectMenu,
   SlashCommand,
   TextInput,
-  ApplicationCommandInteraction
-} from "./src/structures/mod.ts";
-export type {
+  ApplicationCommandInteraction,
   Guild,
   GuildMember,
   TextChannel,
   ThreadChannel,
   User,
+  DmChannel,
+  GuildCategory,
+  GuildEmoji,
+  GuildNewsChannel,
+  GuildSticker,
+  Role,
 } from "./src/structures/mod.ts";
 export { parseEmojiForComponents } from "./src/utils/mod.ts";
 export * from "./src/helpers/mod.ts";
