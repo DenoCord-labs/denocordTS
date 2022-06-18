@@ -3,6 +3,12 @@ import {
   APISelectMenuOption,
 } from "../../types/mod.ts";
 import { BaseComponent } from "./base.ts";
+import { parseEmojiForComponents } from "../../utils/mod.ts"
+
+type SelectMenuOptions = Omit<APISelectMenuOption, "emoji"> & {
+  emoji: string;
+}
+
 export class SelectMenu extends BaseComponent {
   private selectMenu: APISelectMenuComponent = {
     type: 3,
@@ -26,11 +32,11 @@ export class SelectMenu extends BaseComponent {
     this.selectMenu.max_values = max;
     return this;
   }
-  setOptions(options: APISelectMenuOption[]) {
+  setOptions(...options: SelectMenuOptions[]) {
     if (this.selectMenu.options) {
-      this.selectMenu.options.push(...options);
+      this.selectMenu.options.push(...options.map(option => ({ ...option, emoji: parseEmojiForComponents(option.emoji) as APISelectMenuOption["emoji"] })));
     } else {
-      this.selectMenu.options = options;
+      this.selectMenu.options = options.map(option => ({ ...option, emoji: parseEmojiForComponents(option.emoji) as APISelectMenuOption["emoji"] }));
     }
     return this;
   }

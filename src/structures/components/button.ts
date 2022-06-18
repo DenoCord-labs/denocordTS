@@ -6,6 +6,7 @@ import {
   ButtonStyle,
 } from "../../types/mod.ts";
 import { BaseComponent } from "./base.ts";
+import { parseEmojiForComponents } from "../../utils/mod.ts"
 export class Button extends BaseComponent {
   private button: APIButtonComponent = { type: 2 } as APIButtonComponent;
   constructor() {
@@ -23,8 +24,8 @@ export class Button extends BaseComponent {
     this.button.disabled = disabled;
     return this;
   }
-  setEmoji(emoji: APIMessageComponentEmoji) {
-    this.button.emoji = emoji;
+  setEmoji(emoji: string) {
+    this.button.emoji = parseEmojiForComponents(emoji) as APIMessageComponentEmoji;
     return this;
   }
   setCustomId(id: string) {
@@ -33,8 +34,9 @@ export class Button extends BaseComponent {
   }
   setUrl(url: string) {
     if (!url.startsWith("http://") || !url.startsWith("https://")) {
-      (this.button as APIButtonComponentWithURL).url = url;
+      throw new Error(`Invalid URL Supplied to Button: ${url}`);
     }
+    (this.button as APIButtonComponentWithURL).url = url
   }
   toJSON() {
     return this.button;
