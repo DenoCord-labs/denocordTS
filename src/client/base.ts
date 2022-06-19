@@ -4,6 +4,9 @@ import {
   APIEmoji,
   APIGuildMember,
   APIRole,
+  APISticker,
+  APIThreadChannel,
+  APIThreadMember,
   APIUser,
   ChannelType,
   ClientOptions,
@@ -25,9 +28,6 @@ import {
   GatewayTypingStartDispatchData,
   GatewayWebhooksUpdateDispatchData,
   OPCodes,
-  APIThreadChannel,
-  APIThreadMember,
-  APISticker
 } from "../types/mod.ts";
 import {
   Camelize,
@@ -43,20 +43,20 @@ import {
   Guild,
   GuildEmoji,
   GuildMember,
+  GuildSticker,
   Message,
   Role,
   TextChannel,
   ThreadChannel,
   User,
-  GuildSticker
 } from "../structures/mod.ts";
 import { handleCloseEventMessage } from "../handler/mod.ts";
 import {
   GatewayReadyEventHandler,
   MessageCreateGatewayEventHandler,
 } from "../events/mod.ts";
-import { RestClient } from "../http/rest.ts"
-import { setToken } from "../state.ts"
+import { RestClient } from "../http/rest.ts";
+import { setToken } from "../state.ts";
 export class Base extends EventEmitter<GatewayEvents> {
   private heartbeatInterval = 41250;
   protected websocket: WebSocket;
@@ -67,14 +67,14 @@ export class Base extends EventEmitter<GatewayEvents> {
   protected options;
   cache = new Cache(this);
   ping = -1;
-  rest
+  rest;
   constructor(options: ClientOptions) {
     super();
     this.options = options;
-    this.rest = new RestClient(this.options.token)
+    this.rest = new RestClient(this.options.token);
     this.token = options.token;
     this.websocket = new WebSocket(GatewayUrl);
-    setToken(this.options.token)
+    setToken(this.options.token);
     const payload: GatewayIdentifyData = {
       token: options.token,
       intents: options.intents.reduce(
@@ -157,7 +157,7 @@ export class Base extends EventEmitter<GatewayEvents> {
             }
             case 5: {
               this.emit("InteractionCreate", d);
-              break
+              break;
             }
             case 1:
               break;
@@ -179,7 +179,11 @@ export class Base extends EventEmitter<GatewayEvents> {
         }
         case GatewayDispatchEvents.GuildRoleCreate: {
           if (d.role) {
-            const role = new Role(d.role, this.cache.guilds.get(d.guild_id)!,this);
+            const role = new Role(
+              d.role,
+              this.cache.guilds.get(d.guild_id)!,
+              this,
+            );
             this.cache.roles.set(d.role.id, role);
             this.emit("GuildRoleCreate", role);
           }
@@ -193,7 +197,7 @@ export class Base extends EventEmitter<GatewayEvents> {
         }
         case GatewayDispatchEvents.GuildRoleUpdate: {
           if (d.role) {
-            const role = new Role(d, this.cache.guilds.get(d.guild_id)!,this);
+            const role = new Role(d, this.cache.guilds.get(d.guild_id)!, this);
             this.cache.roles.set(d.role.id, role);
             this.emit("GuildRoleUpdate", role);
           }
@@ -358,39 +362,45 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.ThreadListSync: {
-          const threads = (d.threads as APIThreadChannel[]).map(thread => new ThreadChannel(thread, this))
-          threads.map(thread => this.cache.channels.set(thread.id, thread))
+          const threads = (d.threads as APIThreadChannel[]).map((thread) =>
+            new ThreadChannel(thread, this)
+          );
+          threads.map((thread) => this.cache.channels.set(thread.id, thread));
           this.emit("ThreadListSync", {
             guildId: d.guild_id,
             threads,
             channelIds: d.channel_ids,
-            members: camelize(d.members) as Camelize<APIThreadMember>
-          })
-          break
+            members: camelize(d.members) as Camelize<APIThreadMember>,
+          });
+          break;
         }
         case GatewayDispatchEvents.GuildEmojisUpdate: {
-          const emojis = (d.emojis as APIEmoji[]).map(emoji => new GuildEmoji(emoji, this, d.guild_id))
-          emojis.map(emoji => {
-            this.cache.emojis.set(emoji.id!, emoji)
-          })
+          const emojis = (d.emojis as APIEmoji[]).map((emoji) =>
+            new GuildEmoji(emoji, this, d.guild_id)
+          );
+          emojis.map((emoji) => {
+            this.cache.emojis.set(emoji.id!, emoji);
+          });
           this.emit("GuildEmojisUpdate", {
             guildId: d.guild_id,
-            emojis
-          })
-          break
+            emojis,
+          });
+          break;
         }
         case GatewayDispatchEvents.GuildStickersUpdate: {
-          const stickers = (d.stickers as APISticker[]).map(sticker => new GuildSticker(sticker, this,))
+          const stickers = (d.stickers as APISticker[]).map((sticker) =>
+            new GuildSticker(sticker, this)
+          );
           this.emit("GuildStickersUpdate", {
             stickers,
-            guildId: d.guild_id
-          })
-          break
+            guildId: d.guild_id,
+          });
+          break;
         }
       }
     };
     this.websocket.onclose = (e) => {
-      console.log(e)
+      console.log(e);
       handleCloseEventMessage(e.code);
     };
   }
@@ -407,7 +417,7 @@ export class Base extends EventEmitter<GatewayEvents> {
   private async addRolesToCache(roles: APIRole[], guild: Guild) {
     await Promise.all(
       roles.map((role) => {
-        this.cache.addRoleToCache(role.id, new Role(role, guild,this));
+        this.cache.addRoleToCache(role.id, new Role(role, guild, this));
       }),
     );
   }

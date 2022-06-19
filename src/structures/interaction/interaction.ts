@@ -23,7 +23,7 @@ export class Interaction {
   targetedUsers: undefined | User[];
   targetMembers: undefined | Omit<GuildMember, "user" | "deaf" | "mute">[];
   targetMessage: undefined | (Message | ClientMessage)[];
-  guild
+  guild;
   constructor(
     protected interaction: APIInteraction & { locale: string },
     protected token: string,
@@ -91,12 +91,14 @@ export class Interaction {
           });
       }
     }
-    this.guild = this.interaction.guild_id ? this.client.cache.guilds.get(this.interaction.guild_id) : undefined
+    this.guild = this.interaction.guild_id
+      ? this.client.cache.guilds.get(this.interaction.guild_id)
+      : undefined;
   }
   protected create() {
     const isGuildOwner =
       this.client.cache.guilds.get(this.interaction.guild_id || "")?.ownerId ===
-      this.interaction.user?.id;
+        this.interaction.user?.id;
     const obj = {
       application_id: this.interaction.application_id,
       data: this.interaction.data,

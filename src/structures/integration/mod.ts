@@ -89,23 +89,27 @@ export class GuildIntegration {
    *
    * **This field is not provided for `discord` bot integrations.**
    */
-  subscriberCount?: number
-  constructor(protected data: APIGuildIntegration, protected guildId: Snowflake, protected client: Base) {
+  subscriberCount?: number;
+  constructor(
+    protected data: APIGuildIntegration,
+    protected guildId: Snowflake,
+    protected client: Base,
+  ) {
     this.id = data.id;
     this.name = data.name;
     this.type = data.type;
     this.enabled = data.enabled;
-    this.syncing = data.syncing
-    this.roleId = data.role_id
-    this.enableEmoticons = data.enable_emoticons
-    this.expireBehaviour = data.expire_behavior
-    this.expireGracePeriod = data.expire_grace_period
-    this.user = data.user
-    this.account = data.account
-    this.syncedAt = data.synced_at
-    this.revoked = data.revoked
-    this.application = data.application
-    this.subscriberCount = data.subscriber_count
+    this.syncing = data.syncing;
+    this.roleId = data.role_id;
+    this.enableEmoticons = data.enable_emoticons;
+    this.expireBehaviour = data.expire_behavior;
+    this.expireGracePeriod = data.expire_grace_period;
+    this.user = data.user;
+    this.account = data.account;
+    this.syncedAt = data.synced_at;
+    this.revoked = data.revoked;
+    this.application = data.application;
+    this.subscriberCount = data.subscriber_count;
   }
   async deleteIntegration() {
     return void await this.client.rest.request(

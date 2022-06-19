@@ -74,9 +74,9 @@ export class Role {
     return undefined;
   }
   async setPosition(position: number, reason?: string) {
-    const headers = new Headers()
+    const headers = new Headers();
     if (reason) {
-      headers.append("X-Audit-Log-Reason", reason)
+      headers.append("X-Audit-Log-Reason", reason);
     }
     await this.client.rest.request(
       endpoints.modifyGuildRolePositions(this.guild.id),
@@ -84,7 +84,8 @@ export class Role {
       {
         id: this.id,
         position,
-      }, headers
+      },
+      headers,
     );
     this.position = position;
     return undefined;

@@ -52,7 +52,7 @@ export class BaseChannel implements APIPartialChannel {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await deleteMessage(this.id, messageId, headers);
+    await deleteMessage(this.id, messageId, this.client.rest, headers);
   }
   /**
    * Minimum 2, Maximum 100
@@ -98,7 +98,7 @@ export class BaseChannel implements APIPartialChannel {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await pinMessage(this.id, messageId, headers);
+    await pinMessage(this.id, messageId, this.client.rest, headers);
   }
   async unPinMessage({
     messageId,
@@ -109,7 +109,7 @@ export class BaseChannel implements APIPartialChannel {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await unpinMessage(this.id, messageId, headers);
+    await unpinMessage(this.id, messageId, this.client.rest, headers);
   }
   createMessageComponentsCollector() {
     return new ComponentCollector(this.client, this.id);

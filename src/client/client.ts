@@ -1,13 +1,13 @@
 import { Base } from "./base.ts";
 import {
+  ActivityType,
   APIInteractionGuildMember,
   ClientOptions,
   GatewayOpcodes,
   GatewayPresenceUpdateData,
   PresenceUpdateStatus,
-  ActivityType
 } from "../types/mod.ts";
-import { Colors } from "../../deps.ts"
+import { Colors } from "../../deps.ts";
 import { CommandType } from "../types/commands/mod.ts";
 import type { ContextMenu, SlashCommand } from "../structures/mod.ts";
 import { PermissionBits } from "../types/permission.ts";
@@ -24,16 +24,20 @@ export class Client extends Base {
     super(options);
     this.displayAvatarUrl = super.user && super.user.avatar
       ? this.cdn.getUserAvatar({ id: this.user.id, hash: this.user.avatar })
-      : this.cdn.getDefaultUserAvatar({ discriminator: this.user.discriminator });
-    this.token = this.options.token
+      : this.cdn.getDefaultUserAvatar({
+        discriminator: this.user.discriminator,
+      });
+    this.token = this.options.token;
   }
   /**
-   * 
    * @deprecated Use updatePresence instead
-   * 
    */
   setPresence(presence: GatewayPresenceUpdateData) {
-    console.log(Colors.yellow(".setPresence is Deprecated and will be removed in future release. Use .updatePresence instead."))
+    console.log(
+      Colors.yellow(
+        ".setPresence is Deprecated and will be removed in future release. Use .updatePresence instead.",
+      ),
+    );
     this.websocket.send(
       JSON.stringify({
         op: GatewayOpcodes.PresenceUpdate,
@@ -48,36 +52,39 @@ export class Client extends Base {
      * the user's activities
      */
     activities: {
-      name: string,
-      type: keyof typeof ActivityType,
-      url?: string
-    }[],
+      name: string;
+      type: keyof typeof ActivityType;
+      url?: string;
+    }[];
     /**
      * 	whether or not the client is afk
      */
-    afk?: boolean
+    afk?: boolean;
     /**
      * Client's New Status
      */
-    status?: keyof typeof PresenceUpdateStatus
+    status?: keyof typeof PresenceUpdateStatus;
     /**
      * unix time (in milliseconds) of when the client went idle, or null if the client is not idle
      */
-    since?: number
+    since?: number;
   }): void {
-    const status = PresenceUpdateStatus[presenceObject.status || "Online"]
+    const status = PresenceUpdateStatus[presenceObject.status || "Online"];
 
     const presenceData: Record<string, unknown> = {
       status,
       afk: presenceObject.afk || false,
-      activities: presenceObject.activities.map(activity => ({ ...activity, type: ActivityType[activity.type] }))
-    }
-    presenceData['since'] = presenceObject.since || null
+      activities: presenceObject.activities.map((activity) => ({
+        ...activity,
+        type: ActivityType[activity.type],
+      })),
+    };
+    presenceData["since"] = presenceObject.since || null;
     this.websocket.send(
       JSON.stringify({
         op: GatewayOpcodes.PresenceUpdate,
         d: {
-          ...presenceData
+          ...presenceData,
         },
       }),
     );
@@ -100,7 +107,11 @@ export class Client extends Base {
     if (contextMenuCommands.length > 5) {
       throw new Error("You can only register 5 context menu commands .");
     }
-    await registerGlobalSlashCommands(commands, this.options.clientId);
+    await registerGlobalSlashCommands(
+      commands,
+      this.options.clientId,
+      this.rest,
+    );
   }
   async registerGuildSlashCommands({
     commands,
@@ -119,6 +130,7 @@ export class Client extends Base {
       commands,
       this.options.clientId,
       guildId,
+      this.rest,
     );
   }
 }

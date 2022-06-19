@@ -1,23 +1,30 @@
 import {
   APIBan,
   APIGuild,
+  APIGuildIntegration,
   APIRole,
+  APISticker,
   ChannelType,
+  GuildFeature,
   PermissionFlagsBits,
   Snowflake,
-  GuildFeature,
-  APISticker,
-  APIGuildIntegration,
 } from "../../types/mod.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 import { Base } from "../../client/base.ts";
-import { GuildMember, TextChannel, ThreadChannel, GuildNewsChannel, GuildSticker, GuildIntegration } from "../mod.ts";
+import {
+  GuildIntegration,
+  GuildMember,
+  GuildNewsChannel,
+  GuildSticker,
+  TextChannel,
+  ThreadChannel,
+} from "../mod.ts";
 import { ColorResolvable, resolveColor } from "../../utils/mod.ts";
-import { endpoints } from "../../constants/endpoints/mod.ts"
-import { Messages } from "../../errors/messages.ts"
+import { endpoints } from "../../constants/endpoints/mod.ts";
+import { Messages } from "../../errors/messages.ts";
 
 type GuildProperties = Camelize<APIGuild> & {
-  channnels: (TextChannel | ThreadChannel)[]
+  channnels: (TextChannel | ThreadChannel)[];
 };
 
 export class Guild {
@@ -64,7 +71,6 @@ export class Guild {
   unavailable: GuildProperties["unavailable"];
   id: GuildProperties["id"];
   constructor(protected data: APIGuild, private client: Base) {
-
     this.afkChannelId = data.afk_channel_id;
     this.afkTimeout = data.afk_timeout;
     this.approximateMemberCount = data.approximate_member_count;
@@ -100,7 +106,9 @@ export class Guild {
     this.widgetEnabled = data.widget_enabled;
     this.welcomeScreen = data.welcome_screen;
     this.nsfwLevel = data.nsfw_level;
-    this.stickers = data.stickers.map(sticker => new GuildSticker(sticker, this.client));
+    this.stickers = data.stickers.map((sticker) =>
+      new GuildSticker(sticker, this.client)
+    );
     this.premiumProgressBarEnabled = data.premium_progress_bar_enabled;
     this.hubType = data.hub_type;
     this.icon = data.icon;
@@ -110,10 +118,11 @@ export class Guild {
 
     this.preferredLocale = data.preferred_locale;
     this.channels = [];
-    this.channels = this.client.cache.guilds.get(this.id)?.channels?.map(channel => channel)
+    this.channels = this.client.cache.guilds.get(this.id)?.channels?.map(
+      (channel) => channel,
+    );
   }
   /**
-   * 
    * @deprecated
    */
   get region() {
@@ -122,12 +131,15 @@ export class Guild {
   async fetchVanityUrl() {
     if (!this.features.includes(GuildFeature.VanityURL)) {
       throw new Error(Messages.VANITY_URL, {
-        cause: new Error("Trying to Fetch Vanity URL of a Guild.")
-      })
+        cause: new Error("Trying to Fetch Vanity URL of a Guild."),
+      });
     }
-    const data = await (await this.client.rest.request(endpoints.getGuildVanityUrl(this.id), "GET")).json()
-    this.vanityUrlCode = data.code
-    return data
+    const data = await (await this.client.rest.request(
+      endpoints.getGuildVanityUrl(this.id),
+      "GET",
+    )).json();
+    this.vanityUrlCode = data.code;
+    return data;
   }
   async createChannel({
     channelType,
@@ -269,7 +281,7 @@ export class Guild {
       res,
       this.client,
       this.client.cache.guilds.get(`${this.id}`)?.ownerId ===
-      res.user?.id,
+        res.user?.id,
     ) as Partial<GuildMember>;
   }
   async changeClientNickname({
@@ -503,9 +515,14 @@ export class Guild {
     ));
   }
   async listStickers() {
-    const data = await (await this.client.rest.request(`/guilds/${this.id}/stickers`, "GET")).json()
-    const stickers = (data as APISticker[]).map(sticker => new GuildSticker(sticker, this.client))
-    return stickers
+    const data = await (await this.client.rest.request(
+      `/guilds/${this.id}/stickers`,
+      "GET",
+    )).json();
+    const stickers = (data as APISticker[]).map((sticker) =>
+      new GuildSticker(sticker, this.client)
+    );
+    return stickers;
   }
   // async getSticker(stickerId: string) {
   //   const data = await (await this.client.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "GET")).json()
@@ -575,42 +592,51 @@ export class Guild {
     /**
      * New Name of Sticker (2-30 characters)
      */
-    name: string
+    name: string;
     /**
      * New Description of Sticker (2-100 characters)
      */
-    description: string
+    description: string;
     /**
      * New Tags of Sticker(for Autocomplete)(max 200 characters)
      */
-    tags: string
+    tags: string;
     /**
      * Id of Sticker
      */
-    stickerId: string
+    stickerId: string;
   }) {
     if (name.length < 2) {
-      throw new Error(`Name of Sticker can't be less than 2 characters.`)
+      throw new Error(`Name of Sticker can't be less than 2 characters.`);
     }
     if (name.length > 30) {
-      throw new Error(`Name of Sticker must not exceed 30 characters.`)
+      throw new Error(`Name of Sticker must not exceed 30 characters.`);
     }
     if (description && description.length < 2) {
-      throw new Error("Description Can't be less than 2 characters.")
+      throw new Error("Description Can't be less than 2 characters.");
     }
     if (description && description.length > 100) {
-      throw new Error("Description can't exceed 100 charaters.")
+      throw new Error("Description can't exceed 100 charaters.");
     }
     if (tags.length > 200) {
-      throw new Error("Tags must not exceed 200 characters.")
+      throw new Error("Tags must not exceed 200 characters.");
     }
-    const data = await (await this.client.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "PATCH", {
-      name, tags, description
-    })).json()
-    return new GuildSticker(data, this.client)
+    const data = await (await this.client.rest.request(
+      `/guilds/${this.id}/stickers/${stickerId}`,
+      "PATCH",
+      {
+        name,
+        tags,
+        description,
+      },
+    )).json();
+    return new GuildSticker(data, this.client);
   }
   async deleteSticker(stickerId: string): Promise<void> {
-    return void (await this.client.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "DELETE"))
+    return void (await this.client.rest.request(
+      `/guilds/${this.id}/stickers/${stickerId}`,
+      "DELETE",
+    ));
   }
 
   // async listAutoModerationRules() {
@@ -620,14 +646,22 @@ export class Guild {
    * Returns a List of Integrations for the Guild
    */
   async getGuildIntegrations(): Promise<GuildIntegration[]> {
-    const data = await (await this.client.rest.request(`/guilds/${this.id}/integrations`, "GET")).json() as APIGuildIntegration[]
-    const integration = data.map(integration => new GuildIntegration(integration, this.id))
-    return integration
+    const data = await (await this.client.rest.request(
+      `/guilds/${this.id}/integrations`,
+      "GET",
+    )).json() as APIGuildIntegration[];
+    const integration = data.map((integration) =>
+      new GuildIntegration(integration, this.id)
+    );
+    return integration;
   }
   /**
    * Delete Integration
    */
   async deleteIntegration(integrationId: string): Promise<void> {
-    return void (await this.client.rest.request(`/guilds/${this.id}/integrations/${integrationId}`, "DELETE"))
+    return void (await this.client.rest.request(
+      `/guilds/${this.id}/integrations/${integrationId}`,
+      "DELETE",
+    ));
   }
 }

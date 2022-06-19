@@ -3,18 +3,18 @@ import { ClientMessage } from "../structures/mod.ts";
 import { ButtonInteraction } from "../structures/collectors/classes/Button.ts";
 import { SelectMenuInteraction } from "../structures/collectors/classes/SelectMenu.ts";
 type ComponentFunctions = {
-  reply: (e: ReplyPayload) => any;
-  deferReply: (e: { ephemeral?: boolean }) => any;
-  editReply: (e: ReplyPayload) => any;
-  deleteReply: () => any;
-  followUp: (e: ReplyPayload) => any;
+  reply: (e: ReplyPayload) => unknown;
+  deferReply: (e: { ephemeral?: boolean }) => unknown;
+  editReply: (e: ReplyPayload) => unknown;
+  deleteReply: () => unknown;
+  followUp: (e: ReplyPayload) => unknown;
   fetchFollowUp: () => Promise<ClientMessage>;
-  deferUpdate: () => any;
-  deleteFollowUp: () => any;
-  editFollowUp: (e: ReplyPayload) => any;
+  deferUpdate: () => unknown;
+  deleteFollowUp: () => unknown;
+  editFollowUp: (e: ReplyPayload) => unknown;
   fetchReply: () => Promise<ClientMessage>;
 };
 export type CollectorEvents = {
-  buttonInteraction: (collected: ButtonInteraction) => any;
-  selectMenuInteraction: (collected: SelectMenuInteraction) => any;
+  buttonInteraction: (collected: ButtonInteraction) => unknown;
+  selectMenuInteraction: (collected: SelectMenuInteraction) => unknown;
 };

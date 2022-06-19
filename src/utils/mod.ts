@@ -1,5 +1,5 @@
 import { Colors } from "../constants/mod.ts";
-import { Messages } from "../errors/messages.ts"
+import { Messages } from "../errors/messages.ts";
 export type HexColorString = `#${string}`;
 export type ColorResolvable =
   | keyof typeof Colors

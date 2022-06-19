@@ -14,7 +14,11 @@ export class GuildEmoji {
   animated?: boolean;
   available?: boolean;
 
-  constructor(private d: APIEmoji, private client: Base, private readonly guildId: string) {
+  constructor(
+    private d: APIEmoji,
+    private client: Base,
+    private readonly guildId: string,
+  ) {
     this.id = d.id;
     this.name = d.name;
     this.requireColons = d.require_colons;

@@ -1,4 +1,4 @@
-import { APIGuild, } from "../types/mod.ts";
+import { APIGuild } from "../types/mod.ts";
 import { Channel, Emoji } from "../types/cache.ts";
 import { Camelize, ChannelType, Collection } from "../../deps.ts";
 import { Base } from "../client/base.ts";

@@ -2,12 +2,12 @@ import { RestClient } from "./rest.ts";
 import { Snowflake } from "../types/mod.ts";
 import type { ContextMenu, SlashCommand } from "../structures/mod.ts";
 import { endpoints } from "../constants/endpoints/mod.ts";
-import { token } from "../state.ts"
-const rest = new RestClient(token);
+import { token } from "../state.ts";
 
 export async function registerGlobalSlashCommands(
   commands: (SlashCommand | ContextMenu)[],
   clientId: Snowflake,
+  rest: RestClient,
 ) {
   await rest.request(
     endpoints.createGlobalApplicationCommands(clientId),
@@ -22,6 +22,7 @@ export async function registerGuildSlashCommands(
   commands: (SlashCommand | ContextMenu)[],
   clientId: Snowflake,
   guildId: Snowflake,
+  rest: RestClient,
 ) {
   await rest.request(
     endpoints.createGuildApplicationCommand(clientId, guildId),
@@ -32,13 +33,20 @@ export async function registerGuildSlashCommands(
   );
 }
 
-export async function createMessage(channelId: Snowflake, body: unknown) {
+rest:
+RestClient;
+export async function createMessage(
+  channelId: Snowflake,
+  body: unknown,
+  rest: RestClient,
+) {
   return await rest.request(endpoints.createMessage(channelId), "POST", body);
 }
 
 export async function deleteMessage(
   channelId: Snowflake,
   messageId: Snowflake,
+  rest: RestClient,
   headers?: HeadersInit,
 ) {
   return void (await rest.request(
@@ -52,6 +60,7 @@ export async function deleteMessage(
 export async function addReaction(
   channelId: string,
   messageId: string,
+  rest: RestClient,
   emoji: string,
 ) {
   return void (await rest.request(
@@ -64,6 +73,7 @@ export async function removeClientReaction(
   channelId: string,
   messageId: string,
   emoji: string,
+  rest: RestClient,
 ) {
   return void (await rest.request(
     endpoints.deleteOwnReaction(channelId, messageId, emoji),
@@ -75,6 +85,7 @@ export async function removeUserReaction(
   userId: Snowflake,
   channelId: Snowflake,
   messageId: Snowflake,
+  rest: RestClient,
 ) {
   return void (await rest.request(
     endpoints.deleteUserReaction(channelId, messageId, emoji, userId),
@@ -85,6 +96,7 @@ export async function getReactions(
   emoji: string,
   channelId: Snowflake,
   messageId: Snowflake,
+  rest: RestClient,
 ) {
   return await rest.request(
     endpoints.getReactions(channelId, messageId, emoji),
@@ -94,6 +106,7 @@ export async function getReactions(
 export async function deleteAllReactions(
   channelId: Snowflake,
   messageId: Snowflake,
+  rest: RestClient,
 ) {
   return void (await rest.request(
     endpoints.deleteAllReactions(channelId, messageId),
@@ -105,13 +118,14 @@ export async function deleteAllReactionsForEmoji(
   channelId: Snowflake,
   messageId: Snowflake,
   emoji: string,
+  rest: RestClient,
 ) {
   return void (await rest.request(
     endpoints.deleteAllReactionsForEmoji(channelId, messageId, emoji),
     "DELETE",
   ));
 }
-export async function sendTyping(channelId: Snowflake) {
+export async function sendTyping(channelId: Snowflake, rest: RestClient) {
   return void (await rest.request(
     endpoints.triggerTypingIndicator(channelId),
     "POST",
@@ -120,6 +134,7 @@ export async function sendTyping(channelId: Snowflake) {
 export async function pinMessage(
   channelId: Snowflake,
   messageId: Snowflake,
+  rest: RestClient,
   headers?: HeadersInit,
 ) {
   return void (await rest.request(
@@ -132,6 +147,7 @@ export async function pinMessage(
 export async function unpinMessage(
   channelId: Snowflake,
   messageId: Snowflake,
+  rest: RestClient,
   headers?: HeadersInit,
 ) {
   return void (await rest.request(
@@ -143,6 +159,7 @@ export async function unpinMessage(
 }
 export async function startThreadFromMessage(
   channelId: Snowflake,
+  rest: RestClient,
   messageId: Snowflake,
   headers?: HeadersInit,
 ) {
@@ -156,6 +173,7 @@ export async function startThreadFromMessage(
 
 export async function createNewThread(
   channelId: Snowflake,
+  rest: RestClient,
   headers?: HeadersInit,
 ) {
   return await rest.request(

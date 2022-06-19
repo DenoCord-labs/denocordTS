@@ -7,7 +7,9 @@ interface DiscordErrorGroupWrapper {
   _errors: DiscordError[];
 }
 
-type DiscordError = DiscordErrorGroupWrapper | DiscordErrorFieldInformation | { [k: string]: DiscordError } | string;
+type DiscordError = DiscordErrorGroupWrapper | DiscordErrorFieldInformation | {
+  [k: string]: DiscordError;
+} | string;
 
 export interface DiscordErrorData {
   code: number;
@@ -25,14 +27,18 @@ export interface RequestBody {
   json: unknown | undefined;
 }
 
-function isErrorGroupWrapper(error: DiscordError): error is DiscordErrorGroupWrapper {
-  return Reflect.has(error as Record<string, unknown>, '_errors');
+function isErrorGroupWrapper(
+  error: DiscordError,
+): error is DiscordErrorGroupWrapper {
+  return Reflect.has(error as Record<string, unknown>, "_errors");
 }
 
-function isErrorResponse(error: DiscordError): error is DiscordErrorFieldInformation {
-  return typeof Reflect.get(error as Record<string, unknown>, 'message') === 'string';
+function isErrorResponse(
+  error: DiscordError,
+): error is DiscordErrorFieldInformation {
+  return typeof Reflect.get(error as Record<string, unknown>, "message") ===
+    "string";
 }
-
 
 export class DiscordAPIError extends Error {
   public requestBody: RequestBody;
@@ -66,27 +72,36 @@ export class DiscordAPIError extends Error {
   }
 
   private static getMessage(error: DiscordErrorData | OAuthErrorData) {
-    let flattened = '';
-    if ('code' in error) {
+    let flattened = "";
+    if ("code" in error) {
       if (error.errors) {
-        flattened = [...this.flattenDiscordError(error.errors)].join('\n');
+        flattened = [...this.flattenDiscordError(error.errors)].join("\n");
       }
       return error.message && flattened
         ? `${error.message}\n${flattened}`
-        : error.message || flattened || 'Unknown Error';
+        : error.message || flattened || "Unknown Error";
     }
-    return error.error_description ?? 'No Description';
+    return error.error_description ?? "No Description";
   }
 
-  private static *flattenDiscordError(obj: DiscordError, key = ''): IterableIterator<string> {
+  private static *flattenDiscordError(
+    obj: DiscordError,
+    key = "",
+  ): IterableIterator<string> {
     if (isErrorResponse(obj)) {
-      return yield `${key.length ? `${key}[${obj.code}]` : `${obj.code}`}: ${obj.message}`.trim();
+      return yield `${
+        key.length ? `${key}[${obj.code}]` : `${obj.code}`
+      }: ${obj.message}`.trim();
     }
 
     for (const [k, v] of Object.entries(obj)) {
-      const nextKey = k.startsWith('_') ? key : key ? (Number.isNaN(Number(k)) ? `${key}.${k}` : `${key}[${k}]`) : k;
+      const nextKey = k.startsWith("_")
+        ? key
+        : key
+        ? (Number.isNaN(Number(k)) ? `${key}.${k}` : `${key}[${k}]`)
+        : k;
 
-      if (typeof v === 'string') {
+      if (typeof v === "string") {
         yield v;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       } else if (isErrorGroupWrapper(v)) {

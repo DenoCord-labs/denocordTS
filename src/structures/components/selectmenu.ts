@@ -3,11 +3,11 @@ import {
   APISelectMenuOption,
 } from "../../types/mod.ts";
 import { BaseComponent } from "./base.ts";
-import { parseEmojiForComponents } from "../../utils/mod.ts"
+import { parseEmojiForComponents } from "../../utils/mod.ts";
 
 type SelectMenuOptions = Omit<APISelectMenuOption, "emoji"> & {
   emoji: string;
-}
+};
 
 export class SelectMenu extends BaseComponent {
   private selectMenu: APISelectMenuComponent = {
@@ -34,9 +34,21 @@ export class SelectMenu extends BaseComponent {
   }
   setOptions(...options: SelectMenuOptions[]) {
     if (this.selectMenu.options) {
-      this.selectMenu.options.push(...options.map(option => ({ ...option, emoji: parseEmojiForComponents(option.emoji) as APISelectMenuOption["emoji"] })));
+      this.selectMenu.options.push(
+        ...options.map((option) => ({
+          ...option,
+          emoji: parseEmojiForComponents(
+            option.emoji,
+          ) as APISelectMenuOption["emoji"],
+        })),
+      );
     } else {
-      this.selectMenu.options = options.map(option => ({ ...option, emoji: parseEmojiForComponents(option.emoji) as APISelectMenuOption["emoji"] }));
+      this.selectMenu.options = options.map((option) => ({
+        ...option,
+        emoji: parseEmojiForComponents(
+          option.emoji,
+        ) as APISelectMenuOption["emoji"],
+      }));
     }
     return this;
   }

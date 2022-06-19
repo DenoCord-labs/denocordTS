@@ -6,7 +6,7 @@ import { ReplyPayload } from "../../../types/responsepayload.ts";
 import { ClientMessage } from "../../messages/ClientMessage.ts";
 import { Messages } from "../../../errors/messages.ts";
 import { Base } from "../../../client/base.ts";
-import { Modal } from "../../mod.ts"
+import { Modal } from "../../mod.ts";
 export class BaseComponent {
   protected deferred = false;
   protected replied = false;
@@ -113,7 +113,7 @@ export class BaseComponent {
     if (this.deferred || this.replied) {
       throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     }
-    Deno.writeTextFileSync("modal.json", JSON.stringify(modal.toJSON()))
+    Deno.writeTextFileSync("modal.json", JSON.stringify(modal.toJSON()));
     await this.client.rest.request(
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
       "POST",
@@ -124,6 +124,5 @@ export class BaseComponent {
     );
     this.replied = true;
     return null;
-
   }
 }

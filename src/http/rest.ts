@@ -1,7 +1,6 @@
 import { Collection } from "../../deps.ts";
 import { BaseRestApiUrl } from "../constants/mod.ts";
-import { DiscordAPIError } from "../errors/classes/DiscordApiError.ts"
-
+import { DiscordAPIError } from "../errors/classes/DiscordApiError.ts";
 
 export class RestClient extends Collection<
   string,
@@ -46,8 +45,8 @@ export class RestClient extends Collection<
         : ((!strignifyBody ? JSON.stringify(body) : body) as BodyInit),
     });
     if (!res.ok) {
-      const data = await res.json()
-      throw new DiscordAPIError(data, data.code, res.status, method, url, body)
+      const data = await res.json();
+      throw new DiscordAPIError(data, data.code, res.status, method, url, body);
     }
     this.addUrlToCollection(url, res.headers);
     return res;
@@ -81,10 +80,10 @@ export class RestClient extends Collection<
     }
     if (
       Date.now() / 1000 >
-      parseFloat(
-        (data.ratelimit as Record<string, string | null>).reset ||
-        String((data.timestamp as number) + 5),
-      )
+        parseFloat(
+          (data.ratelimit as Record<string, string | null>).reset ||
+            String((data.timestamp as number) + 5),
+        )
     ) {
       return {
         queue: false,
@@ -92,10 +91,10 @@ export class RestClient extends Collection<
     }
     if (
       (Date.now() - (data.timestamp as number)) / 1000 >
-      parseInt(
-        (data.ratelimit as Record<string, string | null>)
-          .resetAfter!,
-      )
+        parseInt(
+          (data.ratelimit as Record<string, string | null>)
+            .resetAfter!,
+        )
     ) {
       return {
         queue: false,
@@ -133,11 +132,11 @@ export class RestClient extends Collection<
           method,
           body,
           headers,
-          strignifyBody, formData
+          strignifyBody,
+          formData,
         );
         resolve(res);
       }, time * 1000);
     });
   }
 }
-

@@ -1,4 +1,8 @@
-import { APIMessage, Snowflake, GatewayMessageCreateDispatchData } from "../../types/mod.ts";
+import {
+  APIMessage,
+  GatewayMessageCreateDispatchData,
+  Snowflake,
+} from "../../types/mod.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { Messages } from "../../errors/messages.ts";
 import { ClientMessage } from "./mod.ts";
@@ -209,7 +213,10 @@ export class BaseMessage {
    * Time in Milliseconds at which this message was created.
    */
   createdAt: number;
-  constructor(public d: GatewayMessageCreateDispatchData, private client: Base) {
+  constructor(
+    public d: GatewayMessageCreateDispatchData,
+    private client: Base,
+  ) {
     this.id = d.id;
     this.channelId = d.channel_id;
     this.guildId = d.guild_id;
@@ -241,7 +248,7 @@ export class BaseMessage {
     this.mentionEveryone = d.mention_everyone;
     const isServerOwner =
       this.client.cache.guilds.get(this.d.guild_id || "")?.ownerId ===
-      this.author?.id;
+        this.author?.id;
     this.member = d.member
       ? new GuildMember(d, this.client, isServerOwner)
       : undefined;
@@ -261,7 +268,7 @@ export class BaseMessage {
       },
       allowed_mentions: payload.inline ? { parse: [] } : undefined,
     };
-    const res = await createMessage(this.d.channel_id, body);
+    const res = await createMessage(this.d.channel_id, body, this.client.rest);
     const msg = new ClientMessage(
       await res.json(),
       this.client,
@@ -271,12 +278,18 @@ export class BaseMessage {
   async delete(reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await deleteMessage(this.d.channel_id, this.d.id, headers);
+    await deleteMessage(
+      this.d.channel_id,
+      this.d.id,
+      this.client.rest,
+      headers,
+    );
   }
   async addReaction(emoji: string) {
     return void (await addReaction(
       this.d.channel_id,
       this.d.id,
+      this.client.rest,
       parseEmoji(emoji),
     ));
   }
@@ -285,6 +298,7 @@ export class BaseMessage {
       this.d.channel_id,
       this.d.id,
       parseEmoji(emoji),
+      this.client.rest,
     );
   }
   async removeUserReaction(emoji: string, userId: Snowflake) {
@@ -293,6 +307,7 @@ export class BaseMessage {
       userId,
       this.d.channel_id,
       this.d.id,
+      this.client.rest,
     );
   }
   async getReactions(emoji: string) {
@@ -300,37 +315,40 @@ export class BaseMessage {
       parseEmoji(emoji),
       this.d.channel_id,
       this.d.id,
+      this.client.rest,
     );
     return res.json();
   }
   async deleteAllReactions() {
-    await deleteAllReactions(this.d.channel_id, this.d.id);
+    await deleteAllReactions(this.d.channel_id, this.d.id, this.client.rest);
   }
   async deleteAllReactionsByEmoji(emoji: string) {
     await deleteAllReactionsForEmoji(
       this.d.channel_id,
       this.d.id,
       parseEmoji(emoji),
+      this.client.rest,
     );
   }
   async sendTyping() {
-    await sendTyping(this.d.channel_id);
+    await sendTyping(this.d.channel_id, this.client.rest);
   }
   async pinMessage(reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await pinMessage(this.d.channel_id, this.d.id, headers);
+    await pinMessage(this.d.channel_id, this.d.id, this.client.rest, headers);
   }
   async unpinMessage(reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await unpinMessage(this.d.channel_id, this.d.id, headers);
+    await unpinMessage(this.d.channel_id, this.d.id, this.client.rest, headers);
   }
   async startThreadFromMessage(reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
     const res = await startThreadFromMessage(
       this.d.channel_id,
+      this.client.rest,
       this.d.id,
       headers,
     );
@@ -339,7 +357,11 @@ export class BaseMessage {
   async createNewThread(reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    const res = await createNewThread(this.d.channel_id, headers);
+    const res = await createNewThread(
+      this.d.channel_id,
+      this.client.rest,
+      headers,
+    );
     return res.json();
   }
   private checks(payload: ReplyPayload) {

@@ -80,16 +80,16 @@ export class User {
       (d.public_flags & UserFlags.Hypesquad) === UserFlags.Hypesquad;
     this.isBravelyMember =
       (d.public_flags & UserFlags.HypeSquadOnlineHouse1) ===
-      UserFlags.HypeSquadOnlineHouse1;
+        UserFlags.HypeSquadOnlineHouse1;
     this.isBrillianceMember =
       (d.public_flags & UserFlags.HypeSquadOnlineHouse2) ===
-      UserFlags.HypeSquadOnlineHouse2;
+        UserFlags.HypeSquadOnlineHouse2;
     this.isBalanceMember =
       (d.public_flags & UserFlags.HypeSquadOnlineHouse3) ===
-      UserFlags.HypeSquadOnlineHouse3;
+        UserFlags.HypeSquadOnlineHouse3;
     this.isEarlyNitroSupporter =
       (d.public_flags & UserFlags.PremiumEarlySupporter) ===
-      UserFlags.PremiumEarlySupporter;
+        UserFlags.PremiumEarlySupporter;
     this.isTeam = (d.public_flags & UserFlags.TeamPseudoUser) ===
       UserFlags.TeamPseudoUser;
     this.isBugHunterLevel2 = (d.public_flags & UserFlags.BugHunterLevel2) ===
@@ -98,7 +98,7 @@ export class User {
       (d.public_flags & UserFlags.VerifiedBot) === UserFlags.VerifiedBot;
     this.isVerifiedDeveloper =
       (d.public_flags & UserFlags.VerifiedDeveloper) ===
-      UserFlags.VerifiedDeveloper;
+        UserFlags.VerifiedDeveloper;
     this.isCertifiedMod = (d.public_flags & UserFlags.CertifiedModerator) ===
       UserFlags.CertifiedModerator;
     this.isHttpBot = (d.public_flags & UserFlags.BotHTTPInteractions) ===

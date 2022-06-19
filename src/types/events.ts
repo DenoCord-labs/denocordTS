@@ -3,6 +3,7 @@ import { BaseMessage } from "../structures/messages/Base.ts";
 import {
   APIMessageComponentButtonInteraction,
   APIMessageComponentSelectMenuInteraction,
+  APIThreadMember,
   Channel,
   GatewayChannelPinsUpdateDispatchData,
   GatewayGuildBanAddDispatchData,
@@ -15,17 +16,16 @@ import {
   GatewayThreadMemberUpdateDispatchData,
   GatewayTypingStartDispatchData,
   GatewayWebhooksUpdateDispatchData,
-  APIThreadMember
 } from "./mod.ts";
 import {
   ApplicationCommandInteraction,
   Guild,
+  GuildEmoji,
   GuildMember,
+  GuildSticker,
   Role,
   ThreadChannel,
   User,
-  GuildEmoji,
-  GuildSticker
 } from "../structures/mod.ts";
 
 import { Camelize } from "../../deps.ts";
@@ -51,11 +51,11 @@ export type GatewayEvents = {
     /**
      * The Id of the guild
      */
-    guildId: string
+    guildId: string;
     /**
      * Updated Emojis
      */
-    emojis: GuildEmoji[]
+    emojis: GuildEmoji[];
   }) => unknown;
   GuildIntegrationsUpdate: (e: unknown) => unknown;
   GuildMemberAdd: (e: {
@@ -85,11 +85,11 @@ export type GatewayEvents = {
     /**
      * Array of stickers
      */
-    stickers: GuildSticker[],
+    stickers: GuildSticker[];
     /**
      * Id of the Guild
      */
-    guildId: string
+    guildId: string;
   }) => unknown;
   GuildUpdate: (e: { newGuild: Guild; oldGuild: Guild }) => unknown;
   IntegrationCreate: (e: unknown) => unknown;
@@ -149,19 +149,19 @@ export type GatewayEvents = {
     /**
      * The Id of the Guild
      */
-    guildId: string,
+    guildId: string;
     /**
      * the parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data.
      */
-    channelIds?: string[],
+    channelIds?: string[];
     /**
      * Threads
      */
-    threads: ThreadChannel[],
+    threads: ThreadChannel[];
     /**
      * all thread member objects from the synced threads for the current user, indicating which threads the current user has been added to
      */
-    members: Camelize<APIThreadMember>
+    members: Camelize<APIThreadMember>;
   }) => unknown;
   ThreadMembersUpdate: (
     e: Camelize<GatewayThreadMembersUpdateDispatchData>,
