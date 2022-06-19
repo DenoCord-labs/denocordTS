@@ -1,6 +1,6 @@
 import { APIGuildIntegration } from "../../../deps.ts";
 import { Snowflake } from "../../types/mod.ts";
-import { RestClient } from "../../http/rest.ts";
+import { Base } from "../../client/base.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
 export class GuildIntegration {
   /**
@@ -90,8 +90,7 @@ export class GuildIntegration {
    * **This field is not provided for `discord` bot integrations.**
    */
   subscriberCount?: number
-  protected restClient = new RestClient();
-  constructor(data: APIGuildIntegration, protected guildId: Snowflake) {
+  constructor(protected data: APIGuildIntegration, protected guildId: Snowflake, protected client: Base) {
     this.id = data.id;
     this.name = data.name;
     this.type = data.type;
@@ -109,7 +108,7 @@ export class GuildIntegration {
     this.subscriberCount = data.subscriber_count
   }
   async deleteIntegration() {
-    return void await this.restClient.request(
+    return void await this.client.rest.request(
       endpoints.deleteGuildIntegration(this.guildId, this.id),
       "DELETE",
     );

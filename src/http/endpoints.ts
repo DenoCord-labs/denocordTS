@@ -2,7 +2,8 @@ import { RestClient } from "./rest.ts";
 import { Snowflake } from "../types/mod.ts";
 import type { ContextMenu, SlashCommand } from "../structures/mod.ts";
 import { endpoints } from "../constants/endpoints/mod.ts";
-const rest = new RestClient();
+import { token } from "../state.ts"
+const rest = new RestClient(token);
 
 export async function registerGlobalSlashCommands(
   commands: (SlashCommand | ContextMenu)[],

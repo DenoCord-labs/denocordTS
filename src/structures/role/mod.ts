@@ -6,7 +6,7 @@ import {
 } from "../../types/mod.ts";
 import { ColorResolvable, resolveColor } from "../../utils/mod.ts";
 import { Guild } from "../mod.ts";
-import { RestClient } from "../../http/rest.ts";
+import { Base } from "../../client/base.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
 import { DiscordSnowflake } from "../../../deps.ts";
 
@@ -23,8 +23,7 @@ export class Role {
   tags?: APIRoleTags;
   createdAt: number;
   mentionable: boolean;
-  protected restClient = new RestClient();
-  constructor(d: APIRole, protected guild: Guild) {
+  constructor(d: APIRole, protected guild: Guild, protected client: Base) {
     this.id = d.id;
     this.name = d.name;
     this.color = d.color;
@@ -75,13 +74,17 @@ export class Role {
     return undefined;
   }
   async setPosition(position: number, reason?: string) {
-    await this.restClient.request(
+    const headers = new Headers()
+    if (reason) {
+      headers.append("X-Audit-Log-Reason", reason)
+    }
+    await this.client.rest.request(
       endpoints.modifyGuildRolePositions(this.guild.id),
       "PATCH",
       {
         id: this.id,
         position,
-      },
+      }, headers
     );
     this.position = position;
     return undefined;

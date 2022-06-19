@@ -2,7 +2,7 @@ import { APINewsChannel } from "../../types/mod.ts";
 import { TextChannel } from "./mod.ts";
 import { Base } from "../../client/base.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
-import { RestClientInstance } from "../../http/rest.ts";
+
 const { followNewsChannel } = endpoints;
 export class GuildNewsChannel extends TextChannel {
   defaultAutoArchiveDuration;
@@ -18,7 +18,7 @@ export class GuildNewsChannel extends TextChannel {
   position;
   topic;
   type;
-  constructor(d: APINewsChannel, client: Base) {
+  constructor(protected d: APINewsChannel, protected client: Base) {
     super(d, client);
     this.defaultAutoArchiveDuration = d.default_auto_archive_duration;
     this.flags = d.flags;
@@ -35,7 +35,7 @@ export class GuildNewsChannel extends TextChannel {
     this.type = d.type;
   }
   async addFollower(channelId: string) {
-    await RestClientInstance.request(followNewsChannel(this.id), "POST", {
+    await this.client.rest.request(followNewsChannel(this.id), "POST", {
       webhook_channel_id: channelId,
     });
     return this;

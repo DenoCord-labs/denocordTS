@@ -1,8 +1,9 @@
 import { Base } from "../../client/base.ts";
-import { ButtonInteraction, SelectMenuInteraction } from "./classes/mod.ts";
+import { ButtonInteraction, SelectMenuInteraction, ModalComponentInteraction } from "./classes/mod.ts";
 import {
   APIMessageComponentButtonInteraction,
   APIMessageComponentSelectMenuInteraction,
+  APIModalSubmitInteraction,
   ComponentType,
   EventEmitter,
   InteractionType,
@@ -11,6 +12,7 @@ import {
 type CollectorEvents = {
   buttonInteraction: (interaction: ButtonInteraction) => unknown;
   selectMenuInteraction: (interaction: SelectMenuInteraction) => unknown;
+  modalInteraction: (interaction: ModalComponentInteraction) => unknown;
 };
 
 export class ComponentCollector extends EventEmitter<CollectorEvents> {
@@ -18,16 +20,18 @@ export class ComponentCollector extends EventEmitter<CollectorEvents> {
     super();
     client.on(
       "InteractionCreate",
-      async (
+      (
         e:
           | APIMessageComponentButtonInteraction
-          | APIMessageComponentSelectMenuInteraction,
+          | APIMessageComponentSelectMenuInteraction
+          | APIModalSubmitInteraction,
+
       ) => {
-        const { data: { component_type }, channel_id, type } = e;
+        const { data, channel_id, type } = e;
 
         if (
           type === InteractionType.MessageComponent && channel_id === channelId,
-            component_type === ComponentType.Button
+          (e as unknown as APIMessageComponentButtonInteraction).data.component_type! === ComponentType.Button
         ) {
           const interaction = new ButtonInteraction(
             client,
@@ -37,7 +41,7 @@ export class ComponentCollector extends EventEmitter<CollectorEvents> {
           this.emit("buttonInteraction", interaction);
         } else if (
           type === InteractionType.MessageComponent && channel_id === channelId,
-            component_type === ComponentType.SelectMenu
+          (e as unknown as APIMessageComponentSelectMenuInteraction).data.component_type! === ComponentType.SelectMenu
         ) {
           const interaction = new SelectMenuInteraction(
             client,
@@ -45,6 +49,12 @@ export class ComponentCollector extends EventEmitter<CollectorEvents> {
             e as APIMessageComponentSelectMenuInteraction,
           );
           this.emit("selectMenuInteraction", interaction);
+        }
+        else if (
+          type === InteractionType.ModalSubmit && channel_id === channelId
+        ) {
+          const interaction = new ModalComponentInteraction(e, client)
+          this.emit("modalInteraction", interaction);
         }
       },
     );

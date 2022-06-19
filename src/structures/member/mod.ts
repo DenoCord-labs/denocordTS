@@ -1,10 +1,8 @@
 import { APIGuildMember, PermissionFlagsBits } from "../../types/mod.ts";
 import { Base } from "../../client/base.ts";
-import { RestClient } from "../../http/rest.ts";
 import { User } from "../mod.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
 export class GuildMember {
-  private rest = new RestClient();
   avatar: APIGuildMember["avatar"];
   communicationDisabledUntil?: APIGuildMember["communication_disabled_until"];
   deaf: APIGuildMember["deaf"];
@@ -46,7 +44,7 @@ export class GuildMember {
       headers = new Headers();
       headers.append("X-Audit-Log-Reason", reason);
     }
-    await this.rest.request(
+    await this.client.rest.request(
       endpoints.removeGuildBan(this.d.guild_id!, this.user?.id!),
       "DELETE",
       undefined,
@@ -59,7 +57,7 @@ export class GuildMember {
       headers = new Headers();
       headers.append("X-Audit-Log-Reason", reason);
     }
-    await this.rest.request(
+    await this.client.rest.request(
       endpoints.createGuildBan(this.d.guild_id!, this.user?.id!),
       "PUT",
       undefined,
@@ -77,7 +75,7 @@ export class GuildMember {
   async updateNickname(nickname: string, reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await this.rest.request(
+    await this.client.rest.request(
       endpoints.modifyGuildMember(this.d.guild_id!, this.user?.id!),
       "PATCH",
       { nick: nickname },
@@ -87,7 +85,7 @@ export class GuildMember {
   async addRole(roleId: string, reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await this.rest.request(
+    await this.client.rest.request(
       endpoints.addGuildMemberRole(
         this.d.guild_id!,
         this.user?.id!,
@@ -101,7 +99,7 @@ export class GuildMember {
   async removeRole(roleId: string, reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await this.rest.request(
+    await this.client.rest.request(
       endpoints.removeGuildMemberRole(
         this.d.guild_id!,
         this.user?.id!,
@@ -115,7 +113,7 @@ export class GuildMember {
   async moveToAnotherVoiceChannel(channelId: string, reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await this.rest.request(
+    await this.client.rest.request(
       endpoints.modifyGuildMember(this.d.guild_id!, this.user?.id!),
       "PATCH",
       { channel_id: channelId },
@@ -125,7 +123,7 @@ export class GuildMember {
   async addTimeout(duration: string, reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await this.rest.request(
+    await this.client.rest.request(
       endpoints.modifyGuildMember(this.d.guild_id!, this.user?.id!),
       "PATCH",
       { communication_disabled_until: duration },
@@ -135,7 +133,7 @@ export class GuildMember {
   async removeTimeout(reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await this.rest.request(
+    await this.client.rest.request(
       endpoints.modifyGuildMember(this.d.guild_id!, this.user?.id!),
       "PATCH",
       { communication_disabled_until: null },

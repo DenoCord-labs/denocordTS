@@ -1,5 +1,4 @@
 import { CDN } from "../../rest/cdn.ts";
-import { RestClient } from "../../http/mod.ts";
 import { UserFlags, UserPremiumType } from "../../types/mod.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
 import { DmChannel } from "../mod.ts";
@@ -43,7 +42,6 @@ export class User {
   hasNitro?: boolean;
   nitroType?: string;
 
-  private restClient = new RestClient();
   constructor(d: any, protected client: Base) {
     this.id = d.id;
     this.username = d.username;
@@ -82,16 +80,16 @@ export class User {
       (d.public_flags & UserFlags.Hypesquad) === UserFlags.Hypesquad;
     this.isBravelyMember =
       (d.public_flags & UserFlags.HypeSquadOnlineHouse1) ===
-        UserFlags.HypeSquadOnlineHouse1;
+      UserFlags.HypeSquadOnlineHouse1;
     this.isBrillianceMember =
       (d.public_flags & UserFlags.HypeSquadOnlineHouse2) ===
-        UserFlags.HypeSquadOnlineHouse2;
+      UserFlags.HypeSquadOnlineHouse2;
     this.isBalanceMember =
       (d.public_flags & UserFlags.HypeSquadOnlineHouse3) ===
-        UserFlags.HypeSquadOnlineHouse3;
+      UserFlags.HypeSquadOnlineHouse3;
     this.isEarlyNitroSupporter =
       (d.public_flags & UserFlags.PremiumEarlySupporter) ===
-        UserFlags.PremiumEarlySupporter;
+      UserFlags.PremiumEarlySupporter;
     this.isTeam = (d.public_flags & UserFlags.TeamPseudoUser) ===
       UserFlags.TeamPseudoUser;
     this.isBugHunterLevel2 = (d.public_flags & UserFlags.BugHunterLevel2) ===
@@ -100,7 +98,7 @@ export class User {
       (d.public_flags & UserFlags.VerifiedBot) === UserFlags.VerifiedBot;
     this.isVerifiedDeveloper =
       (d.public_flags & UserFlags.VerifiedDeveloper) ===
-        UserFlags.VerifiedDeveloper;
+      UserFlags.VerifiedDeveloper;
     this.isCertifiedMod = (d.public_flags & UserFlags.CertifiedModerator) ===
       UserFlags.CertifiedModerator;
     this.isHttpBot = (d.public_flags & UserFlags.BotHTTPInteractions) ===
@@ -113,7 +111,7 @@ export class User {
   async createDM() {
     return new DmChannel(
       await (
-        await this.restClient.request(
+        await this.client.rest.request(
           endpoints.createDM(),
           "POST",
           {

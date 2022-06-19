@@ -1,7 +1,7 @@
 import { APISticker, StickerType, StickerFormatType } from "../../types/mod.ts"
 import { Base } from "../../client/base.ts"
 import { User } from "../mod.ts"
-import { RestClientInstance } from "../../http/rest.ts"
+
 export class GuildSticker {
     /**
      * The Id of the Sticker
@@ -49,7 +49,6 @@ export class GuildSticker {
     sortValue?: number
 
     protected deleted = false
-    protected restClient = RestClientInstance
     constructor(protected sticker: APISticker, protected client: Base) {
         this.id = sticker.id
         this.packId = sticker.pack_id
@@ -110,7 +109,7 @@ export class GuildSticker {
         if (reason) {
             headers.append("X-Audit-Log-Reason", reason)
         }
-        const data: APISticker = await (await this.restClient.request(`/guilds/${this.guildId}/stickers/${this.id}`, "PATCH", body, headers)).json()
+        const data: APISticker = await (await this.client.rest.request(`/guilds/${this.guildId}/stickers/${this.id}`, "PATCH", body, headers)).json()
         this.id = data.id
         this.packId = data.pack_id
         this.name = data.name
@@ -133,7 +132,7 @@ export class GuildSticker {
         if (reason) {
             headers.append("X-Audit-Log-Reason", reason)
         }
-        await (await this.restClient.request(`/guilds/${this.guildId}/stickers/${this.id}`, "DELETE", undefined, headers))
+        await (await this.client.rest.request(`/guilds/${this.guildId}/stickers/${this.id}`, "DELETE", undefined, headers))
         this.deleted = true
 
     }

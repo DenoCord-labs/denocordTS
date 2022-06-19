@@ -13,7 +13,6 @@ import { Camelize, camelize } from "../../../deps.ts";
 import { Base } from "../../client/base.ts";
 import { GuildMember, TextChannel, ThreadChannel, GuildNewsChannel, GuildSticker, GuildIntegration } from "../mod.ts";
 import { ColorResolvable, resolveColor } from "../../utils/mod.ts";
-import { RestClientInstance } from "../../http/rest.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts"
 import { Messages } from "../../errors/messages.ts"
 
@@ -64,8 +63,6 @@ export class Guild {
   splash: string | null;
   unavailable: GuildProperties["unavailable"];
   id: GuildProperties["id"];
-
-  private rest = RestClientInstance
   constructor(protected data: APIGuild, private client: Base) {
 
     this.afkChannelId = data.afk_channel_id;
@@ -128,7 +125,7 @@ export class Guild {
         cause: new Error("Trying to Fetch Vanity URL of a Guild.")
       })
     }
-    const data = await (await this.rest.request(endpoints.getGuildVanityUrl(this.id), "GET")).json()
+    const data = await (await this.client.rest.request(endpoints.getGuildVanityUrl(this.id), "GET")).json()
     this.vanityUrlCode = data.code
     return data
   }
@@ -226,7 +223,7 @@ export class Guild {
         body["default_auto_arhive_duration"] = autoArchiveDuration;
       }
     }
-    return await this.rest.request(
+    return await this.client.rest.request(
       `/guilds/${this.id}/channels`,
       "POST",
       body,
@@ -253,7 +250,7 @@ export class Guild {
     if (position) body["position"] = position;
     body["lock_permissions"] = lockPermissions || true;
     if (parentId) body["parent_id"] = parentId;
-    await this.rest.request(
+    await this.client.rest.request(
       `/guilds/${this.id}/channels`,
       "PATCH",
       body,
@@ -262,7 +259,7 @@ export class Guild {
   }
   async fetchGuildMember(userId: Snowflake) {
     const res = await (
-      await this.rest.request(
+      await this.client.rest.request(
         `/guilds/${this.id}/members/${userId}`,
         "GET",
       )
@@ -284,7 +281,7 @@ export class Guild {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    return void (await this.rest.request(
+    return void (await this.client.rest.request(
       `/guilds/${this.id}/members/@me`,
       "PATCH",
       { nick: nickname },
@@ -302,7 +299,7 @@ export class Guild {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    return void (await this.rest.request(
+    return void (await this.client.rest.request(
       `/guilds/${this.id}/members/${userId}/roles/${roleId}`,
       "PUT",
       undefined,
@@ -320,7 +317,7 @@ export class Guild {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    return void (await this.rest.request(
+    return void (await this.client.rest.request(
       `/guilds/${this.id}/members/${userId}/roles/${roleId}`,
       "DELETE",
       undefined,
@@ -336,7 +333,7 @@ export class Guild {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    return void (await this.rest.request(
+    return void (await this.client.rest.request(
       `/guilds/${this.id}/members/${userId}`,
       "DELETE",
       undefined,
@@ -351,7 +348,7 @@ export class Guild {
     body["limit"] = limit || 10;
     return camelize(
       await (
-        await this.rest.request(`/guilds/${this.id}/bans`, "GET")
+        await this.client.rest.request(`/guilds/${this.id}/bans`, "GET")
       ).json(),
     ) as Camelize<APIBan>[];
   }
@@ -359,7 +356,7 @@ export class Guild {
   async fetchGuildBan({ userId }: { userId: Snowflake }) {
     return camelize(
       await await (
-        await this.rest.request(
+        await this.client.rest.request(
           `/guilds/${this.id}/bans/${userId}`,
           "GET",
         )
@@ -376,7 +373,7 @@ export class Guild {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    return void (await this.rest.request(
+    return void (await this.client.rest.request(
       `/guilds/${this.id}/bans/${userId}`,
       "PUT",
       undefined,
@@ -392,7 +389,7 @@ export class Guild {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    return void (await this.rest.request(
+    return void (await this.client.rest.request(
       `/guilds/${this.id}/bans/${userId}`,
       "DELETE",
       undefined,
@@ -402,7 +399,7 @@ export class Guild {
   async fetchRoles() {
     return camelize(
       await (
-        await this.rest.request(`/guilds/${this.id}/roles`, "GET")
+        await this.client.rest.request(`/guilds/${this.id}/roles`, "GET")
       ).json(),
     ) as Camelize<APIRole>[];
   }
@@ -436,7 +433,7 @@ export class Guild {
     body["mentionable"] = mentionable || false;
     return camelize(
       await (
-        await this.rest.request(
+        await this.client.rest.request(
           `/guilds/${this.id}/roles`,
           "POST",
           body,
@@ -480,7 +477,7 @@ export class Guild {
     body["mentionable"] = mentionable || false;
     return camelize(
       await (
-        await this.rest.request(
+        await this.client.rest.request(
           `/guilds/${this.id}/roles/${roleId}`,
           "PATCH",
           body,
@@ -498,7 +495,7 @@ export class Guild {
   }) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    return void (await this.rest.request(
+    return void (await this.client.rest.request(
       `/guilds/${this.id}/roles/${roleId}`,
       "DELETE",
       undefined,
@@ -506,12 +503,12 @@ export class Guild {
     ));
   }
   async listStickers() {
-    const data = await (await this.rest.request(`/guilds/${this.id}/stickers`, "GET")).json()
+    const data = await (await this.client.rest.request(`/guilds/${this.id}/stickers`, "GET")).json()
     const stickers = (data as APISticker[]).map(sticker => new GuildSticker(sticker, this.client))
     return stickers
   }
   // async getSticker(stickerId: string) {
-  //   const data = await (await this.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "GET")).json()
+  //   const data = await (await this.client.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "GET")).json()
   //   const sticker = new GuildSticker(data as APISticker, this.client)
   //   return sticker
   // }
@@ -570,7 +567,7 @@ export class Guild {
   //   formData.append("description", description)
   //   formData.append("tags", tags)
   //   console.log(formData)
-  //   const res = await (await this.rest.request(`/guilds/${this.id}/stickers`, "POST", formData, headers, true, true)).json()
+  //   const res = await (await this.client.rest.request(`/guilds/${this.id}/stickers`, "POST", formData, headers, true, true)).json()
   //   const sticker = new GuildSticker(res, this.client)
   //   return sticker
   // }
@@ -607,23 +604,23 @@ export class Guild {
     if (tags.length > 200) {
       throw new Error("Tags must not exceed 200 characters.")
     }
-    const data = await (await this.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "PATCH", {
+    const data = await (await this.client.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "PATCH", {
       name, tags, description
     })).json()
     return new GuildSticker(data, this.client)
   }
   async deleteSticker(stickerId: string): Promise<void> {
-    return void (await this.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "DELETE"))
+    return void (await this.client.rest.request(`/guilds/${this.id}/stickers/${stickerId}`, "DELETE"))
   }
 
   // async listAutoModerationRules() {
-  //   return await (await this.rest.request(`/guilds/${this.id}/auto-moderation/rules`, "GET")).json()
+  //   return await (await this.client.rest.request(`/guilds/${this.id}/auto-moderation/rules`, "GET")).json()
   // }
   /**
    * Returns a List of Integrations for the Guild
    */
   async getGuildIntegrations(): Promise<GuildIntegration[]> {
-    const data = await (await this.rest.request(`/guilds/${this.id}/integrations`, "GET")).json() as APIGuildIntegration[]
+    const data = await (await this.client.rest.request(`/guilds/${this.id}/integrations`, "GET")).json() as APIGuildIntegration[]
     const integration = data.map(integration => new GuildIntegration(integration, this.id))
     return integration
   }
@@ -631,6 +628,6 @@ export class Guild {
    * Delete Integration
    */
   async deleteIntegration(integrationId: string): Promise<void> {
-    return void (await this.rest.request(`/guilds/${this.id}/integrations/${integrationId}`, "DELETE"))
+    return void (await this.client.rest.request(`/guilds/${this.id}/integrations/${integrationId}`, "DELETE"))
   }
 }

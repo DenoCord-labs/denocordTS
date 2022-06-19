@@ -8,13 +8,11 @@ import {
   unpinMessage,
 } from "../../http/endpoints.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
-import { RestClient } from "../../http/mod.ts";
 import { ComponentCollector } from "../collectors/mod.ts";
 export class BaseChannel implements APIPartialChannel {
   id: APIPartialChannel["id"];
   type: APIPartialChannel["type"];
   name: APIPartialChannel["name"];
-  protected restClient = new RestClient();
   constructor(data: any, protected client: Base) {
     this.id = data.id;
     this.type = data.type;
@@ -26,7 +24,7 @@ export class BaseChannel implements APIPartialChannel {
   async closeChannel(reason?: string) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    await this.restClient.request(
+    await this.client.rest.request(
       endpoints.deleteOrCloseChannel(this.id),
       "DELETE",
       undefined,
@@ -37,7 +35,7 @@ export class BaseChannel implements APIPartialChannel {
   async send(content: Omit<ReplyPayload, "message_reference">) {
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
-    const res = await this.restClient.request(
+    const res = await this.client.rest.request(
       endpoints.createMessage(this.id),
       "POST",
       content,
@@ -66,7 +64,7 @@ export class BaseChannel implements APIPartialChannel {
     if (messageIds.length > 100) {
       throw new Error("Maximum 100 messages can be bulk deleted");
     }
-    return void (await this.restClient.request(
+    return void (await this.client.rest.request(
       endpoints.bulkDeleteMessages(this.id),
       "POST",
       {
@@ -75,14 +73,14 @@ export class BaseChannel implements APIPartialChannel {
     ));
   }
   async sendTyping() {
-    return void (await this.restClient.request(
+    return void (await this.client.rest.request(
       endpoints.triggerTypingIndicator(this.id),
       "POST",
     ));
   }
   async getPinnedMessages(): Promise<(Message | ClientMessage)[]> {
     const res = await (
-      await this.restClient.request(`/channels/${this.id}/pins`, "GET")
+      await this.client.rest.request(`/channels/${this.id}/pins`, "GET")
     ).json();
     return res.map((m: any) => {
       if (m.webhook_id) return new Message(m, this.client);

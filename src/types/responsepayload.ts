@@ -1,8 +1,3 @@
-import {
-  APIActionRowComponent,
-  APIEmbed,
-  APIMessageActionRowComponent,
-} from "./mod.ts";
 import { ActionRow, Embed } from "../structures/mod.ts";
 export type ResponsePayload = {
   content?: string;

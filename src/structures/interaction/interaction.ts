@@ -11,7 +11,6 @@ import { Messages } from "../../errors/messages.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 import { ClientMessage, GuildMember, Message, User } from "../mod.ts";
 import { Base } from "../../client/base.ts";
-import { RestClient } from "../../http/rest.ts";
 export class Interaction {
   protected deferred = false;
   protected replied = false;
@@ -25,7 +24,6 @@ export class Interaction {
   targetMembers: undefined | Omit<GuildMember, "user" | "deaf" | "mute">[];
   targetMessage: undefined | (Message | ClientMessage)[];
   guild
-  protected rest = new RestClient();
   constructor(
     protected interaction: APIInteraction & { locale: string },
     protected token: string,
@@ -141,7 +139,7 @@ export class Interaction {
     if (suppress_embeds) flags |= MessageFlags.SuppressEmbeds;
 
     const payload = { ...payloadData, flags };
-    await this.rest.request(
+    await this.client.rest.request(
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       {
@@ -159,7 +157,7 @@ export class Interaction {
     if (this.replied) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     this.deferred = true;
     const { ephemeral } = payload;
-    await this.rest.request(
+    await this.client.rest.request(
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       {
@@ -173,7 +171,7 @@ export class Interaction {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
     }
 
-    const r = await this.rest.request(
+    const r = await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "PATCH",
       {
@@ -184,14 +182,14 @@ export class Interaction {
   }
 
   async deleteReply() {
-    await this.rest.request(
+    await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "DELETE",
     );
   }
 
   async followUp(payload: APIInteractionResponseCallbackData) {
-    const res = await this.rest.request(
+    const res = await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}`,
       "GET",
       { ...payload },
@@ -200,7 +198,7 @@ export class Interaction {
   }
 
   async fetchFollowUp() {
-    const res = await this.rest.request(
+    const res = await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
         .interaction.message?.id}`,
       "GET",
@@ -209,7 +207,7 @@ export class Interaction {
   }
 
   async editFollowUp(payload: ReplyPayload) {
-    await this.rest.request(
+    await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
         .interaction.message?.id}`,
       "PATCH",
@@ -220,7 +218,7 @@ export class Interaction {
   }
 
   async deleteFollowUp() {
-    await this.rest.request(
+    await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
         .interaction.message?.id}`,
       "DELETE",
@@ -228,14 +226,14 @@ export class Interaction {
   }
 
   async fetchResponse() {
-    await this.rest.request(
+    await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "GET",
     );
   }
 
   async deferUpdate() {
-    await this.rest.request(
+    await this.client.rest.request(
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       { type: InteractionResponseType.DeferredMessageUpdate },

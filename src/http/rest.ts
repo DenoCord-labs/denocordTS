@@ -1,19 +1,13 @@
 import { Collection } from "../../deps.ts";
 import { BaseRestApiUrl } from "../constants/mod.ts";
+import { DiscordAPIError } from "../errors/classes/DiscordApiError.ts"
 
-
-class HttpError extends Error {
-  constructor(msg: string) {
-    super(msg)
-    this.name = "Http Error"
-  }
-}
 
 export class RestClient extends Collection<
   string,
   Record<string, number | Record<string, string | null>>
 > {
-  constructor() {
+  constructor(private readonly token: string) {
     super();
   }
   async request(
@@ -26,9 +20,7 @@ export class RestClient extends Collection<
   ) {
     const url = href.includes("http") ? href : `${BaseRestApiUrl}${href}`;
     const needsQueue = this.checks(url);
-    if (!(window as typeof window & { token: string }).token) {
-      throw new Error("Token Not Provided to an api request!");
-    }
+
     if (needsQueue.queue === true) {
       return (await this.createQueue({
         href,
@@ -44,8 +36,7 @@ export class RestClient extends Collection<
       headers: {
         "Content-Type": formData ? "multipart/form-data" : "application/json",
         ...headers,
-        Authorization: `Bot ${(window as typeof window & { token: string }).token
-          }`,
+        Authorization: `Bot ${this.token}`,
         "User-Agent":
           "DiscordBot (https://github.com/denocord-labs/denocordts)",
       },
@@ -56,9 +47,7 @@ export class RestClient extends Collection<
     });
     if (!res.ok) {
       const data = await res.json()
-      throw new Error(`[Http Error] ${data.message}`, {
-        cause: new Error(`Caused Due to ${method} request on ${url}`)
-      })
+      throw new DiscordAPIError(data, data.code, res.status, method, url, body)
     }
     this.addUrlToCollection(url, res.headers);
     return res;
@@ -132,7 +121,7 @@ export class RestClient extends Collection<
     time?: number;
     href: string;
     method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
-    body: any;
+    body: unknown;
     headers?: HeadersInit;
     strignifyBody?: boolean;
     formData: boolean;
@@ -144,7 +133,7 @@ export class RestClient extends Collection<
           method,
           body,
           headers,
-          strignifyBody,
+          strignifyBody, formData
         );
         resolve(res);
       }, time * 1000);
@@ -152,4 +141,3 @@ export class RestClient extends Collection<
   }
 }
 
-export const RestClientInstance = new RestClient();

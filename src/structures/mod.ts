@@ -5,7 +5,7 @@ export { Embed } from "./embeds/mod.ts";
 export { ComponentCollector } from "./collectors/mod.ts";
 export type {
   ButtonInteraction,
-  SelectMenuInteraction,
+  SelectMenuInteraction, ModalComponentInteraction
 } from "./collectors/mod.ts";
 export * from "./commands/mod.ts";
 export * from "./interaction/commands/applicationCommand.ts";

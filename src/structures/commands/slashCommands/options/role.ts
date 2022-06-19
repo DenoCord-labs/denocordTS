@@ -1,5 +1,4 @@
 import {
-  APIApplicationCommandOptionChoice,
   APIApplicationCommandRoleOption,
   ApplicationCommandOptionType,
 } from "../../../../types/mod.ts";

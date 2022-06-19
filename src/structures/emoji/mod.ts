@@ -2,7 +2,6 @@ import { endpoints } from "../../constants/endpoints/mod.ts";
 import { Base } from "../../client/base.ts";
 import { User } from "../mod.ts";
 import { APIEmoji } from "../../types/mod.ts";
-import { RestClientInstance } from "../../http/rest.ts";
 const { modifyGuildEmoji } = endpoints;
 
 export class GuildEmoji {
@@ -15,7 +14,7 @@ export class GuildEmoji {
   animated?: boolean;
   available?: boolean;
 
-  constructor(d: APIEmoji, client: Base, private readonly guildId: string) {
+  constructor(private d: APIEmoji, private client: Base, private readonly guildId: string) {
     this.id = d.id;
     this.name = d.name;
     this.requireColons = d.require_colons;
@@ -35,7 +34,7 @@ export class GuildEmoji {
   ) {
     const headers = new Headers();
     if (reason) headers.append("X-Audit-Log-Reason", reason);
-    const data = await RestClientInstance.request(
+    const data = await this.client.rest.request(
       modifyGuildEmoji(this.guildId, this.id!),
       "PATCH",
       { name, roles: roles || [] },

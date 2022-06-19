@@ -69,7 +69,7 @@ export class ApplicationCommandInteraction extends Interaction {
       throw new Error("This is not an autocomplete interaction");
     }
     if (this.replied) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
-    await this.rest.request(
+    await this.client.rest.request(
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       {
@@ -80,13 +80,13 @@ export class ApplicationCommandInteraction extends Interaction {
     );
   }
   async showModal(modal: Modal) {
-    if (this.replied) {
+    if (this.replied || this.deferred) {
       throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     }
     if (this.isModalSubmit) {
       throw new Error("This is not a modal interaction");
     }
-    await this.rest.request(
+    await this.client.rest.request(
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       {
@@ -100,7 +100,7 @@ export class ApplicationCommandInteraction extends Interaction {
     if (!this.isModalSubmit) {
       throw new Error("This is not a modal interaction");
     }
-    await this.rest.request(
+    await this.client.rest.request(
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
       {

@@ -6,7 +6,7 @@ import { ReplyPayload } from "../../../types/responsepayload.ts";
 import { ClientMessage } from "../../messages/ClientMessage.ts";
 import { Messages } from "../../../errors/messages.ts";
 import { Base } from "../../../client/base.ts";
-import { RestClient } from "../../../http/rest.ts";
+import { Modal } from "../../mod.ts"
 export class BaseComponent {
   protected deferred = false;
   protected replied = false;
@@ -21,7 +21,6 @@ export class BaseComponent {
   public customId: string;
   public readonly clientId!:
     APIMessageComponentButtonInteraction["application_id"];
-  protected restClient = new RestClient();
   constructor(
     protected client: Base,
     protected channelId: string,
@@ -43,7 +42,7 @@ export class BaseComponent {
         flags: 1 << 6,
       }
       : {};
-    await this.restClient.request(
+    await this.client.rest.request(
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
       "POST",
       {
@@ -53,10 +52,10 @@ export class BaseComponent {
     );
   }
   public async reply(payload: ReplyPayload) {
-    if (this.deferred) {
+    if (this.deferred || this.replied) {
       throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     }
-    await this.restClient.request(
+    await this.client.rest.request(
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
       "POST",
       {
@@ -71,7 +70,7 @@ export class BaseComponent {
     if (!this.deferred && !this.replied) {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
     }
-    await this.restClient.request(
+    await this.client.rest.request(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "PATCH",
       {
@@ -84,7 +83,7 @@ export class BaseComponent {
     if (!this.replied && !this.deferred) {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
     }
-    const res = await this.restClient.request(
+    const res = await this.client.rest.request(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "GET",
     );
@@ -94,7 +93,7 @@ export class BaseComponent {
     if (!this.replied && !this.deferred) {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
     }
-    await this.restClient.request(
+    await this.client.rest.request(
       `/webhooks/${this.d!.application_id}/${this.d!.token}/messages/@original`,
       "DELETE",
     );
@@ -102,12 +101,29 @@ export class BaseComponent {
   }
 
   public async deferUpdate() {
-    await this.restClient.request(
+    await this.client.rest.request(
       `/interactions/${this.d!.id}/${this.d!.token}/callback`,
       "POST",
       { type: InteractionResponseType.DeferredMessageUpdate },
     );
     this.deferred = true;
     return null;
+  }
+  public async showModal(modal: Modal) {
+    if (this.deferred || this.replied) {
+      throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
+    }
+    Deno.writeTextFileSync("modal.json", JSON.stringify(modal.toJSON()))
+    await this.client.rest.request(
+      `/interactions/${this.d!.id}/${this.d!.token}/callback`,
+      "POST",
+      {
+        type: InteractionResponseType.Modal,
+        data: { ...modal.toJSON() },
+      },
+    );
+    this.replied = true;
+    return null;
+
   }
 }

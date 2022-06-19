@@ -55,7 +55,8 @@ import {
   GatewayReadyEventHandler,
   MessageCreateGatewayEventHandler,
 } from "../events/mod.ts";
-
+import { RestClient } from "../http/rest.ts"
+import { setToken } from "../state.ts"
 export class Base extends EventEmitter<GatewayEvents> {
   private heartbeatInterval = 41250;
   protected websocket: WebSocket;
@@ -66,11 +67,14 @@ export class Base extends EventEmitter<GatewayEvents> {
   protected options;
   cache = new Cache(this);
   ping = -1;
+  rest
   constructor(options: ClientOptions) {
     super();
     this.options = options;
+    this.rest = new RestClient(this.options.token)
     this.token = options.token;
     this.websocket = new WebSocket(GatewayUrl);
+    setToken(this.options.token)
     const payload: GatewayIdentifyData = {
       token: options.token,
       intents: options.intents.reduce(
@@ -151,6 +155,10 @@ export class Base extends EventEmitter<GatewayEvents> {
               );
               break;
             }
+            case 5: {
+              this.emit("InteractionCreate", d);
+              break
+            }
             case 1:
               break;
             default: {
@@ -171,7 +179,7 @@ export class Base extends EventEmitter<GatewayEvents> {
         }
         case GatewayDispatchEvents.GuildRoleCreate: {
           if (d.role) {
-            const role = new Role(d.role, this.cache.guilds.get(d.guild_id)!);
+            const role = new Role(d.role, this.cache.guilds.get(d.guild_id)!,this);
             this.cache.roles.set(d.role.id, role);
             this.emit("GuildRoleCreate", role);
           }
@@ -185,7 +193,7 @@ export class Base extends EventEmitter<GatewayEvents> {
         }
         case GatewayDispatchEvents.GuildRoleUpdate: {
           if (d.role) {
-            const role = new Role(d, this.cache.guilds.get(d.guild_id)!);
+            const role = new Role(d, this.cache.guilds.get(d.guild_id)!,this);
             this.cache.roles.set(d.role.id, role);
             this.emit("GuildRoleUpdate", role);
           }
@@ -399,7 +407,7 @@ export class Base extends EventEmitter<GatewayEvents> {
   private async addRolesToCache(roles: APIRole[], guild: Guild) {
     await Promise.all(
       roles.map((role) => {
-        this.cache.addRoleToCache(role.id, new Role(role, guild));
+        this.cache.addRoleToCache(role.id, new Role(role, guild,this));
       }),
     );
   }
