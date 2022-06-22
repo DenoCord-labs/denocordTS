@@ -18,15 +18,9 @@ import {
 } from "../http/endpoints.ts";
 
 export class Client extends Base {
-  public cdn = CDN;
-  displayAvatarUrl;
+  cdn = CDN;
   constructor(protected options: ClientOptions) {
     super(options);
-    this.displayAvatarUrl = super.user && super.user.avatar
-      ? this.cdn.getUserAvatar({ id: this.user.id, hash: this.user.avatar })
-      : this.cdn.getDefaultUserAvatar({
-        discriminator: this.user.discriminator,
-      });
     this.token = this.options.token;
   }
   /**
