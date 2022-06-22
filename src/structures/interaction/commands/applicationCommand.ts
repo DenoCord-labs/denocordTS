@@ -21,12 +21,12 @@ export class ApplicationCommandInteraction extends Interaction {
   channel;
   commandName;
   data;
-  user;
   member;
   guildLocale;
   locale;
   channelId;
   type;
+  userId
   constructor(
     protected interaction: APIApplicationCommandInteraction,
     protected token: string,
@@ -41,12 +41,11 @@ export class ApplicationCommandInteraction extends Interaction {
     this.commandName = interaction.data.name;
     this.data = interaction.data;
     this.guildLocale = interaction.guild_locale;
-    this.user = "guild_id" in interaction
-      ? undefined
-      : new User(interaction.user, this.client);
-    this.user = interaction.member
-      ? new User(interaction.member.user, this.client)
-      : undefined;
+    if ("member" in interaction) {
+      if ("user" in interaction.member!) {
+        this.userId = interaction.member?.user.id
+      }
+    }
     this.member = "guild_id" in interaction
       ? new GuildMember(
         interaction,

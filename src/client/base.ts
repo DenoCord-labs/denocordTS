@@ -148,6 +148,14 @@ export class Base extends EventEmitter<GatewayEvents> {
           }
           if (length > guildsLength) {
             this.emit("GuildCreate", this.cache.guilds.get(d.id)!);
+            this.websocket.send(JSON.stringify({
+              op: GatewayOpcodes.RequestGuildMembers,
+              d: {
+                guild_id: d.id,
+                query: "",
+                limit: 0
+              }
+            }))
           }
           break;
         }
