@@ -98,7 +98,7 @@ export class Interaction {
   protected create() {
     const isGuildOwner =
       this.client.cache.guilds.get(this.interaction.guild_id || "")?.ownerId ===
-        this.interaction.user?.id;
+      this.interaction.user?.id;
     const obj = {
       application_id: this.interaction.application_id,
       data: this.interaction.data,
@@ -242,7 +242,7 @@ export class Interaction {
     );
   }
 
-  generate() {
+  protected generate() {
     const payload = this.create();
     const obj = {
       ...payload,

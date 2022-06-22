@@ -5,3 +5,4 @@ test
 .env
 .dccache
 !extensions.json
+npm

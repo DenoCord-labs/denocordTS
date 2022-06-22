@@ -13,7 +13,7 @@ export class RestClient extends Collection<
     href: string,
     method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT",
     body: unknown = {},
-    headers?: HeadersInit,
+    headers?: any,
     strignifyBody?: boolean,
     formData = false,
   ) {
@@ -121,7 +121,7 @@ export class RestClient extends Collection<
     href: string;
     method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
     body: unknown;
-    headers?: HeadersInit;
+    headers?: any;
     strignifyBody?: boolean;
     formData: boolean;
   }) {

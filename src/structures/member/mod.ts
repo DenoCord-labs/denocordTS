@@ -39,7 +39,7 @@ export class GuildMember {
     });
   }
   async kick(reason?: string) {
-    let headers: undefined | HeadersInit;
+    let headers: undefined | any;
     if (reason) {
       headers = new Headers();
       headers.append("X-Audit-Log-Reason", reason);
@@ -52,7 +52,7 @@ export class GuildMember {
     );
   }
   async ban(reason?: string) {
-    let headers: undefined | HeadersInit;
+    let headers: undefined | any;
     if (reason) {
       headers = new Headers();
       headers.append("X-Audit-Log-Reason", reason);

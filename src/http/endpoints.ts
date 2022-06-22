@@ -2,7 +2,6 @@ import { RestClient } from "./rest.ts";
 import { Snowflake } from "../types/mod.ts";
 import type { ContextMenu, SlashCommand } from "../structures/mod.ts";
 import { endpoints } from "../constants/endpoints/mod.ts";
-import { token } from "../state.ts";
 
 export async function registerGlobalSlashCommands(
   commands: (SlashCommand | ContextMenu)[],
@@ -33,8 +32,6 @@ export async function registerGuildSlashCommands(
   );
 }
 
-rest:
-RestClient;
 export async function createMessage(
   channelId: Snowflake,
   body: unknown,
@@ -47,7 +44,7 @@ export async function deleteMessage(
   channelId: Snowflake,
   messageId: Snowflake,
   rest: RestClient,
-  headers?: HeadersInit,
+  headers?: any,
 ) {
   return void (await rest.request(
     endpoints.deleteMessage(channelId, messageId),
@@ -135,7 +132,7 @@ export async function pinMessage(
   channelId: Snowflake,
   messageId: Snowflake,
   rest: RestClient,
-  headers?: HeadersInit,
+  headers?: any,
 ) {
   return void (await rest.request(
     endpoints.pinMessage(channelId, messageId),
@@ -148,7 +145,7 @@ export async function unpinMessage(
   channelId: Snowflake,
   messageId: Snowflake,
   rest: RestClient,
-  headers?: HeadersInit,
+  headers?: any,
 ) {
   return void (await rest.request(
     endpoints.unpinMessage(channelId, messageId),
@@ -161,7 +158,7 @@ export async function startThreadFromMessage(
   channelId: Snowflake,
   rest: RestClient,
   messageId: Snowflake,
-  headers?: HeadersInit,
+  headers?: any,
 ) {
   return await rest.request(
     endpoints.startThreadFromMessage(channelId, messageId),
@@ -174,7 +171,7 @@ export async function startThreadFromMessage(
 export async function createNewThread(
   channelId: Snowflake,
   rest: RestClient,
-  headers?: HeadersInit,
+  headers?: any,
 ) {
   return await rest.request(
     endpoints.startThreadWithoutMessage(channelId),

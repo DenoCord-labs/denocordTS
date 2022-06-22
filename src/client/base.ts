@@ -17,7 +17,6 @@ import {
   GatewayGuildBanAddDispatchData,
   GatewayGuildBanRemoveDispatchData,
   GatewayGuildMemberRemoveDispatchData,
-  GatewayIdentifyData,
   GatewayIntentBits,
   GatewayInviteCreateDispatchData,
   GatewayInviteDeleteDispatchData,
@@ -56,10 +55,9 @@ import {
   MessageCreateGatewayEventHandler,
 } from "../events/mod.ts";
 import { RestClient } from "../http/rest.ts";
-import { setToken } from "../state.ts";
 export class Base extends EventEmitter<GatewayEvents> {
   private heartbeatInterval = 41250;
-  protected websocket: WebSocket;
+  protected websocket;
   public user = {} as ClientUser;
   token = "";
   public readonly uptime = new Date().getTime();
@@ -74,17 +72,16 @@ export class Base extends EventEmitter<GatewayEvents> {
     this.rest = new RestClient(this.options.token);
     this.token = options.token;
     this.websocket = new WebSocket(GatewayUrl);
-    setToken(this.options.token);
-    const payload: GatewayIdentifyData = {
+    const payload = {
       token: options.token,
       intents: options.intents.reduce(
         (bits, next) => (bits |= GatewayIntentBits[next]),
         0,
       ),
       properties: {
-        $browser: "denocordts",
-        $device: "denocordts",
-        $os: Deno.build.os,
+        browser: "denocordts",
+        device: "denocordts",
+        os: Deno.build.os,
       },
     };
     this.websocket.onopen = async () => {
@@ -137,8 +134,16 @@ export class Base extends EventEmitter<GatewayEvents> {
           );
           const length = this.cache.guilds.array().length;
           const guildsLength = parse(stringify(this.user)).guilds.length;
-
           if (length === guildsLength) {
+            for (const guildId of this.user.guilds)
+              this.websocket.send(JSON.stringify({
+                op: GatewayOpcodes.RequestGuildMembers,
+                d: {
+                  guild_id: guildId,
+                  query: "",
+                  limit: 0
+                }
+              }))
             return this.emit("Ready", undefined);
           }
           if (length > guildsLength) {
@@ -397,6 +402,20 @@ export class Base extends EventEmitter<GatewayEvents> {
           });
           break;
         }
+        case GatewayDispatchEvents.GuildMembersChunk: {
+          if (!d.not_found) {
+            d.members.forEach((member: APIGuildMember) =>
+              this.cache.members.set(
+                member.user!.id,
+                new GuildMember({ member }, this, d.owner_id === member.user!.id),
+              )
+            );
+            this.addUsersToCache(
+              d.members.map((member: APIGuildMember) => member.user!)
+            )
+          }
+          break
+        }
       }
     };
     this.websocket.onclose = (e) => {
@@ -432,6 +451,7 @@ export class Base extends EventEmitter<GatewayEvents> {
     );
   }
   private async addUsersToCache(users: APIUser[]) {
+    Deno.writeTextFileSync("users.json", JSON.stringify(users))
     await Promise.all(
       users.map((user) => {
         this.cache.addUserToCache(user.id, new User(user, this));
