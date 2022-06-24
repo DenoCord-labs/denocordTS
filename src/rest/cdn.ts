@@ -25,29 +25,32 @@ type FormatWithId = Format & { id: string };
 type FormatWithHashAndId = FormatWithId & { hash: string };
 type FormatWithHash = Format & { hash: string };
 export class CDNObject {
-  constructor() { }
+  constructor() {}
 
   getCustomEmoji({ animated, id, format, size }: FormatWithId) {
-    return `${BaseCdnUrl}/emojis/${id}.${animated ? "gif" : FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+    return `${BaseCdnUrl}/emojis/${id}.${
+      animated ? "gif" : FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
 
   getGuildIcon({ id, format, animated, hash, size }: FormatWithHashAndId) {
-    return `${BaseCdnUrl}/icons/${id}/${hash}.${animated
+    return `${BaseCdnUrl}/icons/${id}/${hash}.${
+      animated
         ? "gif"
         : hash.startsWith("a_")
-          ? "gif"
-          : FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+        ? "gif"
+        : FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
 
   getGuildSplash({ id, format, animated, hash, size }: FormatWithHashAndId) {
-    return `${BaseCdnUrl}/splashes/${id}/${hash}.${animated
+    return `${BaseCdnUrl}/splashes/${id}/${hash}.${
+      animated
         ? "gif"
         : hash.startsWith("a_")
-          ? "gif"
-          : FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+        ? "gif"
+        : FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
 
   getGuildDiscoverySplash({
@@ -57,26 +60,29 @@ export class CDNObject {
     hash,
     size,
   }: FormatWithHashAndId) {
-    return `${BaseCdnUrl}/discovery-splashes/${id}/${hash}.${animated
+    return `${BaseCdnUrl}/discovery-splashes/${id}/${hash}.${
+      animated
         ? "gif"
         : hash.startsWith("a_")
-          ? "gif"
-          : FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+        ? "gif"
+        : FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
 
   getGuildBanner({ id, format, animated, hash, size }: FormatWithHashAndId) {
-    return `${BaseCdnUrl}/banners/${id}/${hash}.${animated
+    return `${BaseCdnUrl}/banners/${id}/${hash}.${
+      animated
         ? "gif"
         : hash.startsWith("a_")
-          ? "gif"
-          : FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+        ? "gif"
+        : FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
 
   getUserBanner({ id, format, hash, size }: FormatWithHashAndId) {
-    return `${BaseCdnUrl}/user-backgrounds/${id}/${hash}.${FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+    return `${BaseCdnUrl}/user-backgrounds/${id}/${hash}.${
+      FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
   getDefaultUserAvatar({
     format,
@@ -87,12 +93,14 @@ export class CDNObject {
     format?: keyof typeof FileTypes;
     discriminator: string;
   }) {
-    return `${BaseCdnUrl}/avatars/${parseInt(discriminator) % 5}.${FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+    return `${BaseCdnUrl}/avatars/${parseInt(discriminator) % 5}.${
+      FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
   getUserAvatar({ id, format, hash, size }: FormatWithHashAndId) {
-    return `${BaseCdnUrl}/avatars/${id}/${hash}.${FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+    return `${BaseCdnUrl}/avatars/${id}/${hash}.${
+      FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
   getGuildMemberAvatar({
     avatarHash,
@@ -107,8 +115,9 @@ export class CDNObject {
     format?: keyof typeof FileTypes;
     size?: typeof ALLOWED_SIZES[number];
   }) {
-    return `${BaseCdnUrl}/guilds/${guildId}/users/${userId}/avatars/${avatarHash}.${FileTypes[format || "PNG"]
-      }?size=${size || 1024}`;
+    return `${BaseCdnUrl}/guilds/${guildId}/users/${userId}/avatars/${avatarHash}.${
+      FileTypes[format || "PNG"]
+    }?size=${size || 1024}`;
   }
 }
 export const CDN = new CDNObject();

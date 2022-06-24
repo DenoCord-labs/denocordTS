@@ -26,7 +26,7 @@ export class ApplicationCommandInteraction extends Interaction {
   locale;
   channelId;
   type;
-  userId
+  userId;
   constructor(
     protected interaction: APIApplicationCommandInteraction,
     protected token: string,
@@ -43,7 +43,7 @@ export class ApplicationCommandInteraction extends Interaction {
     this.guildLocale = interaction.guild_locale;
     if ("member" in interaction) {
       if ("user" in interaction.member!) {
-        this.userId = interaction.member?.user.id
+        this.userId = interaction.member?.user.id;
       }
     }
     this.member = "guild_id" in interaction

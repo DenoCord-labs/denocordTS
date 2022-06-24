@@ -23,6 +23,7 @@ import {
   GuildEmoji,
   GuildMember,
   GuildSticker,
+  Message,
   Role,
   ThreadChannel,
   User,
@@ -57,7 +58,12 @@ export type GatewayEvents = {
      */
     emojis: GuildEmoji[];
   }) => unknown;
-  GuildIntegrationsUpdate: (e: unknown) => unknown;
+  GuildIntegrationsUpdate: (e: {
+    /**
+     * Id of the Guild Whose Integrations were updated
+     */
+    guildId: string;
+  }) => unknown;
   GuildMemberAdd: (e: {
     guildId: string;
     member: GuildMember;
@@ -131,11 +137,94 @@ export type GatewayEvents = {
      */
     ids: string[];
   }) => unknown;
-  MessageReactionAdd: (e: unknown) => unknown;
-  MessageReactionRemove: (e: unknown) => unknown;
-  MessageReactionRemoveAll: (e: unknown) => unknown;
-  MessageReactionRemoveEmoji: (e: unknown) => unknown;
-  MessageUpdate: (e: unknown) => unknown;
+  MessageReactionAdd: (e: {
+    /**
+     * The Id of the user
+     */
+    userId: string;
+    /**
+     * The Id of the Channel
+     */
+    channelId: string;
+    /**
+     * The id of the message
+     */
+    messageId: string;
+    /**
+     * The Id of the Guild
+     */
+    guildId?: string;
+    /**
+     * The member who reacted
+     * @Note `Only Available if this event happened in a guild`
+     */
+    member?: GuildMember;
+    /**
+     * Emoji
+     * @Note `Partial Emoji`
+     * {@link https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype Read More about Partial Types}
+     */
+    emoji: Partial<GuildEmoji>;
+  }) => unknown;
+  MessageReactionRemove: (e: {
+    /**
+     * The Id of the user
+     */
+    userId: string;
+    /**
+     * The Id of the Channel
+     */
+    channelId: string;
+    /**
+     * The id of the message
+     */
+    messageId: string;
+    /**
+     * The Id of the Guild
+     */
+    guildId?: string;
+    /**
+     * Emoji
+     * @Note `Partial Emoji`
+     * {@link https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype Read More about Partial Types}
+     */
+    emoji: Partial<GuildEmoji>;
+  }) => unknown;
+  MessageReactionRemoveAll: (e: {
+    /**
+     * The Id of the Channel
+     */
+    channelId: string;
+    /**
+     * The id of the message
+     */
+    messageId: string;
+    /**
+     * The Id of the Guild
+     */
+    guildId?: string;
+  }) => unknown;
+  MessageReactionRemoveEmoji: (e: {
+    /**
+     * The Id of the Channel
+     */
+    channelId: string;
+    /**
+     * The id of the message
+     */
+    messageId: string;
+    /**
+     * The Id of the Guild
+     */
+    guildId?: string;
+    /**
+     * Emoji
+     * @Note `Partial Emoji`
+     * {@link https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype Read More about Partial Types}
+     */
+    emoji: Partial<GuildEmoji>;
+  }) => unknown;
+  MessageUpdate: (e: Partial<Message>) => unknown;
   PresenceUpdate: (e: Camelize<GatewayPresenceUpdateDispatchData>) => unknown;
   StageInstanceCreate: (
     e: Camelize<GatewayInviteDeleteDispatchData>,

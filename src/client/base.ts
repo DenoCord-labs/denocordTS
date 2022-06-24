@@ -135,15 +135,16 @@ export class Base extends EventEmitter<GatewayEvents> {
           const length = this.cache.guilds.array().length;
           const guildsLength = parse(stringify(this.user)).guilds.length;
           if (length === guildsLength) {
-            for (const guildId of this.user.guilds)
+            for (const guildId of this.user.guilds) {
               this.websocket.send(JSON.stringify({
                 op: GatewayOpcodes.RequestGuildMembers,
                 d: {
                   guild_id: guildId,
                   query: "",
-                  limit: 0
-                }
-              }))
+                  limit: 0,
+                },
+              }));
+            }
             return this.emit("Ready", undefined);
           }
           if (length > guildsLength) {
@@ -153,9 +154,9 @@ export class Base extends EventEmitter<GatewayEvents> {
               d: {
                 guild_id: d.id,
                 query: "",
-                limit: 0
-              }
-            }))
+                limit: 0,
+              },
+            }));
           }
           break;
         }
@@ -415,14 +416,69 @@ export class Base extends EventEmitter<GatewayEvents> {
             d.members.forEach((member: APIGuildMember) =>
               this.cache.members.set(
                 member.user!.id,
-                new GuildMember({ member }, this, d.owner_id === member.user!.id),
+                new GuildMember(
+                  { member },
+                  this,
+                  d.owner_id === member.user!.id,
+                ),
               )
             );
             this.addUsersToCache(
-              d.members.map((member: APIGuildMember) => member.user!)
-            )
+              d.members.map((member: APIGuildMember) => member.user!),
+            );
           }
-          break
+          break;
+        }
+        case GatewayDispatchEvents.GuildIntegrationsUpdate: {
+          this.emit("GuildIntegrationsUpdate", {
+            guildId: d.guild_id,
+          });
+          break;
+        }
+        case GatewayDispatchEvents.MessageReactionAdd: {
+          let member: GuildMember | undefined = undefined;
+          if ("guild_id" in d) {
+            member = this.cache.members.get(d.user_id);
+          }
+          this.emit("MessageReactionAdd", {
+            channelId: d.channel_id,
+            emoji: this.cache.emojis.get(d.emoji.id) ||
+              new GuildEmoji(d.emoji, this, d.guild_id),
+            messageId: d.message_id,
+            userId: d.user_id,
+            guildId: d.guild_id,
+            member,
+          });
+          break;
+        }
+        case GatewayDispatchEvents.MessageReactionRemove: {
+          this.emit("MessageReactionRemove", {
+            channelId: d.channel_id,
+            emoji: this.cache.emojis.get(d.emoji.id) ||
+              new GuildEmoji(d.emoji, this, d.guild_id),
+            messageId: d.message_id,
+            userId: d.user_id,
+            guildId: d.guild_id,
+          });
+          break;
+        }
+        case GatewayDispatchEvents.MessageReactionRemoveAll: {
+          this.emit("MessageReactionRemoveAll", {
+            channelId: d.channel_id,
+            messageId: d.message_id,
+            guildId: d.guild_id,
+          });
+          break;
+        }
+        case GatewayDispatchEvents.MessageReactionRemoveEmoji: {
+          this.emit("MessageReactionRemoveEmoji", {
+            channelId: d.channel_id,
+            messageId: d.message_id,
+            guildId: d.guild_id,
+            emoji: this.cache.emojis.get(d.emoji.id) ||
+              new GuildEmoji(d.emoji, this, d.guild_id),
+          });
+          break;
         }
       }
     };
@@ -459,7 +515,7 @@ export class Base extends EventEmitter<GatewayEvents> {
     );
   }
   private async addUsersToCache(users: APIUser[]) {
-    Deno.writeTextFileSync("users.json", JSON.stringify(users))
+    Deno.writeTextFileSync("users.json", JSON.stringify(users));
     await Promise.all(
       users.map((user) => {
         this.cache.addUserToCache(user.id, new User(user, this));
