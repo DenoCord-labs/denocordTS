@@ -3,7 +3,6 @@ import { Base } from "../../client/base.ts";
 import { BaseChannel } from "./base.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 import { ThreadChannel } from "./mod.ts";
-import { endpoints } from "../../constants/endpoints/mod.ts";
 enum ThreadTypes {
   PublicThread = 11,
   PrivateThread,
@@ -33,7 +32,7 @@ export class TextChannel extends BaseChannel {
     body["temporary"] = temporary;
     body["unique"] = unique;
 
-    const res = await super.restClient.request(
+    const res = await this.client.rest.request(
       `/channels/${this.id}/invites`,
       "POST",
       body,
@@ -72,7 +71,7 @@ export class TextChannel extends BaseChannel {
     body["type"] = type;
     body["auto_archive_duration"] = autoArchiveDuration;
     body["rate_limit_per_user"] = slowMode;
-    const res = await super.restClient.request(
+    const res = await this.client.rest.request(
       `/channels/${this.id}/messages`,
       "POST",
       body,
@@ -97,7 +96,7 @@ export class TextChannel extends BaseChannel {
     body["name"] = name;
     body["auto_archive_duration"] = autoArchiveDuration;
     body["rate_limit_per_user"] = slowMode;
-    const res = await super.restClient.request(
+    const res = await this.client.rest.request(
       `/channels/${this.id}/messages/${messageId}/thread`,
       "POST",
       body,
