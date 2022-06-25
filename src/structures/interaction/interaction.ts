@@ -6,7 +6,7 @@ import {
   InteractionResponseType,
   MessageFlags,
 } from "../../types/mod.ts";
-import { ReplyPayload } from "../../types/responsepayload.ts";
+import { ReplyPayload, ResponsePayload } from "../../types/responsepayload.ts";
 import { Messages } from "../../errors/messages.ts";
 import { Camelize, camelize } from "../../../deps.ts";
 import { ClientMessage, GuildMember, Message, User } from "../mod.ts";
@@ -98,7 +98,7 @@ export class Interaction {
   protected create() {
     const isGuildOwner =
       this.client.cache.guilds.get(this.interaction.guild_id || "")?.ownerId ===
-        this.interaction.user?.id;
+      this.interaction.user?.id;
     const obj = {
       application_id: this.interaction.application_id,
       data: this.interaction.data,
@@ -129,18 +129,19 @@ export class Interaction {
     };
     return obj as Camelize<APIInteractionResponseCallbackData>;
   }
-  async reply(data: ReplyPayload) {
+  async reply(content: ReplyPayload) {
+
     if (this.replied) throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     if (this.deferred) {
       throw new Error(Messages.INTERACTION_ALREADY_REPLIED);
     }
-    const { suppress_embeds, ephemeral, ...payloadData } = data;
+    const { suppress_embeds, ephemeral, ...responseBody } = content;
     this.replied = true;
     let flags = 0;
     if (ephemeral) flags |= MessageFlags.Ephemeral;
     if (suppress_embeds) flags |= MessageFlags.SuppressEmbeds;
 
-    const payload = { ...payloadData, flags };
+    const payload = { ...responseBody, flags };
     await this.client.rest.request(
       `/interactions/${this.interaction.id}/${this.interaction.token}/callback`,
       "POST",
@@ -148,8 +149,9 @@ export class Interaction {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           ...payload,
-        },
+        }
       },
+      undefined, undefined, Boolean(payload.attachments?.length)
     );
   }
   async deferReply(payload = { ephemeral: false }) {
@@ -168,7 +170,7 @@ export class Interaction {
       },
     );
   }
-  async editReply(payload: ReplyPayload) {
+  async editReply(content: ReplyPayload) {
     if (!this.replied && !this.deferred) {
       throw new Error(Messages.INTERACTION_NOT_REPLIED);
     }
@@ -177,8 +179,8 @@ export class Interaction {
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/@original`,
       "PATCH",
       {
-        ...payload,
-      },
+        ...content,
+      }, undefined, undefined, Boolean(content.attachments?.length)
     );
     return camelize(await r.json()) as Camelize<APIMessage>;
   }
@@ -190,11 +192,13 @@ export class Interaction {
     );
   }
 
-  async followUp(payload: APIInteractionResponseCallbackData) {
+  async followUp(content: ResponsePayload) {
+
     const res = await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}`,
       "GET",
-      { ...payload },
+      { ...content },
+      undefined, undefined, Boolean(content.attachments?.length)
     );
     return await res.json();
   }
@@ -208,14 +212,15 @@ export class Interaction {
     return await res.json();
   }
 
-  async editFollowUp(payload: ReplyPayload) {
+  async editFollowUp(content: ReplyPayload) {
+
     await this.client.rest.request(
       `/webhooks/${this.interaction.application_id}/${this.interaction.token}/messages/${this
         .interaction.message?.id}`,
       "PATCH",
       {
-        ...payload,
-      },
+        ...content,
+      }, undefined, undefined, Boolean(content.attachments?.length)
     );
   }
 
