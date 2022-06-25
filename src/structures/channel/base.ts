@@ -1,4 +1,4 @@
-import { APIPartialChannel, Snowflake } from "../../types/mod.ts";
+import { APIPartialChannel, Snowflake, ChannelType } from "../../types/mod.ts";
 import { Base } from "../../client/base.ts";
 import { ReplyPayload } from "../../types/responsepayload.ts";
 import { ClientMessage, Message } from "../mod.ts";
@@ -9,14 +9,30 @@ import {
 } from "../../http/endpoints.ts";
 import { endpoints } from "../../constants/endpoints/mod.ts";
 import { ComponentCollector } from "../collectors/mod.ts";
+import { DmChannel, GuildCategory, GuildNewsChannel, TextChannel, ThreadChannel } from "./mod.ts"
 export class BaseChannel implements APIPartialChannel {
   id: APIPartialChannel["id"];
   type: APIPartialChannel["type"];
   name: APIPartialChannel["name"];
-  constructor(data: any, protected client: Base) {
+  constructor(data: APIPartialChannel, protected client: Base) {
     this.id = data.id;
     this.type = data.type;
     this.name = data.name;
+  }
+  isDm(): this is DmChannel {
+    return this.type === ChannelType.DM
+  }
+  isGuildCategory(): this is GuildCategory {
+    return this.type === ChannelType.GuildCategory
+  }
+  isGuildNews(): this is GuildNewsChannel {
+    return this.type === ChannelType.GuildNews
+  }
+  isText(): this is TextChannel {
+    return this.type === ChannelType.GuildText
+  }
+  isThread(): this is ThreadChannel {
+    return this.type === ChannelType.GuildPublicThread || this.type === ChannelType.GuildPrivateThread
   }
   /**
    * For Community guilds, the Rules or Guidelines channel and the Community Updates channel cannot be deleted.
@@ -33,13 +49,11 @@ export class BaseChannel implements APIPartialChannel {
     return null;
   }
   async send(content: Omit<ReplyPayload, "message_reference">) {
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
     const res = await this.client.rest.request(
       endpoints.createMessage(this.id),
       "POST",
       content,
-      headers,
+      undefined, undefined, Boolean(content.attachments?.length)
     );
     return new ClientMessage(await res.json(), this.client);
   }
