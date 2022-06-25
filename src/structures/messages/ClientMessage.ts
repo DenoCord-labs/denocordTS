@@ -17,6 +17,8 @@ export class ClientMessage extends BaseMessage {
       endpoints.editMessage(this.d.channel_id, this.id),
       "PATCH",
       content,
+      undefined,
+      undefined, Boolean(content.attachments?.length)
     );
     return await res.json();
   }

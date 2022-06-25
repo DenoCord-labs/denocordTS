@@ -17,7 +17,7 @@ export type Channel =
   | ThreadChannel
   | GuildCategory
   | GuildNewsChannel;
-
+export type CacheChannels = DmChannel | TextChannel | ThreadChannel | GuildNewsChannel
 export type Emoji = GuildEmoji;
 export type Role = APIRole;
 export type cacheFields = {
