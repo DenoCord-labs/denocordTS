@@ -1,4 +1,4 @@
-import { ActionRow, Embed } from "../structures/mod.ts";
+import { ActionRow, Embed, Attachment } from "../structures/mod.ts";
 export type ResponsePayload = {
   content?: string;
   components?: ActionRow[];
@@ -8,7 +8,7 @@ export type ResponsePayload = {
     users?: string[];
     roles?: string[];
   };
-  attachments?: MessageAttachment[];
+  attachments?: Attachment[];
   message_reference?: MessageReference;
   flags?: number;
 };
@@ -22,12 +22,4 @@ export type MessageReference = {
   channel_id: string;
   message_id: string;
   guild_id: string;
-};
-
-export type MessageAttachment = {
-  id: string;
-  filename: string;
-  size: number;
-  ephemeral?: boolean;
-  url: string;
 };
