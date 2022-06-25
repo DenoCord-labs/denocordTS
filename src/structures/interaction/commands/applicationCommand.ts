@@ -17,8 +17,9 @@ import {
   ThreadChannel,
   User,
 } from "../../mod.ts";
+import { CacheChannels } from "../../../types/cache.ts"
 export class ApplicationCommandInteraction extends Interaction {
-  channel;
+  channel?: CacheChannels;
   commandName;
   data;
   member;
@@ -36,7 +37,7 @@ export class ApplicationCommandInteraction extends Interaction {
     this.channelId = interaction.channel_id;
     this.channel = this.client.cache.channels.get(
       interaction.channel_id,
-    );
+    ) as CacheChannels;
     this.type = interaction.type;
     this.commandName = interaction.data.name;
     this.data = interaction.data;
