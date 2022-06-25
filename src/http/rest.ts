@@ -1,7 +1,7 @@
 import { Collection } from "../../deps.ts";
 import { BaseRestApiUrl } from "../constants/mod.ts";
 import { DiscordAPIError } from "../errors/classes/DiscordApiError.ts";
-
+import { ReplyPayload } from "../types/responsepayload.ts"
 export class RestClient extends Collection<
   string,
   Record<string, number | Record<string, string | null>>
@@ -12,14 +12,30 @@ export class RestClient extends Collection<
   async request(
     href: string,
     method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT",
-    body: unknown = {},
-    headers?: any,
+    body?: { [name: string]: unknown } | FormData,
+    headers?: { [name: string]: string } | HeadersInit,
     strignifyBody?: boolean,
     formData = false,
   ) {
     const url = href.includes("http") ? href : `${BaseRestApiUrl}${href}`;
     const needsQueue = this.checks(url);
-
+    let bodyToSend = body
+    const form = new FormData()
+    if (formData) {
+      const typedBody = body as ReplyPayload
+      if (typedBody.attachments) {
+        const attachments = typedBody.attachments.map((attachment, index) => ({ ...attachment, id: index }))
+        attachments.map((attachment) => {
+          form.append(`files[${attachment.id}]`, attachment.blob, attachment.name)
+        })
+        form.append("payload_json", JSON.stringify({ ...body, attachments }))
+      }
+      bodyToSend = form
+    }
+    const requiredHeaders: Record<string, string> = {}
+    if (formData === false) {
+      requiredHeaders['Content-Type'] = "application/json"
+    }
     if (needsQueue.queue === true) {
       return (await this.createQueue({
         href,
@@ -33,7 +49,7 @@ export class RestClient extends Collection<
     }
     const res = await fetch(`${url}`, {
       headers: {
-        "Content-Type": formData ? "multipart/form-data" : "application/json",
+        ...requiredHeaders,
         ...headers,
         Authorization: `Bot ${this.token}`,
         "User-Agent":
@@ -42,7 +58,7 @@ export class RestClient extends Collection<
       method,
       body: method == "GET"
         ? undefined
-        : ((!strignifyBody ? JSON.stringify(body) : body) as BodyInit),
+        : !(bodyToSend instanceof FormData) ? JSON.stringify(bodyToSend) : bodyToSend,
     });
     if (!res.ok) {
       const data = await res.json();
@@ -80,10 +96,10 @@ export class RestClient extends Collection<
     }
     if (
       Date.now() / 1000 >
-        parseFloat(
-          (data.ratelimit as Record<string, string | null>).reset ||
-            String((data.timestamp as number) + 5),
-        )
+      parseFloat(
+        (data.ratelimit as Record<string, string | null>).reset ||
+        String((data.timestamp as number) + 5),
+      )
     ) {
       return {
         queue: false,
@@ -91,10 +107,10 @@ export class RestClient extends Collection<
     }
     if (
       (Date.now() - (data.timestamp as number)) / 1000 >
-        parseInt(
-          (data.ratelimit as Record<string, string | null>)
-            .resetAfter!,
-        )
+      parseInt(
+        (data.ratelimit as Record<string, string | null>)
+          .resetAfter!,
+      )
     ) {
       return {
         queue: false,
@@ -110,7 +126,7 @@ export class RestClient extends Collection<
   }
   private async createQueue({
     time = 5,
-    body = {},
+    body,
     href,
     method,
     headers,
@@ -120,8 +136,8 @@ export class RestClient extends Collection<
     time?: number;
     href: string;
     method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
-    body: unknown;
-    headers?: any;
+    body?: { [key: string]: unknown } | FormData;
+    headers?: { [key: string]: string } | HeadersInit;
     strignifyBody?: boolean;
     formData: boolean;
   }) {
