@@ -29,6 +29,7 @@ export {
   TextInput,
   ThreadChannel,
   User,
+  Attachment
 } from "./src/structures/mod.ts";
 export { parseEmojiForComponents } from "./src/utils/mod.ts";
 export * from "./src/helpers/mod.ts";
