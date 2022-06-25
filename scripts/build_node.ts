@@ -7,6 +7,23 @@ await build({
   outDir: "./npm",
   shims: {
     deno: true,
+    timers: true,
+    blob: true,
+    undici: true,
+    custom: [
+      {
+        package: {
+          name: 'ws',
+          version: "^8.4.0",
+        },
+        globalNames: [
+          {
+            name: "WebSocket",
+            exportName: "default"
+          }
+        ]
+      }
+    ]
   },
   package: {
     name: "denocord",
