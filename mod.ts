@@ -1,6 +1,11 @@
-import { parse } from "https://esm.sh/json-big";
-JSON.parse = parse;
-// JSON.stringify = jsonStringify as typeof JSON.stringify;
+const _stringify = JSON.stringify
+const stringify: typeof JSON.stringify = (obj, replacer, space) => _stringify(obj, (key, value) => {
+  const newValue = typeof value === "bigint" ? Number(value) : value
+  return replacer ? (replacer as CallableFunction)(key, newValue) : newValue
+}, space)
+
+JSON.stringify = stringify;
+
 export * from "./src/client/client.ts";
 export {
   ActivityType,
