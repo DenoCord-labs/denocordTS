@@ -56,7 +56,7 @@ import {
 } from "../events/mod.ts";
 import { RestClient } from "../http/rest.ts";
 export class Base extends EventEmitter<GatewayEvents> {
-  private heartbeatInterval = 41250;
+  protected heartbeatInterval = 41250;
   protected websocket;
   public user = {} as ClientUser;
   token = "";
@@ -486,7 +486,7 @@ export class Base extends EventEmitter<GatewayEvents> {
       handleCloseEventMessage(e.code);
     };
   }
-  private sendHeartBeat() {
+  protected sendHeartBeat() {
     setInterval(() => {
       this.start = Date.now();
       this.websocket.send(JSON.stringify({
