@@ -651,7 +651,7 @@ export class Guild {
       "GET",
     )).json() as APIGuildIntegration[];
     const integration = data.map((integration) =>
-      new GuildIntegration(integration, this.id)
+      new GuildIntegration(integration, this.id,this.client)
     );
     return integration;
   }

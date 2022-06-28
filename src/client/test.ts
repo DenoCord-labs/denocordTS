@@ -16,9 +16,20 @@ export class TestClient extends Client {
             }));
         }, this.heartbeatInterval);
     }
-    private stopInterval() {
+    stopInterval() {
         if (this.interval) {
+            this.websocket.close()
             clearInterval(this.interval);
         }
+    }
+    waitFor() {
+        return new Promise((resolve, reject) => {
+            this.websocket.addEventListener("open", () => {
+                resolve(true)
+            })
+            this.websocket.addEventListener("error", () => {
+                reject(false)
+            })
+        })
     }
 }

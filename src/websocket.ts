@@ -1,7 +1,7 @@
 import { EventEmitter } from "../deps.ts";
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
-type Message = string | number | Record<string, unknown>;
+type Message = string 
 
 type WebSocketEvents<T = Message> = {
   message: (message: MessageEvent<T>) => unknown;
@@ -59,7 +59,7 @@ export class WebSocketClient {
 
   async send(message: Message) {
     await this.waitToConnect();
-    this.ws.send(JSON.stringify(message));
+    this.ws.send(message);
   }
 
   on<T = Message>(

@@ -33,7 +33,7 @@ import {
   camelize,
   EventEmitter,
   parse,
-  stringify,
+  stringify, Colors
 } from "../../deps.ts";
 import { GatewayUrl } from "../constants/mod.ts";
 import {
@@ -68,6 +68,9 @@ export class Base extends EventEmitter<GatewayEvents> {
   rest;
   constructor(options: ClientOptions) {
     super();
+    function debug(message: string) {
+      if (options.debug) console.log(`[${Colors.gray(new Date().toUTCString())}] [${Colors.yellow("Debug")}] ${message}`)
+    }
     this.options = options;
     this.rest = new RestClient(this.options.token);
     this.token = options.token;
@@ -97,7 +100,7 @@ export class Base extends EventEmitter<GatewayEvents> {
     };
     this.websocket.onmessage = async (e) => {
       const { d, op, t } = JSON.parse(e.data);
-
+      if (t !== null) debug(`Received ${Colors.cyan(t)}`)
       switch (op) {
         case OPCodes.HELLO: {
           this.heartbeatInterval = d.heartbeat_interval;

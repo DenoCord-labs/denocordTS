@@ -12,7 +12,7 @@ export class RestClient extends Collection<
   async request(
     href: string,
     method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT",
-    body?: { [name: string]: unknown } | FormData,
+    body?: { [name: string]: unknown } | FormData | { [name: string]: unknown }[],
     headers?: { [name: string]: string } | HeadersInit,
     strignifyBody?: boolean,
     formData = false,
@@ -136,7 +136,7 @@ export class RestClient extends Collection<
     time?: number;
     href: string;
     method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
-    body?: { [key: string]: unknown } | FormData;
+    body?: { [key: string]: unknown } | FormData | { [name: string]: unknown }[];
     headers?: { [key: string]: string } | HeadersInit;
     strignifyBody?: boolean;
     formData: boolean;

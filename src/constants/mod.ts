@@ -34,3 +34,4 @@ export const Colors = {
 };
 
 export const BaseCdnUrl = "https://cdn.discordapp.com";
+export const MAX_AUDIO_PACKET_LENGTH = 28 + 1276 * 3;

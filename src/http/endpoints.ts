@@ -34,7 +34,7 @@ export async function registerGuildSlashCommands(
 
 export async function createMessage(
   channelId: Snowflake,
-  body: unknown,
+  body: any,
   rest: RestClient,
 ) {
   return await rest.request(endpoints.createMessage(channelId), "POST", body);
