@@ -1,4 +1,30 @@
+import {
+  Camelize,
+  camelize, Colors, EventEmitter,
+  parse,
+  stringify
+} from "../../deps.ts";
 import { Cache } from "../cache/mod.ts";
+import { GatewayUrl } from "../constants/mod.ts";
+import {
+  GatewayReadyEventHandler,
+  MessageCreateGatewayEventHandler
+} from "../events/mod.ts";
+import { handleCloseEventMessage } from "../handler/mod.ts";
+import { RestClient } from "../http/rest.ts";
+import {
+  ApplicationCommandInteraction,
+  DmChannel,
+  Guild,
+  GuildEmoji,
+  GuildMember,
+  GuildSticker,
+  Message,
+  Role,
+  TextChannel,
+  ThreadChannel,
+  User
+} from "../structures/mod.ts";
 import {
   APIChannel,
   APIEmoji,
@@ -26,35 +52,8 @@ import {
   GatewayThreadMemberUpdateDispatchData,
   GatewayTypingStartDispatchData,
   GatewayWebhooksUpdateDispatchData,
-  OPCodes,
+  OPCodes
 } from "../types/mod.ts";
-import {
-  Camelize,
-  camelize,
-  EventEmitter,
-  parse,
-  stringify, Colors
-} from "../../deps.ts";
-import { GatewayUrl } from "../constants/mod.ts";
-import {
-  ApplicationCommandInteraction,
-  DmChannel,
-  Guild,
-  GuildEmoji,
-  GuildMember,
-  GuildSticker,
-  Message,
-  Role,
-  TextChannel,
-  ThreadChannel,
-  User,
-} from "../structures/mod.ts";
-import { handleCloseEventMessage } from "../handler/mod.ts";
-import {
-  GatewayReadyEventHandler,
-  MessageCreateGatewayEventHandler,
-} from "../events/mod.ts";
-import { RestClient } from "../http/rest.ts";
 export class Base extends EventEmitter<GatewayEvents> {
   protected heartbeatInterval = 41250;
   protected websocket;
@@ -66,6 +65,7 @@ export class Base extends EventEmitter<GatewayEvents> {
   cache = new Cache(this);
   ping = -1;
   rest;
+  resumeGatewayUrl = "";
   constructor(options: ClientOptions) {
     super();
     function debug(message: string) {
@@ -118,6 +118,7 @@ export class Base extends EventEmitter<GatewayEvents> {
           break;
         }
         case GatewayDispatchEvents.Ready: {
+          this.resumeGatewayUrl = d.resume_gateway_url
           GatewayReadyEventHandler(d, this);
           break;
         }
